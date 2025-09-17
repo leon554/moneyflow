@@ -1,0 +1,49 @@
+
+@import "tailwindcss";
+@import "tw-animate-css";
+
+:root{
+  background-color: hsl(0, 0%, 6%);
+}
+
+@theme {
+  --color-panel1: hsl(0, 0%, 8%);
+  --color-panel2: hsl(0, 0%, 10%);
+  --color-panel3: hsl(0, 0%, 12%);
+  --color-progress-panel: hsl(0, 0%, 13%);
+
+  --color-btn-text: oklch(26.9% 0 0);
+  --color-btn: hsl(144, 100%, 39%);
+
+  --color-title: hsl(0, 0%, 95%);
+  --color-subtext1: hsl(0, 0%, 70%);
+  --color-subtext2: hsl(0, 0%, 55%);
+  --color-subtext3: hsl(0, 0%, 45%);
+
+  --color-border: color-mix(in oklab, var(--color-neutral-700) 55%, transparent);
+  --color-border2: hsl(0, 0%, 17%);
+
+  --color-highlight: hsl(144, 100%, 39%);
+  --color-highlight2: hsl(84, 100%, 41%);
+  --color-highlight3: hsl(144, 100%, 6%);
+
+  --texture: #646464;
+  --color-chartAxis:  hsl(0, 0%, 10%);  
+  --color-chartAxis2: hsl(0, 0%, 15%);  
+
+  --color-chart-1: hsl(144, 100%, 39%);
+  --color-chart-2: hsl(84, 100%, 41%);
+  --color-chart-3: oklch(0.769 0.188 70.08);
+  --color-chart-4: oklch(0.627 0.265 303.9);
+  --color-chart-5: oklch(0.645 0.246 16.439);
+  --tooltip-background: var(--color-panel2);
+  --font-quicksand: "Quicksand", sans-serif;
+}
+
+@layer utilities {
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+}
