@@ -9,6 +9,7 @@ export default function Home() {
 
     const items = [{id: 0, name: "Weekly"}, {id: 1, name: "Bi-Weekly"}, {id:2, name: "Monthly"}]
     const [name, setName] = useState("")
+    const [amount, setAmount] = useState("")
     const [date, setDate] = useState("")
     const [selectedItem, setSelectedItem] = useState<dataFormat>(items[0])
 
@@ -26,17 +27,17 @@ export default function Home() {
                     <div className="flex w-full justify-between gap-7">
                         <TextBoxLimited 
                             name="Name"
-                            charLimit={40}
+                            charLimit={15}
                             value={name}
                             setValue={setName}
                             placeHolder="e.g Wage"
                             />
                         <TextBoxLimited 
                             name="Amount"
-                            charLimit={40}
+                            charLimit={10}
                             numeric={true}
-                            value={name}
-                            setValue={setName}
+                            value={amount}
+                            setValue={setAmount}
                             placeHolder="1200"/>
                     </div>
                     <div className="flex w-full gap-7">
@@ -46,7 +47,8 @@ export default function Home() {
                             </p>
                             <DateInput
                                 date={date}
-                                setDate={setDate}/>
+                                setDate={setDate}
+                                />
                         </div>
                         <div className="flex flex-col gap-2 w-full">
                             <p className="text-sm font-medium text-subtext1 relative">
@@ -57,13 +59,21 @@ export default function Home() {
                                 selectedItem={selectedItem}
                                 setSelectedItem={(id) => setSelectedItem(items[id])}
                                 showIcon={true}
+                                center={true}
                             />
                         </div>
                     </div>
-                    <Button 
-                        name="Add"
-                        onSubmit={() => alert("dsd")}
-                        highlight={false}/>
+                    <div className="w-full flex justify-between mt-2 items-center">
+                        {name && amount && date ? 
+                            <p className="text-subtext3 text-xs">
+                                {name} paying ${amount} {selectedItem.name.toLowerCase()} starting on {date}
+                            </p> : <p></p>
+                        }
+                        <Button 
+                            name="Add"
+                            onSubmit={() => alert("dsd")}
+                            highlight={true}/>
+                    </div>
                 </div>
             </div>
         
