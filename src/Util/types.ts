@@ -15,34 +15,41 @@ export enum AccountType  {
     DeptAccount = "Debt",
 }
 
-
-
+export interface IncomeDataType{
+    name: string
+    incomeAmount: number
+    nextIncurralData: string
+    incomeFrequency: IncurralFrequency
+}
+export interface Source{
+    sourceName: string
+    allocation: number
+    isPercentage: boolean
+}
 interface BaseBucket<T extends AccountType>{
     name: string
-    sourceName: string
-    amount: number
-    allocation: number
-    percentageAllocation: boolean
-    target: number
+    sources: Source[]
+    balance: number
+    targetBalance: number
     accountType: T
 }
 interface Interest{
     interest: number
     compoundFrequency: IncurralFrequency
-    nextIncurralDate: Date
+    nextIncurralDate: string
 }
 type NonInterestAccount = BaseBucket<AccountType.CashAccount>
 type SavingsAccount = BaseBucket<AccountType.SavingsAccount> & Interest
 type DeptAccount = BaseBucket<AccountType.DeptAccount> & Interest
-export type BucketType = NonInterestAccount | SavingsAccount | DeptAccount
+export type BucketDataType = NonInterestAccount | SavingsAccount | DeptAccount
 
 
-interface Bill{
+export interface Bill{
     name: string
     sourceName: string
     amount: string
     frequency: IncurralFrequency
-    nextIncurralDay: Date
+    nextIncurralDay: string
 }
 
 export interface ISimulatable{

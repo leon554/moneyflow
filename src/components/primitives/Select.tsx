@@ -55,7 +55,7 @@ export default function Select(props: SelectProps) {
 
     return (
         <div className={`relative ${props.divStyles}`} ref={focusElement}>
-            <button className={`group bg-panel2 relative transition-transform flex items-center gap-1  hover:cursor-pointer ${props.style ? props.style : "w-full flex justify-center outline-1 px-3 h-7 rounded-md outline-border text-subtext3 "}`}
+            <button className={`whitespace-nowrap group bg-panel2 relative transition-transform flex items-center gap-1  hover:cursor-pointer ${props.style ? props.style : "w-full flex justify-center outline-1 px-3 h-7 rounded-md outline-border text-subtext3 "}`}
                 onClick={(e) => {
                     setClicked(!clicked)
                     props.onBtnClick?.()

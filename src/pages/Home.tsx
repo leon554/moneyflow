@@ -11,7 +11,7 @@ export default function Home() {
                 Setup Buckets
             </h1>
             <hr className="text-border border-t w-full"/>
-            <div className="text-sm w-full flex flex-col gap-3">
+            <div className="text-sm w-full flex flex-col gap-3 mb-15">
                 <Income/>
                 <CreateBucket/>
             </div>

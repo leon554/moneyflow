@@ -4,7 +4,7 @@ import Select, { type dataFormat } from "@/components/primitives/Select";
 import TextBoxLimited from "@/components/primitives/TextboxLimited";
 import { dataContext } from "@/providers/DataProvider";
 import { IncomeSource } from "@/Util/classes/IncomeSource";
-import { IncurralFrequency } from "@/Util/types";
+import { IncurralFrequency, type IncomeDataType } from "@/Util/types";
 import { Util } from "@/Util/util";
 import { useContext, useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
@@ -14,14 +14,20 @@ export default function Income() {
     const items = Object.values(IncurralFrequency).map((v,i) => ({id: i, name: v.slice(0,1).toUpperCase() + v.slice(1)}))
     const [name, setName] = useState("")
     const [amount, setAmount] = useState("")
-    const [date, setDate] = useState("")
+    const [date, setDate] = useState(Util.formatDate(new Date()))
     const [selectedItem, setSelectedItem] = useState<dataFormat>(items[0])
 
     const data = useContext(dataContext)
 
     function addIncome(){
         if(name == "" || amount == "" || date == "") {alert("fill in all fields"); return}
-        data.addIncomeSource(new IncomeSource(name, Number(amount), selectedItem.name.toLowerCase() as IncurralFrequency, Util.stringToDate(date)))
+        const sourceData: IncomeDataType = {
+            name,
+            incomeAmount: Number(amount),
+            incomeFrequency: selectedItem.name.toLowerCase() as IncurralFrequency,
+            nextIncurralData: Util.stringToDate(date).toISOString()
+        }
+        data.addIncomeSource(new IncomeSource(sourceData))
     }
 
     return (
@@ -81,18 +87,18 @@ export default function Income() {
                             <div className=" flex flex-col gap-1.5">
                                 <div className="flex  gap-2 items-center">
                                     <p className="text-title">
-                                        {Util.capFirst(v.name)}
+                                        {Util.capFirst(v.sourceData.name)}
                                     </p>
                                     <p className="text-xs bg-btn text-btn-text px-1 rounded-full font-medium  py-[1px]">
-                                        ${v.amount}
+                                        ${v.sourceData.incomeAmount}
                                     </p>
                                 </div>
                                 <div className="text-xs flex gap-1 text-subtext2">
                                     <p>
-                                        Paid {v.incomeFrequency}
+                                        Paid {v.sourceData.incomeFrequency}
                                     </p>
                                     <p>
-                                        starting on {Util.formatDate(v.nextIncurralData)}
+                                        starting on {Util.formatDate(new Date(v.sourceData.nextIncurralData))}
                                     </p>
                                 </div>
                             </div>
