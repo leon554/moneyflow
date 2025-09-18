@@ -1,4 +1,5 @@
-import { isValid, isAfter, isBefore} from "date-fns";
+import { isValid, isAfter, isBefore, add} from "date-fns";
+import { IncurralFrequency } from "./types";
 
 export namespace Util{
     export function setValueLim(setFunc: (value: string) => void, value: string, lim: number){
@@ -34,5 +35,29 @@ export namespace Util{
         if(!isBefore(selectedDate, maxDate ?? new Date(maxTimeNum))) return false
 
         return isValid(selectedDate)
+    }
+    export function updateMap<K, V>(originalMap: Map<K, V>, key: K, newItem: V): Map<K, V> {
+        const newMap = new Map(originalMap);
+        newMap.set(key, newItem);
+        return newMap;
+    }
+    export function getNextDate(base: Date, freq: IncurralFrequency): Date {
+        const increments: Record<IncurralFrequency, Parameters<typeof add>[1]> = {
+            [IncurralFrequency.OneTime]:       { days: 0 },
+            [IncurralFrequency.Daily]:       { days: 1 },
+            [IncurralFrequency.Weekly]:      { weeks: 1 },
+            [IncurralFrequency.Fortnightly]: { weeks: 2 },
+            [IncurralFrequency.Monthly]:     { months: 1 },
+            [IncurralFrequency.Quarterly]:   { months: 3 },
+            [IncurralFrequency.Yearly]:      { years: 1 },
+        };
+        return add(base, increments[freq]);
+    }
+    export function capFirst(value: string){
+        return value.slice(0, 1).toUpperCase() + value.slice(1)
+    }
+    export function stringToDate(date: string){
+        const componets = date.split("/").map(c => Number(c)).filter(c => !isNaN(c))
+        return new Date(`${componets[2]}-${String(componets[1]).padStart(2, "0")}-${String(componets[0]).padStart(2, "0")}`)
     }
 }

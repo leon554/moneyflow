@@ -22,10 +22,10 @@ export default function TextBoxLimited({name, password, value, setValue, charLim
     const [showPass, setShowPass] = useState(false)
 
     return (
-        <div className={`w-full flex flex-col gap-2 relative ${outerDivStyles}`}>
+        <div className={`w-full flex flex-col gap-1.5 relative ${outerDivStyles}`}>
             <div className="flex justify-between items-end ">
                 <div className="flex  items-center gap-1.5">
-                    <p className="text-sm font-medium text-subtext1 relative">
+                    <p className="text-xs font-medium text-subtext1 relative">
                         {name}
                     </p>
                     {infoText ? <IoInformationCircleOutline className="text-subtext3 hover:cursor-pointer text-sm mt-0.5"
@@ -50,7 +50,7 @@ export default function TextBoxLimited({name, password, value, setValue, charLim
                 onChange={e => Util.setValueLim(setValue, e.target.value, charLimit)}/>
             :
             <input type={!password || showPass ? "text" : "password"}
-                className="shadow-sm shadow-gray-200 dark:shadow-none outline-1 outline-border2 rounded-md px-2 text-subtext3 text-xs h-7 "
+                className="shadow-sm shadow-gray-200 dark:shadow-none outline-1 bg-panel2 outline-border2 rounded-md px-2 text-subtext3 text-xs h-7 "
                 style={{}}
                 placeholder={placeHolder}
                 value={value}
