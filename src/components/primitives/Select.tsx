@@ -21,7 +21,7 @@ interface SelectProps {
   setBlur?: (blur: boolean) => void
   onBtnClick? : () => void
   dropUp?: boolean
-  divStyles?: string
+  divStyles?: string            
 }
 export default function Select(props: SelectProps) {
     const focusElement = useRef<null|HTMLDivElement>(null)

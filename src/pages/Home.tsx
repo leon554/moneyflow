@@ -1,3 +1,4 @@
+import CreateBucket from "@/components/creation/createBucket";
 import Income from "@/components/creation/Income";
 
 
@@ -12,6 +13,7 @@ export default function Home() {
             <hr className="text-border border-t w-full"/>
             <div className="text-sm w-full flex flex-col gap-3">
                 <Income/>
+                <CreateBucket/>
             </div>
         
         </div>

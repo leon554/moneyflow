@@ -7,7 +7,7 @@ import { IoMdEye, IoMdEyeOff } from "react-icons/io"
 interface Props{
     name: string
     charLimit: number
-    value: string | undefined
+    value: string 
     setValue: (value: string) => void
     placeHolder: string
     outerDivStyles?: string
@@ -16,13 +16,14 @@ interface Props{
     numeric?: boolean
     password?: boolean
     infoText?: string
+    invalidFunc?: (value: string) => boolean
 }
-export default function TextBoxLimited({name, password, value, setValue, charLimit, placeHolder, outerDivStyles, textArea, custom, numeric, infoText}: Props) {
+export default function TextBoxLimited({invalidFunc, name, password, value, setValue, charLimit, placeHolder, outerDivStyles, textArea, custom, numeric, infoText}: Props) {
    
     const [showPass, setShowPass] = useState(false)
 
     return (
-        <div className={`w-full flex flex-col gap-1.5 relative ${outerDivStyles}`}>
+        <div className={`flex flex-col gap-1.5 relative ${outerDivStyles}`}>
             <div className="flex justify-between items-end ">
                 <div className="flex  items-center gap-1.5">
                     <p className="text-xs font-medium text-subtext1 relative">
@@ -50,7 +51,7 @@ export default function TextBoxLimited({name, password, value, setValue, charLim
                 onChange={e => Util.setValueLim(setValue, e.target.value, charLimit)}/>
             :
             <input type={!password || showPass ? "text" : "password"}
-                className="shadow-sm shadow-gray-200 dark:shadow-none outline-1 bg-panel2 outline-border2 rounded-md px-2 text-subtext3 text-xs h-7 "
+                className={`shadow-sm shadow-gray-200 dark:shadow-none outline-1 bg-panel2 ${invalidFunc && invalidFunc(value) ? "outline-red-500" : "outline-border2"}  rounded-md px-2 text-subtext3 text-xs h-7 `}
                 style={{}}
                 placeholder={placeHolder}
                 value={value}

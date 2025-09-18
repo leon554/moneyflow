@@ -1,7 +1,7 @@
 
 
 export enum IncurralFrequency {
-    OneTime ="one-time",
+    OneTime ="oneTime",
     Daily = "daily",
     Weekly =  "weekly",
     Fortnightly = "fortnightly",
@@ -10,9 +10,9 @@ export enum IncurralFrequency {
     Yearly = "yearly"
 }
 export enum AccountType  {
-    CashAccount,
-    SavingsAccount,
-    DeptAccount,
+    CashAccount = "Cash",
+    SavingsAccount = "Savings",
+    DeptAccount = "Debt",
 }
 
 
@@ -24,7 +24,7 @@ interface BaseBucket<T extends AccountType>{
     allocation: number
     percentageAllocation: boolean
     target: number
-    bucketType: T
+    accountType: T
 }
 interface Interest{
     interest: number
