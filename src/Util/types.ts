@@ -60,3 +60,7 @@ export interface IPayment{
     destination: string
     amount: number
 }
+export interface IPaymentHistory{
+    date: Date
+    payments: IPayment[]
+}

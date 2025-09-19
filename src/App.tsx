@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import Layout from "./pages/Layout";
 import Landing from "./pages/Landing";
 import DataProvider from "./providers/DataProvider";
+import Simulate from "./pages/Simulate";
 
 export default function App() {
     return (
@@ -10,6 +11,7 @@ export default function App() {
         <Router>
                 <Routes>
                     <Route element={<Layout/>}>
+                            <Route path="/simulate" element={<Simulate/>}/>
                             <Route path="/home" element={<Home/>}/>
                             <Route path="/" element={<Landing/>}/>
                     </Route>

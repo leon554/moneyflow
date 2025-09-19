@@ -19,6 +19,11 @@ export default function Navbar() {
                         Home
                     </button>
                 </Link>
+                <Link to={"/simulate"} className="h-full">
+                    <button className="hover:cursor-pointer text-subtext1 h-full hover:bg-highlight hover:text-btn-text  text-xs transition-all duration-200 ease-in-out px-3">
+                        Simulate
+                    </button>
+                </Link>
             </div>
         </div>
     )

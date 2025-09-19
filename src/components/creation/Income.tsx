@@ -7,7 +7,7 @@ import { IncomeSource } from "@/Util/classes/IncomeSource";
 import { IncurralFrequency, type IncomeDataType } from "@/Util/types";
 import { Util } from "@/Util/util";
 import { useContext, useState } from "react";
-import { FaRegTrashAlt } from "react-icons/fa";
+import IncomeSourceCard from "../display/IncomeSourceCard";
 
 export default function Income() {
 
@@ -81,31 +81,9 @@ export default function Income() {
                     style="w-full"/>
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
-                {Array.from(data.incomeSources.values()).map(v => {
+                {Array.from(data.incomeSources.values()).map(source => {
                     return(
-                        <div className="w-full bg-panel2 p-2 rounded-md text-subtext1 outline-1 outline-border2 flex justify-between items-center px-3">
-                            <div className=" flex flex-col gap-1.5">
-                                <div className="flex  gap-2 items-center">
-                                    <p className="text-title">
-                                        {Util.capFirst(v.sourceData.name)}
-                                    </p>
-                                    <p className="text-xs bg-btn text-btn-text px-1 rounded-full font-medium  py-[1px]">
-                                        ${v.sourceData.incomeAmount}
-                                    </p>
-                                </div>
-                                <div className="text-xs flex gap-1 text-subtext2">
-                                    <p>
-                                        Paid {v.sourceData.incomeFrequency}
-                                    </p>
-                                    <p>
-                                        starting on {Util.formatDate(new Date(v.sourceData.nextIncurralData))}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="hover:cursor-pointer text-subtext2">
-                                <FaRegTrashAlt className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
-                            </div>
-                        </div>
+                        <IncomeSourceCard source={source}/>
                     )
                 })}
             </div>

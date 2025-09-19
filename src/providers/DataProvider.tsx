@@ -1,8 +1,9 @@
 import useLocalStorage from "@/hooks/useLocalStorage"
-import { Bucket, IncomeSource } from "@/Util/classes/IncomeSource"
-import type { BucketDataType, IncomeDataType } from "@/Util/types"
+import { IncomeSource } from "@/Util/classes/IncomeSource"
+import type { BucketDataType, IncomeDataType, IPayment } from "@/Util/types"
 import { Util } from "@/Util/util"
 import { createContext, useEffect, useState } from "react"
+import { Bucket } from "@/Util/classes/Bucket"
 
 
 
@@ -11,13 +12,21 @@ interface DataType{
     buckets: Map<string, Bucket>
     addIncomeSource: (incomeSource: IncomeSource) => void
     addBucket: (bucket: Bucket) => void
+    deleteBucket: (name: string) => void
+    deleteIncomeSource: (name: string) => void
+    step: (date: Date) => IPayment[]
+    resetBuckets: () => void
 }
 
 const defaultValues: DataType = {
     incomeSources: new Map<string, IncomeSource>(),
     buckets: new Map<string, Bucket>(),
     addIncomeSource: () => null,
-    addBucket: () => null
+    addBucket: () => null,
+    deleteBucket: () => null,
+    deleteIncomeSource: () => null,
+    step: () => [],
+    resetBuckets: () => null
 }
 
 export const dataContext = createContext<DataType>(defaultValues)
@@ -34,17 +43,7 @@ export default function DataProvider({children}: Props) {
     const [buckets, setBuckets] = useState<Map<string, Bucket>>(new Map())
 
     useEffect(() => {
-        const incomeMap = new Map<string, IncomeSource>()
-        const bucketMap = new Map<string, Bucket>()
-        incomeSourceData.forEach(source => {
-            incomeMap.set(source.name, new IncomeSource(source))
-        })
-        bucketData.forEach(bucketData => {
-            bucketMap.set(bucketData.name, new Bucket(bucketData, incomeMap))
-        })
-        setIncomeSources(incomeMap)
-        setBuckets(bucketMap)
-
+        hydrateFromLocalStorage()
     }, [])
 
 
@@ -58,6 +57,48 @@ export default function DataProvider({children}: Props) {
         setBucketData(Array.from(newMap.values()).map(v => v.bucket))
         setBuckets(newMap)
     }
+    function deleteBucket(name: string){
+        const newMap = new Map(buckets)
+        newMap.delete(name)
+        setBucketData([...Array.from(newMap.values()).map(v => v.bucket)])
+        setBuckets(newMap)
+    }
+    function deleteIncomeSource(name: string){
+        const newMap = new Map(incomeSources)
+        newMap.delete(name)
+        setIncomeSourceData([...Array.from(newMap.values()).map(v => v.sourceData)])
+        setIncomeSources(newMap)
+    }
+
+    function step(date: Date): IPayment[]{
+        const incomeSourceArr = Array.from(incomeSources.values())
+        const payments =  incomeSourceArr.map(source => source.step(date)).flat()
+
+        const newIncomeSourceMap = new Map<string, IncomeSource>()
+        incomeSourceArr.forEach(s => newIncomeSourceMap.set(s.sourceData.name, s))
+        setIncomeSources(newIncomeSourceMap)
+        setBuckets(new Map(buckets))
+        return payments
+    }
+
+    function hydrateFromLocalStorage(){
+        const incomeMap = new Map<string, IncomeSource>()
+        const bucketMap = new Map<string, Bucket>()
+        incomeSourceData.forEach(source => {
+            incomeMap.set(source.name, new IncomeSource(source))
+        })
+        bucketData.forEach(bucketData => {
+            bucketMap.set(bucketData.name, new Bucket(bucketData, incomeMap))
+        })
+        setIncomeSources(incomeMap)
+        setBuckets(bucketMap)
+    }
+    function resetBuckets(){
+        hydrateFromLocalStorage()
+    }
+
+
+
     return (
         <>
             <dataContext.Provider 
@@ -65,7 +106,11 @@ export default function DataProvider({children}: Props) {
                     incomeSources,
                     buckets,
                     addIncomeSource,
-                    addBucket
+                    addBucket,
+                    deleteBucket,
+                    deleteIncomeSource,
+                    step,
+                    resetBuckets
                 }}>
                 {children}
             </dataContext.Provider>
