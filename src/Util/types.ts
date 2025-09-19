@@ -26,6 +26,8 @@ export interface Source{
     allocation: number
     isPercentage: boolean
 }
+export type Allocation = Pick<Source, "allocation" | "isPercentage">
+
 interface BaseBucket<T extends AccountType>{
     name: string
     sources: Source[]

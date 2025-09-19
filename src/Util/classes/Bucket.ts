@@ -20,19 +20,21 @@ export class Bucket implements ISimulatable{
     public step(_: Date): IPayment[]{
         return []
     }
-
-    public getMoneyAllocated(moneyEarned: number, moneyLeft: number){
+    //add so it gets the allocated money per source so add source argument
+    public getMoneyAllocated(moneyEarned: number, moneyLeft: number, sourceName: string){
         let totalMoneyWanted = 0
         this.bucket.sources.forEach(source => {
-            let moneyWanted = 0
-            if(source.isPercentage){
-                moneyWanted = this.getMoneyAllocatedPercentage(moneyEarned, moneyLeft, source)
+            if(source.sourceName == sourceName){
+                let moneyWanted = 0
+                if(source.isPercentage){
+                    moneyWanted = this.getMoneyAllocatedPercentage(moneyEarned, moneyLeft, source)
+                }
+                else{
+                    moneyWanted = this.getMoneyAllocatedFixed(moneyLeft, source)
+                }
+                moneyLeft -= moneyWanted
+                totalMoneyWanted += moneyWanted
             }
-            else{
-                moneyWanted = this.getMoneyAllocatedFixed(moneyLeft, source)
-            }
-            moneyLeft -= moneyWanted
-            totalMoneyWanted += moneyWanted
         })
         return totalMoneyWanted
     }

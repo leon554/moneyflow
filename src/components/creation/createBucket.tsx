@@ -30,7 +30,7 @@ export default function CreateBucket() {
     const [interest, setInterest] = useState("")
     const [date, setDate] = useState(Util.formatDate(new Date()))
     const [sources, setSources] = useState<Source[]>([])
-
+    const proposedAllocations = {allocation: Number(allocation), isPercentage: selectedTypeItem.name == "%"}
 
     function addIncome(){
         if(!selectedSourceItem) {alert("Select or create a source before creating this bucket"); return}
@@ -123,6 +123,14 @@ export default function CreateBucket() {
                         />                
                     </div>
                 </div>
+                <p className="text-subtext2 text-xs">
+                    {selectedSourceItem ? 
+                        "$" + data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(proposedAllocations).unAllocatedAmount + " unallocated" +
+                        " and $" + data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(proposedAllocations).allocatedAmount + " all ready allocated" +
+                        ". Can afford: " + data.incomeSources.get(selectedSourceItem.name)!.canAffordAllocation(proposedAllocations)
+                        : ""
+                    }
+                </p>
                 <Button 
                     name="Add Source"
                     onSubmit={() => addSource()}
