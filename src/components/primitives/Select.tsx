@@ -20,6 +20,7 @@ interface SelectProps {
   largeText?: boolean
   setBlur?: (blur: boolean) => void
   onBtnClick? : () => void
+  onInnerClick?: () => void
   dropUp?: boolean
   divStyles?: string            
 }
@@ -55,19 +56,23 @@ export default function Select(props: SelectProps) {
 
     return (
         <div className={`relative ${props.divStyles}`} ref={focusElement}>
-            <button className={`whitespace-nowrap group bg-panel2 relative transition-transform flex items-center gap-1  hover:cursor-pointer ${props.style ? props.style : "w-full flex justify-center outline-1 px-3 h-7 rounded-md outline-border text-subtext3 "}`}
+            <button className={`whitespace-nowrap group  relative transition-transform flex justify-between bg-panel2 items-center gap-1  hover:cursor-pointer ${props.style ? props.style : "w-full flex outline-1 px-3 h-7 rounded-md outline-border text-subtext3 "}`}
                 onClick={(e) => {
                     setClicked(!clicked)
                     props.onBtnClick?.()
                     e.stopPropagation()
                 }}>
-                {props.setText 
-                    ?? (props.selectedItem == null 
-                    ? props.defaultText 
-                    : props.selectedItem.name)} {props.showIcon ? <IoIosArrowDown className={`mt-0.5 transition-transform duration-300 ${
+                <p>
+                    {props.setText 
+                        ?? (props.selectedItem == null 
+                        ? props.defaultText 
+                        : props.selectedItem.name)} 
+                </p>
+                <p>
+                    {props.showIcon ? <IoIosArrowDown className={`mt-0.5 transition-transform duration-300 ${
                         clicked? "rotate-[180deg]" : "rotate-0"
                     }`}/> : null}
-
+                </p>
             </button>
             <div className={`bg-panel2 absolute  mt-2 ${props.center ? "left-1/2 transform -translate-x-1/2" : "right-0 "} rounded-xl p-2.5  overflow-y-scroll no-scrollbar max-h-100 px-1.5 mb-1 ${props.largeText ? "gap-1.5" : "gap-1"} flex flex-col justify-start items-start scale-0 transition-transform duration-200 bg-panel1 text-subtext1  outline-border2  z-20 w-fit outline-1`} style={{
                 scale: clicked ? 1 : 0,
@@ -83,7 +88,7 @@ export default function Select(props: SelectProps) {
                         key={crypto.randomUUID()}
                         className={`hover:bg-highlight gap-1.5 w-full flex items-center justify-start p-1 px-0.5 ${props.largeText ? "" : "text-sm"} rounded-lg transition duration-100 ease-in-out hover:cursor-pointer text-nowrap hover:text-btn-text px-3`}
                         onClick={() => {
-
+                            props.onInnerClick?.()
                             setItem(h.id)
                         }}>
                         {h.icon} {h.name}

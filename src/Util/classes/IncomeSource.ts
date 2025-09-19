@@ -32,22 +32,31 @@ export class IncomeSource implements ISimulatable{
 
         return payments
     }
-    public addDestinationBucket(bucket: Bucket){
+    public addDependantBucket(bucket: Bucket){
         this.destinationBuckets.push(bucket)
     }
-    public getAllocatedData(allocation?: Allocation){
-        let totalAllocated = 0 + ((allocation) ? this.getAllocationPrice(allocation) : 0)
+    public deleteBucket(name: string){
+        this.destinationBuckets = this.destinationBuckets.filter(b => b.bucket.name != name)
+    }
+    public getAllocatedData(allocation?: Allocation[]){
+        let totalAllocated = 0 + ((allocation?.length != 0 && allocation) ? allocation.reduce((a, c) => a + this.getAllocationPrice(c), 0) : 0)
         for(const bucket of this.destinationBuckets){
             totalAllocated += bucket.getMoneyAllocated(this.sourceData.incomeAmount, this.sourceData.incomeAmount, this.sourceData.name)
         }
         return {allocatedAmount: totalAllocated, unAllocatedAmount: this.sourceData.incomeAmount - totalAllocated}
     }
-    public canAffordAllocation(allocation: Allocation): boolean{
+    public canAffordAllocation(allocations: Allocation[]): boolean{
         const {unAllocatedAmount} = this.getAllocatedData()
-        if(allocation.isPercentage){
-            return (this.sourceData.incomeAmount * (allocation.allocation/100)) <= unAllocatedAmount
-        }
-        return allocation.allocation <= unAllocatedAmount
+        let totalAllocationAmount = 0
+        allocations.forEach(allocation => {
+            if(allocation.isPercentage){
+                totalAllocationAmount += (this.sourceData.incomeAmount * (allocation.allocation/100)) 
+            }
+            else{
+                totalAllocationAmount += allocation.allocation
+            }
+        })
+        return totalAllocationAmount <= unAllocatedAmount
     }
     public getAllocationPrice(allocation: Allocation){
         if(allocation.isPercentage){

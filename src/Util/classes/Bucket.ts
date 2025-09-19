@@ -11,7 +11,7 @@ export class Bucket implements ISimulatable{
         const usedNames = new Set<string>()
         incomeSourceArr.forEach(source => {
             if(!usedNames.has(source.sourceData.name)){
-                source.addDestinationBucket(this)
+                source.addDependantBucket(this)
                 usedNames.add(source.sourceData.name)
             }
         })
@@ -20,21 +20,20 @@ export class Bucket implements ISimulatable{
     public step(_: Date): IPayment[]{
         return []
     }
-    //add so it gets the allocated money per source so add source argument
     public getMoneyAllocated(moneyEarned: number, moneyLeft: number, sourceName: string){
         let totalMoneyWanted = 0
         this.bucket.sources.forEach(source => {
-            if(source.sourceName == sourceName){
-                let moneyWanted = 0
-                if(source.isPercentage){
-                    moneyWanted = this.getMoneyAllocatedPercentage(moneyEarned, moneyLeft, source)
-                }
-                else{
-                    moneyWanted = this.getMoneyAllocatedFixed(moneyLeft, source)
-                }
-                moneyLeft -= moneyWanted
-                totalMoneyWanted += moneyWanted
+            if(source.sourceName != sourceName)return
+            let moneyWanted = 0
+            if(source.isPercentage){
+                moneyWanted = this.getMoneyAllocatedPercentage(moneyEarned, moneyLeft, source)
             }
+            else{
+                moneyWanted = this.getMoneyAllocatedFixed(moneyLeft, source)
+            }
+            moneyLeft -= moneyWanted
+            totalMoneyWanted += moneyWanted
+            
         })
         return totalMoneyWanted
     }

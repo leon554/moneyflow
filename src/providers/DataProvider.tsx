@@ -60,6 +60,14 @@ export default function DataProvider({children}: Props) {
     function deleteBucket(name: string){
         const newMap = new Map(buckets)
         newMap.delete(name)
+
+        const incomeSourceMap = new Map(Array.from(incomeSources.values()).map(incomeSource => {
+            incomeSource.deleteBucket(name)
+            return incomeSource
+        }).map(incSrc => [incSrc.sourceData.name, incSrc]))
+
+
+        setIncomeSources(incomeSourceMap)
         setBucketData([...Array.from(newMap.values()).map(v => v.bucket)])
         setBuckets(newMap)
     }

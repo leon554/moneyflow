@@ -1,6 +1,6 @@
 import { FaRegTrashAlt } from "react-icons/fa"
-import { AccountType } from "@/Util/types"
-import type { Bucket } from "@/Util/classes/IncomeSource"
+import { AccountType, type Source } from "@/Util/types"
+import { Bucket } from "@/Util/classes/Bucket"
 import { Util } from "@/Util/util"
 import { useContext } from "react"
 import { dataContext } from "@/providers/DataProvider"
@@ -33,7 +33,7 @@ export default function BucketCard({bucket}: Props) {
                     </p> : null}
                 </div>
                 <p className="truncate text-xs max-w-[100%] text-subtext2 flex-1 overflow-ellipsis">
-                    {bucket.bucket.sources.map(s => `${s.sourceName} pays ${s.isPercentage ? `${s.allocation}%` : `$${s.allocation}`}`).join(", ")}
+                    {bucket.bucket.sources.map((s: Source) => `${s.sourceName} pays ${s.isPercentage ? `${s.allocation}%` : `$${s.allocation}`}`).join(", ")}
                 </p>
             </div>
             <div className="hover:cursor-pointer text-subtext2"

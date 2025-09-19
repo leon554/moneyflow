@@ -12,16 +12,18 @@ import BucketCard from "../display/bucketCard";
 
 export default function CreateBucket() {
     const data = useContext(dataContext)
-
-    const sourceItems = Array.from(data.incomeSources.values()).map((v,i) => ({id: i, name: v.sourceData.name}))
+    
+    let sourceItems = Array.from(data.incomeSources.values()).map((v,i) => ({id: i, name: v.sourceData.name}))
     const accountItems = Object.values(AccountType).map((v,i) => ({id: i, name: v.toString()}))
     const typeItems = [{id: 0, name: "%"}, {id: 1, name: "$"}]
+    const remainingItems = [{id: 0, name: "Yes"}, {id: 1, name: "No"}]
     const incurralItems = Object.values(IncurralFrequency).map((v,i) => ({id: i - 1, name: v.slice(0,1).toUpperCase() + v.slice(1)})).filter(i => i.name != "OneTime")
 
-    const [selectedSourceItem, setSelectedSourceItem] = useState<dataFormat>(sourceItems[0])
+    const [selectedSourceItem, setSelectedSourceItem] = useState<dataFormat>()
     const [selectedTypeItem, setSelectedTypeItem] = useState<dataFormat>(typeItems[0])
     const [selectedAccountItem, setSelectedAccountItem] = useState<dataFormat>(accountItems[0])
     const [selectedIncurralItem, setSelectedIncurralItem] = useState<dataFormat>(incurralItems[0])
+    const [selectedRemainingItem, setSelectedRemainingItem] = useState<dataFormat>(remainingItems[1])
 
     const [name, setName] = useState("")
     const [allocation, setAllocation] = useState("")
@@ -30,9 +32,14 @@ export default function CreateBucket() {
     const [interest, setInterest] = useState("")
     const [date, setDate] = useState(Util.formatDate(new Date()))
     const [sources, setSources] = useState<Source[]>([])
-    const proposedAllocations = {allocation: Number(allocation), isPercentage: selectedTypeItem.name == "%"}
+    const [selectedBucket, setSelectedBucket] = useState("")
 
-    function addIncome(){
+    const proposedAllocation = {sourceName: selectedSourceItem?.name ?? "undefined", allocation: Number(allocation), isPercentage: selectedTypeItem.name == "%"}
+    const allAllocations = [...sources, proposedAllocation].filter(a => a.sourceName == selectedSourceItem?.name)
+    const filteredSources = [...sources].filter(a => a.sourceName == selectedSourceItem?.name)
+    const enoughMoney = (selectedSourceItem && data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(filteredSources).unAllocatedAmount > 0) ?? false
+
+    function addBucket(){
         if(!selectedSourceItem) {alert("Select or create a source before creating this bucket"); return}
         if(name == "" || goal == "" || startingValue == "") {alert("fill in all fields"); return}
         if(Number(interest) > 100 || Number(interest) < 0) {alert("interest needs to be between 0 and 100")}
@@ -65,14 +72,18 @@ export default function CreateBucket() {
     }
     function addSource(){
         if(!selectedSourceItem) {alert("Select or create a source before creating this bucket"); return}
-        if(allocation == "") {alert("Add allocation value"); return}
+        if(allocation == "" && selectedRemainingItem.name == "No") {alert("Add allocation value"); return}
         if(selectedTypeItem.name == "%" && Number(allocation) > 100) {alert("can't have percentage higher than 100"); return}
 
         const newSource: Source = {
             sourceName: selectedSourceItem.name,
-            allocation: Number(allocation),
-            isPercentage: selectedTypeItem.name== "%"
+            allocation: selectedRemainingItem.name == "Yes" ? 
+                data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(allAllocations).unAllocatedAmount: 
+                Number(allocation),
+            isPercentage: selectedTypeItem.name == "%" && selectedRemainingItem.name == "No"
         }
+
+        setSelectedRemainingItem(remainingItems[1])
         setAllocation("");
         setSources([...sources, newSource])
     }
@@ -87,50 +98,85 @@ export default function CreateBucket() {
                 <h1 className="text-title  font-medium">
                     Add Sources
                 </h1>
-                <div className="flex flex-col w-full justify-between gap-4 sm:flex-row">
+                <div className="flex flex-col w-full gap-4 sm:flex-row">
                     <div className="flex flex-col gap-1.5 w-full sm:w-fit">
                         <p className="text-xs font-medium text-subtext1 relative ">
                             Source
                         </p>
                         <Select
                             items={sourceItems}
-                            selectedItem={selectedSourceItem}
+                            defaultText="Select Source"
+                            selectedItem={selectedSourceItem ?? null}
                             setSelectedItem={(id) => setSelectedSourceItem(sourceItems[id])}
                             showIcon={true}
                             center={true}
                             divStyles="sm:w-fit"
                         />
                     </div>
-                    <TextBoxLimited 
-                        name="Allocation Amount"
-                        charLimit={10}
-                        numeric={true}
-                        value={allocation}
-                        setValue={setAllocation}
-                        placeHolder="1200"
-                        outerDivStyles="w-full"/>
-                    <div className="flex flex-col gap-1.5">
-                        <p className="text-xs font-medium text-subtext1 relative ">
-                            Type
-                        </p>
-                        <Select
-                            items={typeItems}
-                            selectedItem={selectedTypeItem}
-                            setSelectedItem={(id) => setSelectedTypeItem(typeItems[id])}
-                            showIcon={true}
-                            center={true}
-                            divStyles="sm:w-fit"
-                        />                
-                    </div>
-                </div>
-                <p className="text-subtext2 text-xs">
-                    {selectedSourceItem ? 
-                        "$" + data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(proposedAllocations).unAllocatedAmount + " unallocated" +
-                        " and $" + data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(proposedAllocations).allocatedAmount + " all ready allocated" +
-                        ". Can afford: " + data.incomeSources.get(selectedSourceItem.name)!.canAffordAllocation(proposedAllocations)
-                        : ""
+                    {enoughMoney ?
+                        <>
+                        {selectedRemainingItem.name == "Yes" ? 
+                        null :
+                        <>
+                            <TextBoxLimited 
+                                name="Allocation Amount"
+                                charLimit={10}
+                                numeric={true}
+                                value={allocation}
+                                setValue={setAllocation}
+                                placeHolder="1200"
+                                outerDivStyles="w-full"
+                                invalidFunc={(_) => selectedSourceItem ? !data.incomeSources.get(selectedSourceItem.name)!.canAffordAllocation(allAllocations) : false}/>
+                            <div className="flex flex-col gap-1.5">
+                                <p className="text-xs font-medium text-subtext1 relative ">
+                                    Type
+                                </p>
+                                <Select
+                                    items={typeItems}
+                                    selectedItem={selectedTypeItem}
+                                    setSelectedItem={(id) => setSelectedTypeItem(typeItems[id])}
+                                    showIcon={true}
+                                    center={true}
+                                    divStyles="sm:w-fit"
+                                />                
+                            </div>
+                        </>
+                        }
+                        <div className={`flex flex-col gap-1.5 ${selectedRemainingItem.name == "Yes" ? "w-full" : "w-fit"}`}>
+                            <p className="text-xs font-medium text-subtext1 relative whitespace-nowrap ">
+                                Allocate Remaining
+                            </p>
+                            <Select
+                                items={remainingItems}
+                                selectedItem={selectedRemainingItem}
+                                setSelectedItem={(id) => setSelectedRemainingItem(remainingItems[id])}
+                                showIcon={true}
+                                divStyles=""
+                            />                
+                        </div>
+                        </> : 
+                        selectedSourceItem ? 
+                        <div className="text-subtext2 text-xs flex  items-end mb-1.5">
+                            Not enough money left, select or create different source.
+                        </div> :
+                        <div className="text-subtext2 text-xs flex  items-end mb-[8px]">
+                            Select a source to continue
+                        </div>
                     }
-                </p>
+                </div>
+                    {selectedSourceItem && enoughMoney ? 
+                        <p className="text-subtext2 text-xs">
+                            {selectedRemainingItem.name == "Yes" ? 
+                            "The remaining $" + data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(allAllocations).unAllocatedAmount + 
+                            " from your " + selectedSourceItem.name + " will be allocated to this bucket":
+                            "$" + data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(allAllocations).unAllocatedAmount + " unallocated" +
+                            " and $" + data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(allAllocations).allocatedAmount + " all ready allocated" +
+                            ". " + (data.incomeSources.get(selectedSourceItem.name)!.canAffordAllocation(allAllocations) ? 
+                            "You have enough unallocated money left to create this source" : 
+                            "You DON'T have enough money left from the selected income source to create this source")}
+                        </p>
+                        : null
+                    }
                 <Button 
                     name="Add Source"
                     onSubmit={() => addSource()}
@@ -163,85 +209,126 @@ export default function CreateBucket() {
                 <h1 className="text-title  font-medium ">
                     Add Bucket Details
                 </h1>
-                <div className="flex flex-col w-full gap-4 sm:flex-row">
-                    <TextBoxLimited 
-                        name="Name"
-                        charLimit={15}
-                        value={name}
-                        setValue={setName}
-                        placeHolder="e.g Holiday"
-                        outerDivStyles="w-full sm:min-w-25"
-                        />
-                    <TextBoxLimited 
-                        name="Starting Value"
-                        charLimit={10}
-                        numeric={true}
-                        value={startingValue}
-                        setValue={setStartingValue}
-                        placeHolder="1200"
-                        outerDivStyles="w-full sm:min-w-25"/>
-                    <TextBoxLimited 
-                        name="Goal Value"
-                        charLimit={10}
-                        numeric={true}
-                        value={goal}
-                        setValue={setGoal}
-                        placeHolder="1200"
-                        outerDivStyles="w-full sm:min-w-25"/>
-                    <div className="flex gap-4">
-                        <div className="flex flex-col gap-1.5 w-full sm:w-fit">
-                            <p className="text-xs font-medium text-subtext1 relative whitespace-nowrap">
-                                Account Type
-                            </p>
-                            <Select
-                                items={accountItems}
-                                selectedItem={selectedAccountItem}
-                                setSelectedItem={(id) => setSelectedAccountItem(accountItems[id])}
-                                showIcon={true}
-                                center={true}
-                                divStyles="sm:w-fit sm:min-w-[80px]"
-                            />
-                        </div>
-                    </div>
-                </div>
-                {selectedAccountItem.name != AccountType.CashAccount ? 
+                {selectedBucket == "" && sources.length != 0?
+                <>
                     <div className="flex flex-col w-full gap-4 sm:flex-row">
                         <TextBoxLimited 
-                            name="Yearly Interest Rate (%)"
+                            name="Name"
+                            charLimit={15}
+                            value={name}
+                            setValue={setName}
+                            placeHolder="e.g Holiday"
+                            outerDivStyles="w-full sm:min-w-25"
+                            />
+                        <TextBoxLimited 
+                            name="Starting Value"
                             charLimit={10}
                             numeric={true}
-                            value={interest}
-                            setValue={setInterest}
-                            placeHolder="4.8"
-                            outerDivStyles="sm:w-[40%]"
-                            invalidFunc={(v: string) => Number(v) > 100 || Number(v) < 0}/>
-                        <div className="flex flex-col gap-1.5 w-full">
-                            <p className="font-medium text-subtext1 relative text-xs">
-                                Next Compound Date
-                            </p>
-                            <DateInput
-                                date={date}
-                                setDate={setDate}
+                            value={startingValue}
+                            setValue={setStartingValue}
+                            placeHolder="1200"
+                            outerDivStyles="w-full sm:min-w-25"/>
+                        <TextBoxLimited 
+                            name="Goal Value"
+                            charLimit={10}
+                            numeric={true}
+                            value={goal}
+                            setValue={setGoal}
+                            placeHolder="1200"
+                            outerDivStyles="w-full sm:min-w-25"/>
+                        <div className="flex gap-4">
+                            <div className="flex flex-col gap-1.5 w-full sm:w-fit">
+                                <p className="text-xs font-medium text-subtext1 relative whitespace-nowrap">
+                                    Account Type
+                                </p>
+                                <Select
+                                    items={accountItems}
+                                    selectedItem={selectedAccountItem}
+                                    setSelectedItem={(id) => setSelectedAccountItem(accountItems[id])}
+                                    showIcon={true}
+                                    center={true}
+                                    divStyles="sm:w-fit sm:min-w-[80px]"
                                 />
+                            </div>
                         </div>
-                        <div className="flex flex-col gap-1.5 ">
-                            <p className="text-xs font-medium text-subtext1 relative whitespace-nowrap">
-                                Compound
-                            </p>
-                            <Select
-                                items={incurralItems}
-                                selectedItem={selectedIncurralItem}
-                                setSelectedItem={(id) => setSelectedIncurralItem(incurralItems[id])}
-                                showIcon={true}
-                                center={true}
-                                divStyles="sm:w-fit"
-                            />
+                    </div>
+                    {selectedAccountItem.name != AccountType.CashAccount ? 
+                        <div className="flex flex-col w-full gap-4 sm:flex-row">
+                            <TextBoxLimited 
+                                name="Yearly Interest Rate (%)"
+                                charLimit={10}
+                                numeric={true}
+                                value={interest}
+                                setValue={setInterest}
+                                placeHolder="4.8"
+                                outerDivStyles="sm:w-[40%]"
+                                invalidFunc={(v: string) => Number(v) > 100 || Number(v) < 0}/>
+                            <div className="flex flex-col gap-1.5 w-full">
+                                <p className="font-medium text-subtext1 relative text-xs">
+                                    Next Compound Date
+                                </p>
+                                <DateInput
+                                    date={date}
+                                    setDate={setDate}
+                                    />
+                            </div>
+                            <div className="flex flex-col gap-1.5 ">
+                                <p className="text-xs font-medium text-subtext1 relative whitespace-nowrap">
+                                    Compound
+                                </p>
+                                <Select
+                                    items={incurralItems}
+                                    selectedItem={selectedIncurralItem}
+                                    setSelectedItem={(id) => setSelectedIncurralItem(incurralItems[id])}
+                                    showIcon={true}
+                                    center={true}
+                                    divStyles="sm:w-fit"
+                                />
+                            </div>
+                    </div> : null}
+                </>
+                : 
+                sources.length == 0 ? 
+                    <div>
+                        <div className="text-subtext2 text-xs flex  items-end mb-[8px]">
+                            Create a source above first. Sources specifies what income goes towards this bucket add or choose and existing acount
                         </div>
-                </div> : null}
+                    </div> :
+                    <div>
+                        <div className="text-subtext2 text-xs flex  items-end mb-[8px]">
+                           To create new bucket, deselect existing selected bucket below.
+                        </div>
+                    </div> 
+                }
+                {data.buckets.size != 0 && sources.length != 0?
+                <>
+                    <div className="flex items-center gap-2">
+                        <hr className="text-border border-t w-full"/>
+                        <p className="text-subtext3 text-xs font-medium">
+                            OR
+                        </p>
+                        <hr className="text-border border-t w-full"/>
+                    </div>
+                    <h1 className="text-title  font-medium leading-none">
+                        Select Existing Bucket
+                    </h1>
+                    <div className="flex flex-col w-full gap-4 sm:flex-row">
+                        {Array.from(data.buckets.values()).map(b => {
+                            return(
+                                <Button
+                                    name={b.bucket.name}
+                                    highlight={selectedBucket == b.bucket.name}
+                                    small={true}
+                                    onSubmit={() =>  setSelectedBucket((selectedBucket == b.bucket.name) ? "" : b.bucket.name)}
+                                    style="w-full"/>
+                            )
+                        })}
+                    </div> 
+                </> : null}
                 <div className="flex w-full gap-7 items-end justify-end">
                     <Button 
                         name="Add"
-                        onSubmit={() => addIncome()}
+                        onSubmit={() => addBucket()}
                         highlight={true}
                         style="w-full"/>
                 </div>
