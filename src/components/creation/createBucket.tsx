@@ -7,43 +7,34 @@ import { Bucket } from "@/Util/classes/Bucket";
 import { AccountType, IncurralFrequency, type BucketDataType, type Source } from "@/Util/types";
 import { Util } from "@/Util/util";
 import { useContext, useState } from "react";
-import { FaRegTrashAlt } from "react-icons/fa";
-import BucketCard from "../display/bucketCard";
+import BucketCard from "../display/BucketCard";
+import SourceForm from "./SourceForm";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 export default function CreateBucket() {
     const data = useContext(dataContext)
     
-    let sourceItems = Array.from(data.incomeSources.values()).map((v,i) => ({id: i, name: v.sourceData.name}))
     const accountItems = Object.values(AccountType).map((v,i) => ({id: i, name: v.toString()}))
-    const typeItems = [{id: 0, name: "%"}, {id: 1, name: "$"}]
-    const remainingItems = [{id: 0, name: "Yes"}, {id: 1, name: "No"}]
     const incurralItems = Object.values(IncurralFrequency).map((v,i) => ({id: i - 1, name: v.slice(0,1).toUpperCase() + v.slice(1)})).filter(i => i.name != "OneTime")
 
-    const [selectedSourceItem, setSelectedSourceItem] = useState<dataFormat>()
-    const [selectedTypeItem, setSelectedTypeItem] = useState<dataFormat>(typeItems[0])
+
     const [selectedAccountItem, setSelectedAccountItem] = useState<dataFormat>(accountItems[0])
     const [selectedIncurralItem, setSelectedIncurralItem] = useState<dataFormat>(incurralItems[0])
-    const [selectedRemainingItem, setSelectedRemainingItem] = useState<dataFormat>(remainingItems[1])
 
     const [name, setName] = useState("")
-    const [allocation, setAllocation] = useState("")
     const [startingValue, setStartingValue] = useState("")
     const [goal, setGoal] = useState("")
     const [interest, setInterest] = useState("")
     const [date, setDate] = useState(Util.formatDate(new Date()))
-    const [sources, setSources] = useState<Source[]>([])
+    const [sources, setSources] = useLocalStorage<Source[]>("sources", [])
     const [selectedBucket, setSelectedBucket] = useState("")
 
-    const proposedAllocation = {sourceName: selectedSourceItem?.name ?? "undefined", allocation: Number(allocation), isPercentage: selectedTypeItem.name == "%"}
-    const allAllocations = [...sources, proposedAllocation].filter(a => a.sourceName == selectedSourceItem?.name)
-    const filteredSources = [...sources].filter(a => a.sourceName == selectedSourceItem?.name)
-    const enoughMoney = (selectedSourceItem && data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(filteredSources).unAllocatedAmount > 0) ?? false
 
     function addBucket(){
-        if(!selectedSourceItem) {alert("Select or create a source before creating this bucket"); return}
         if(name == "" || goal == "" || startingValue == "") {alert("fill in all fields"); return}
         if(Number(interest) > 100 || Number(interest) < 0) {alert("interest needs to be between 0 and 100")}
         if(sources.length == 0) {alert("Create at least one source that will flow into this bucket"); return}
+        if(Number(goal) < Number(startingValue))  {alert("Goal value can't be less than starting value"); return}
 
         let bucket: BucketDataType = {
             name,
@@ -63,29 +54,20 @@ export default function CreateBucket() {
             }
         }
         data.addBucket(new Bucket(bucket, data.incomeSources))
+        resetFormValues()
+    }
+    function updateBucket(){
+        if(sources.length == 0) {alert("Create at least one source that will flow into this bucket"); return}
+        data.addSourcesToBucket(selectedBucket, sources)
+        resetFormValues()
+    }
+    function resetFormValues(){
         setSources([])
         setName("")
         setStartingValue("")
         setGoal("")
         setInterest("")
         setDate(Util.formatDate(new Date()))
-    }
-    function addSource(){
-        if(!selectedSourceItem) {alert("Select or create a source before creating this bucket"); return}
-        if(allocation == "" && selectedRemainingItem.name == "No") {alert("Add allocation value"); return}
-        if(selectedTypeItem.name == "%" && Number(allocation) > 100) {alert("can't have percentage higher than 100"); return}
-
-        const newSource: Source = {
-            sourceName: selectedSourceItem.name,
-            allocation: selectedRemainingItem.name == "Yes" ? 
-                data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(allAllocations).unAllocatedAmount: 
-                Number(allocation),
-            isPercentage: selectedTypeItem.name == "%" && selectedRemainingItem.name == "No"
-        }
-
-        setSelectedRemainingItem(remainingItems[1])
-        setAllocation("");
-        setSources([...sources, newSource])
     }
 
     return (
@@ -94,117 +76,7 @@ export default function CreateBucket() {
             <h1 className="text-title text-lg font-medium mb-4">
                 Add Bucket
             </h1>
-            <div className="flex flex-col gap-4 border-t border-b  border-border2 py-4 pb-6">
-                <h1 className="text-title  font-medium">
-                    Add Sources
-                </h1>
-                <div className="flex flex-col w-full gap-4 sm:flex-row">
-                    <div className="flex flex-col gap-1.5 w-full sm:w-fit">
-                        <p className="text-xs font-medium text-subtext1 relative ">
-                            Source
-                        </p>
-                        <Select
-                            items={sourceItems}
-                            defaultText="Select Source"
-                            selectedItem={selectedSourceItem ?? null}
-                            setSelectedItem={(id) => setSelectedSourceItem(sourceItems[id])}
-                            showIcon={true}
-                            center={true}
-                            divStyles="sm:w-fit"
-                        />
-                    </div>
-                    {enoughMoney ?
-                        <>
-                        {selectedRemainingItem.name == "Yes" ? 
-                        null :
-                        <>
-                            <TextBoxLimited 
-                                name="Allocation Amount"
-                                charLimit={10}
-                                numeric={true}
-                                value={allocation}
-                                setValue={setAllocation}
-                                placeHolder="1200"
-                                outerDivStyles="w-full"
-                                invalidFunc={(_) => selectedSourceItem ? !data.incomeSources.get(selectedSourceItem.name)!.canAffordAllocation(allAllocations) : false}/>
-                            <div className="flex flex-col gap-1.5">
-                                <p className="text-xs font-medium text-subtext1 relative ">
-                                    Type
-                                </p>
-                                <Select
-                                    items={typeItems}
-                                    selectedItem={selectedTypeItem}
-                                    setSelectedItem={(id) => setSelectedTypeItem(typeItems[id])}
-                                    showIcon={true}
-                                    center={true}
-                                    divStyles="sm:w-fit"
-                                />                
-                            </div>
-                        </>
-                        }
-                        <div className={`flex flex-col gap-1.5 ${selectedRemainingItem.name == "Yes" ? "w-full" : "w-fit"}`}>
-                            <p className="text-xs font-medium text-subtext1 relative whitespace-nowrap ">
-                                Allocate Remaining
-                            </p>
-                            <Select
-                                items={remainingItems}
-                                selectedItem={selectedRemainingItem}
-                                setSelectedItem={(id) => setSelectedRemainingItem(remainingItems[id])}
-                                showIcon={true}
-                                divStyles=""
-                            />                
-                        </div>
-                        </> : 
-                        selectedSourceItem ? 
-                        <div className="text-subtext2 text-xs flex  items-end mb-1.5">
-                            Not enough money left, select or create different source.
-                        </div> :
-                        <div className="text-subtext2 text-xs flex  items-end mb-[8px]">
-                            Select a source to continue
-                        </div>
-                    }
-                </div>
-                    {selectedSourceItem && enoughMoney ? 
-                        <p className="text-subtext2 text-xs">
-                            {selectedRemainingItem.name == "Yes" ? 
-                            "The remaining $" + data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(allAllocations).unAllocatedAmount + 
-                            " from your " + selectedSourceItem.name + " will be allocated to this bucket":
-                            "$" + data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(allAllocations).unAllocatedAmount + " unallocated" +
-                            " and $" + data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(allAllocations).allocatedAmount + " all ready allocated" +
-                            ". " + (data.incomeSources.get(selectedSourceItem.name)!.canAffordAllocation(allAllocations) ? 
-                            "You have enough unallocated money left to create this source" : 
-                            "You DON'T have enough money left from the selected income source to create this source")}
-                        </p>
-                        : null
-                    }
-                <Button 
-                    name="Add Source"
-                    onSubmit={() => addSource()}
-                    highlight={true}
-                    style="w-full"/>
-                {sources.length != 0 ?
-                <div className="grid sm:grid-cols-2 gap-3 ">
-                    {sources.map(s => {
-                        return(
-                            <div className=" w-full bg-panel2 p-2 rounded-md text-subtext1 outline-1 outline-border2 flex justify-between items-center px-3">
-                                <div className="flex gap-1.5">
-                                    <p className="text-title">
-                                        {s.sourceName}
-                                    </p>
-                                    <p className="text-xs bg-btn text-btn-text px-1.5 rounded-full font-medium  py-[1px]">
-                                        {s.isPercentage ? `${s.allocation}%` : `$${s.allocation}`}
-                                    </p>
-                                </div>
-                                <div className="hover:cursor-pointer text-subtext2"
-                                    onClick={() => setSources([...sources.filter(source => source.sourceName != s.sourceName || source.allocation != s.allocation)])}>
-                                    <FaRegTrashAlt className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
-                                </div>
-                            </div>
-                        )
-                    })}
-                </div> : null
-                }
-            </div>
+            <SourceForm sources={sources} setSources={setSources}/>
             <div className="flex flex-col gap-4 pt-4">
                 <h1 className="text-title  font-medium ">
                     Add Bucket Details
@@ -227,7 +99,8 @@ export default function CreateBucket() {
                             value={startingValue}
                             setValue={setStartingValue}
                             placeHolder="1200"
-                            outerDivStyles="w-full sm:min-w-25"/>
+                            outerDivStyles="w-full sm:min-w-25"
+                            negative={true}/>
                         <TextBoxLimited 
                             name="Goal Value"
                             charLimit={10}
@@ -235,7 +108,8 @@ export default function CreateBucket() {
                             value={goal}
                             setValue={setGoal}
                             placeHolder="1200"
-                            outerDivStyles="w-full sm:min-w-25"/>
+                            outerDivStyles="w-full sm:min-w-25"
+                            negative={true}/>
                         <div className="flex gap-4">
                             <div className="flex flex-col gap-1.5 w-full sm:w-fit">
                                 <p className="text-xs font-medium text-subtext1 relative whitespace-nowrap">
@@ -312,7 +186,7 @@ export default function CreateBucket() {
                     <h1 className="text-title  font-medium leading-none">
                         Select Existing Bucket
                     </h1>
-                    <div className="flex flex-col w-full gap-4 sm:flex-row">
+                    <div className="sm:flex sm:flex-row flex-wrap  w-full gap-4 max-sm:grid max-sm:grid-cols-2">
                         {Array.from(data.buckets.values()).map(b => {
                             return(
                                 <Button
@@ -320,16 +194,17 @@ export default function CreateBucket() {
                                     highlight={selectedBucket == b.bucket.name}
                                     small={true}
                                     onSubmit={() =>  setSelectedBucket((selectedBucket == b.bucket.name) ? "" : b.bucket.name)}
-                                    style="w-full"/>
+                                    style="flex-1"/>
                             )
                         })}
                     </div> 
+                    <hr className="text-border border-t w-full mt-1 mb-1"/>
                 </> : null}
                 <div className="flex w-full gap-7 items-end justify-end">
                     <Button 
-                        name="Add"
-                        onSubmit={() => addBucket()}
-                        highlight={true}
+                        name={selectedBucket == "" ? "Add Bucket" : "Update Button"}
+                        onSubmit={() => selectedBucket == "" ? addBucket() : updateBucket()}
+                        highlight={false}
                         style="w-full"/>
                 </div>
                 <div className="grid sm:grid-cols-2 gap-3 ">

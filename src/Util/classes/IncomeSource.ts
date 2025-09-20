@@ -33,6 +33,7 @@ export class IncomeSource implements ISimulatable{
         return payments
     }
     public addDependantBucket(bucket: Bucket){
+        if(this.destinationBuckets.some(b => b.bucket.name == bucket.bucket.name)) return
         this.destinationBuckets.push(bucket)
     }
     public deleteBucket(name: string){

@@ -16,9 +16,10 @@ interface Props{
     numeric?: boolean
     password?: boolean
     infoText?: string
+    negative?: boolean
     invalidFunc?: (value: string) => boolean
 }
-export default function TextBoxLimited({invalidFunc, name, password, value, setValue, charLimit, placeHolder, outerDivStyles, textArea, custom, numeric, infoText}: Props) {
+export default function TextBoxLimited({invalidFunc, negative = false, name, password, value, setValue, charLimit, placeHolder, outerDivStyles, textArea, custom, numeric, infoText}: Props) {
    
     const [showPass, setShowPass] = useState(false)
 
@@ -55,9 +56,12 @@ export default function TextBoxLimited({invalidFunc, name, password, value, setV
                 style={{}}
                 placeholder={placeHolder}
                 value={value}
-                onChange={e => numeric ? isNaN(Number(e.target.value)) ?
+                onChange={e => numeric ? negative ? isNaN(Number(e.target.value)) && e.target.value != "-" ?
                         null :
                         Util.setValueLim(setValue, e.target.value, charLimit) :
+                        isNaN(Number(e.target.value)) ?
+                        null :
+                        Util.setValueLim(setValue, e.target.value, charLimit):
                         Util.setValueLim(setValue, e.target.value, charLimit)}/>
             }
             {custom}

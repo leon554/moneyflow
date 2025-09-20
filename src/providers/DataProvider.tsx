@@ -1,6 +1,6 @@
 import useLocalStorage from "@/hooks/useLocalStorage"
 import { IncomeSource } from "@/Util/classes/IncomeSource"
-import type { BucketDataType, IncomeDataType, IPayment } from "@/Util/types"
+import type { BucketDataType, IncomeDataType, IPayment, Source } from "@/Util/types"
 import { Util } from "@/Util/util"
 import { createContext, useEffect, useState } from "react"
 import { Bucket } from "@/Util/classes/Bucket"
@@ -16,6 +16,7 @@ interface DataType{
     deleteIncomeSource: (name: string) => void
     step: (date: Date) => IPayment[]
     resetBuckets: () => void
+    addSourcesToBucket: (bucketName: string, sources: Source[]) => void
 }
 
 const defaultValues: DataType = {
@@ -26,7 +27,8 @@ const defaultValues: DataType = {
     deleteBucket: () => null,
     deleteIncomeSource: () => null,
     step: () => [],
-    resetBuckets: () => null
+    resetBuckets: () => null,
+    addSourcesToBucket: () => null
 }
 
 export const dataContext = createContext<DataType>(defaultValues)
@@ -56,6 +58,14 @@ export default function DataProvider({children}: Props) {
         const newMap = Util.updateMap(buckets, bucket.bucket.name, bucket)
         setBucketData(Array.from(newMap.values()).map(v => v.bucket))
         setBuckets(newMap)
+    }
+    function addSourcesToBucket(bucketName: string, sources: Source[]){
+        const bucket = buckets.get(bucketName)
+        if(!bucket) {new Error("Bucket name doesn't exist"); return}
+
+        bucket.addSources(sources, Array.from(incomeSources.values()))
+        setBuckets(new Map(buckets))
+        setIncomeSources(new Map(incomeSources))
     }
     function deleteBucket(name: string){
         const newMap = new Map(buckets)
@@ -101,6 +111,7 @@ export default function DataProvider({children}: Props) {
         setIncomeSources(incomeMap)
         setBuckets(bucketMap)
     }
+
     function resetBuckets(){
         hydrateFromLocalStorage()
     }
@@ -118,7 +129,8 @@ export default function DataProvider({children}: Props) {
                     deleteBucket,
                     deleteIncomeSource,
                     step,
-                    resetBuckets
+                    resetBuckets,
+                    addSourcesToBucket
                 }}>
                 {children}
             </dataContext.Provider>

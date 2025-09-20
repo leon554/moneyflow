@@ -10,8 +10,9 @@ interface Props{
     xs?: boolean
     short?: boolean
     noAnimation?: boolean
+    rightSide?: boolean
 }
-export default function Button({name, onSubmit, icon, highlight: highligh, style, small, xs, noAnimation, short}: Props) {
+export default function Button({name, onSubmit, icon, highlight: highligh, style, small, xs, noAnimation, short, rightSide}: Props) {
     return (
         <button className={`shadow-sm shadow-gray-200 dark:shadow-none flex justify-center items-center 
             ${highligh ?
@@ -24,7 +25,7 @@ export default function Button({name, onSubmit, icon, highlight: highligh, style
             onClick={async () => {
                 onSubmit()
             }}>
-            {icon}{name}
+            {!rightSide ? icon : ""} {name} {!rightSide ? "" : icon }
         </button>
     )
 }

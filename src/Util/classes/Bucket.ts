@@ -37,7 +37,6 @@ export class Bucket implements ISimulatable{
         })
         return totalMoneyWanted
     }
-
     private getMoneyAllocatedPercentage(moneyEarned: number, moneyLeft: number, source: Source){
         const percent = source.allocation/100
         const moneyRequested = moneyEarned * percent
@@ -46,6 +45,15 @@ export class Bucket implements ISimulatable{
     private getMoneyAllocatedFixed(moneyLeft: number, source: Source){
         const moneyRequested = source.allocation
         return (moneyRequested > moneyLeft) ? moneyLeft : moneyRequested
+    }
+    public addSources(sources: Source[], incomeSources: IncomeSource[]){
+        const usedNames = new Set<string>()
+        incomeSources.forEach(source => {
+            if(usedNames.has(source.sourceData.name)) return
+            source.addDependantBucket(this)
+            usedNames.add(source.sourceData.name)
+        })
+        this.bucket.sources = [...this.bucket.sources, ...sources]
     }
     public addMoney(amount: number){
         this.bucket.balance += amount

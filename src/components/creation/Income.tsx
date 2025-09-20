@@ -77,7 +77,7 @@ export default function Income() {
                 <Button 
                     name="Add"
                     onSubmit={() => addIncome()}
-                    highlight={true}
+                    highlight={false}
                     style="w-full"/>
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
