@@ -6,6 +6,7 @@ import { Util } from "@/Util/util"
 import Button from "@/components/primitives/Button"
 import useSimulation from "@/hooks/useSimulation"
 import { PaymentType } from "@/Util/types"
+import Chart from "@/components/Chart"
 
 
 export default function Simulate() {
@@ -145,6 +146,7 @@ export default function Simulate() {
                     )
                 })}
             </div>
+            <Chart/>
         </div>
     )
 }

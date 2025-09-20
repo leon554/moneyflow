@@ -14,7 +14,7 @@ interface Props{
 }
 export default function Button({name, onSubmit, icon, highlight: highligh, style, small, xs, noAnimation, short, rightSide}: Props) {
     return (
-        <button className={`shadow-sm shadow-gray-200 dark:shadow-none flex justify-center items-center 
+        <button className={` shadow-gray-200 dark:shadow-none flex justify-center items-center 
             ${highligh ?
              `bg-highlight ${noAnimation ? "" : "hover:bg-highlight/93 hover:rounded-lg"} text-btn-text ` : 
                 `outline-1  outline-border2   text-subtext3 bg-panel2

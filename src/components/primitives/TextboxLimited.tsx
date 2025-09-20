@@ -46,13 +46,13 @@ export default function TextBoxLimited({invalidFunc, negative = false, name, pas
             : ""} 
             {textArea ? 
             <textarea 
-                className="no-scrollbar shadow-sm shadow-gray-200 dark:shadow-none outline-1 outline-border2 rounded-md px-2 py-1.5 text-subtext3 text-xs h-20 resize-none"
+                className="no-scrollbar  outline-1 outline-border2 rounded-md px-2 py-1.5 text-subtext3 text-xs h-20 resize-none"
                 placeholder={placeHolder}
                 value={value}
                 onChange={e => Util.setValueLim(setValue, e.target.value, charLimit)}/>
             :
             <input type={!password || showPass ? "text" : "password"}
-                className={`shadow-sm shadow-gray-200 dark:shadow-none outline-1 bg-panel2 ${invalidFunc && invalidFunc(value) ? "outline-red-500" : "outline-border2"}  rounded-md px-2 text-subtext3 text-xs h-7 `}
+                className={` outline-1 bg-panel2 ${invalidFunc && invalidFunc(value) ? "outline-red-500" : "outline-border2"}  rounded-md px-2 text-subtext3 text-xs h-7 `}
                 style={{}}
                 placeholder={placeHolder}
                 value={value}
