@@ -36,7 +36,7 @@ export default function CreateBill() {
             nextIncurralDate: Util.stringToDate(date).toISOString()
         }
 
-        data.addBill(new Bill(billData, Array.from(data.buckets.values())))
+        data.addBill(new Bill(billData))
     }
 
     return (

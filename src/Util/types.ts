@@ -57,12 +57,17 @@ export interface BillData{
 }
 
 export interface ISimulatable{
-    step: (date: Date) => IPayment[]
+    step: (date: Date, ...arg: any) => IPayment[]
 }
 export interface IPayment{
     source: string
     destination: string
+    paymentType: PaymentType
     amount: number
+}
+export enum PaymentType{
+    Incoming = "Incoming",
+    Outgoing = "Outgoing"
 }
 export interface IPaymentHistory{
     date: Date

@@ -1,4 +1,4 @@
-import type{ Allocation, IPayment, ISimulatable, IncomeDataType } from "../types";
+import{ PaymentType, type Allocation, type IPayment, type ISimulatable, type IncomeDataType } from "../types";
 import { isSameDay} from "date-fns";
 import { Util } from "../util";
 import { Bucket } from "./Bucket";
@@ -15,9 +15,9 @@ export class IncomeSource implements ISimulatable{
     }
 
     public step(date: Date): IPayment[]{
-        let {nextIncurralDate: nextIncurralData, incomeAmount, name, incomeFrequency} = this.sourceData
-        if(!isSameDay(date, new Date(nextIncurralData))) return []
-        this.sourceData.nextIncurralDate = Util.getNextDate(new Date(nextIncurralData), incomeFrequency).toISOString()
+        let {nextIncurralDate, incomeAmount, name, incomeFrequency} = this.sourceData
+        if(!isSameDay(date, new Date(nextIncurralDate))) return []
+        this.sourceData.nextIncurralDate = Util.getNextDate(new Date(nextIncurralDate), incomeFrequency).toISOString()
         this.currentAmount = this.sourceData.incomeAmount
 
         const payments: IPayment[] = []
@@ -27,7 +27,7 @@ export class IncomeSource implements ISimulatable{
 
             this.currentAmount -= paymentAmount
             bucket.addMoney(paymentAmount)
-            payments.push({source: name, destination: bucket.bucket.name, amount: paymentAmount})
+            payments.push({source: name, destination: bucket.bucket.name, amount: paymentAmount, paymentType: PaymentType.Incoming})
         }
 
         return payments

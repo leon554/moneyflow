@@ -17,8 +17,10 @@ interface DataType{
     addBucket: (bucket: Bucket) => void
     addBill: (bill: Bill) => void
 
-    deleteBucket: (name: string) => void
     deleteIncomeSource: (name: string) => void
+    deleteBucket: (name: string) => void
+    deleteBill: (name: string) => void
+
     step: (date: Date) => IPayment[]
     resetBuckets: () => void
     addSourcesToBucket: (bucketName: string, sources: Source[]) => void
@@ -33,8 +35,10 @@ const defaultValues: DataType = {
     addBucket: () => null,
     addBill: () => null,
 
-    deleteBucket: () => null,
     deleteIncomeSource: () => null,
+    deleteBucket: () => null,
+    deleteBill: () => null,
+
     step: () => [],
     resetBuckets: () => null,
     addSourcesToBucket: () => null
@@ -90,7 +94,7 @@ export default function DataProvider({children}: Props) {
             bucketMap.set(bucketData.name, new Bucket(bucketData, incomeMap))
         })
         billData.forEach(bill => {
-            billMap.set(bill.name, new Bill(bill, Array.from(bucketMap.values())))
+            billMap.set(bill.name, new Bill(bill))
         })
 
         setIncomeSources(incomeMap)
@@ -126,16 +130,29 @@ export default function DataProvider({children}: Props) {
         setIncomeSourceData([...Array.from(newMap.values()).map(v => v.sourceData)])
         setIncomeSources(newMap)
     }
+    function deleteBill(name: string){
+        const newMap = new Map(bills)
+        newMap.delete(name)
+
+        setBills(newMap)
+        setBillData([...Array.from(newMap.values()).map(b => b.billData)])
+    }
 
     function step(date: Date): IPayment[]{
         const incomeSourceArr = Array.from(incomeSources.values())
-        const payments =  incomeSourceArr.map(source => source.step(date)).flat()
+        const billArr = Array.from(bills.values())
 
-        const newIncomeSourceMap = new Map<string, IncomeSource>()
-        incomeSourceArr.forEach(s => newIncomeSourceMap.set(s.sourceData.name, s))
+        const incomePayments =  incomeSourceArr.map(source => source.step(date)).flat()
+        const billPayments = billArr.map(bill => bill.step(date, buckets)).flat()
+
+        const newIncomeSourceMap = new Map(incomeSourceArr.map(i => [i.sourceData.name, i]))
+        const newBillMap = new Map(billArr.map(b => [b.billData.name, b]))
+
         setIncomeSources(newIncomeSourceMap)
         setBuckets(new Map(buckets))
-        return payments
+        setBills(newBillMap)
+
+        return [incomePayments, billPayments].flat()
     }
 
 
@@ -159,7 +176,8 @@ export default function DataProvider({children}: Props) {
                     deleteIncomeSource,
                     step,
                     resetBuckets,
-                    addSourcesToBucket
+                    addSourcesToBucket,
+                    deleteBill
                 }}>
                 {children}
             </dataContext.Provider>

@@ -1,10 +1,11 @@
 import { dataContext } from "@/providers/DataProvider"
 import { useContext} from "react"
 import IncomeSourceCard from "@/components/display/IncomeSourceCard"
-import BucketCard from "@/components/display/bucketCard"
+import BucketCard from "@/components/display/BucketCard"
 import { Util } from "@/Util/util"
 import Button from "@/components/primitives/Button"
 import useSimulation from "@/hooks/useSimulation"
+import { PaymentType } from "@/Util/types"
 
 
 export default function Simulate() {
@@ -12,6 +13,17 @@ export default function Simulate() {
     const data = useContext(dataContext)
     const {date, running, setRunning, reset, paymentHistory} = useSimulation()
 
+    const totalIncome = paymentHistory
+        .map(p => p.payments)
+        .flat()
+        .filter(p => p.paymentType == PaymentType.Incoming)
+        .reduce((a, c) => a + c.amount, 0)
+    const totalSpent = paymentHistory
+        .map(p => p.payments)
+        .flat()
+        .filter(p => p.paymentType == PaymentType.Outgoing)
+        .reduce((a, c) => a + c.amount, 0)
+    
     return (
         <div className="mt-20 m-auto max-w-[700px] w-[95%] flex flex-col gap-5">
             <h1 className="text-2xl text-title font-medium">
@@ -43,9 +55,17 @@ export default function Simulate() {
                 </div>
             </div>
             <hr className="text-border border-t w-full"/>
-            <p className="text-title">
-                {Util.formatDate(date)}
-            </p>
+            <div>
+                <p className="text-title">
+                    {Util.formatDate(date)}
+                </p>
+                <p className=" text-subtext1 text-sm">
+                    Amount Earned: ${totalIncome}
+                </p>
+                <p className=" text-subtext1 text-sm">
+                    Amount Spent: ${totalSpent}
+                </p>
+            </div>
             <div className="grid sm:grid-cols-2 gap-3">
                 {Array.from(data.incomeSources.values()).map(source => {
                     return(
@@ -69,6 +89,23 @@ export default function Simulate() {
                             </p>
                             <p className="text-xs text-subtext2">
                                 ${b.bucket.balance}{b.bucket.targetBalance == 0 ? null : `/${b.bucket.targetBalance}`}
+                            </p>
+                       </div>
+                    )
+                })}
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3">
+                {Array.from(data.bills.values()).map(b => {
+                    return(
+                       <div className="bg-panel1 p-3 rounded-md outline-1 outline-border text-subtext1 flex flex-col gap-1.5">
+                            <p className="text-sm font-medium">
+                                {b.billData.name}
+                            </p>
+                             <p className="text-xs text-subtext2">
+                                ${b.billData.amount} due on {Util.formatDate(new Date(b.billData.nextIncurralDate))}
+                            </p>
+                            <p className="text-xs text-subtext2">
+                                ${b.billData.balance}
                             </p>
                        </div>
                     )

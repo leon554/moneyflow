@@ -1,11 +1,9 @@
 import type { ISimulatable, BucketDataType, IPayment, Source } from "../types"
 import { IncomeSource } from "./IncomeSource"
-import { Bill } from "./Bill"
 
 export class Bucket implements ISimulatable{
 
     bucket: BucketDataType
-    bills: Bill[] = []
 
     constructor(bucket: BucketDataType, incomeSources: Map<string, IncomeSource>){
         this.bucket =  {...bucket}
@@ -20,20 +18,10 @@ export class Bucket implements ISimulatable{
     }
 
     public step(_: Date): IPayment[]{
-        const payments: IPayment[] = []
-        this.bills.forEach(bill => {
-            const amountDue = bill.getBillAmount()
-            this.bucket.balance -= amountDue
-            bill.addMoney(amountDue)
-            payments.push({source: this.bucket.name, amount: amountDue, destination: bill.billData.name})
-        })
-        return payments
+
+        return []
     }
 
-    public addBill(bill: Bill){
-        if(this.bills.some(b => b.billData.name == bill.billData.name))
-        this.bills = [...this.bills, bill]
-    }
 
     public getMoneyAllocated(moneyEarned: number, moneyLeft: number, sourceName: string){
         let totalMoneyWanted = 0
@@ -61,6 +49,12 @@ export class Bucket implements ISimulatable{
         const moneyRequested = source.allocation
         return (moneyRequested > moneyLeft) ? moneyLeft : moneyRequested
     }
+
+    public requestMoneyFromBucket(amount: number){
+        this.bucket.balance -= amount
+        return amount
+    }   
+
     public addSources(sources: Source[], incomeSources: IncomeSource[]){
         const usedNames = new Set<string>()
         incomeSources.forEach(source => {
