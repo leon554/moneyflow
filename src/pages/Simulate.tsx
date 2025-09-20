@@ -54,7 +54,7 @@ export default function Simulate() {
                                 {source.sourceData.name}
                             </p>
                             <p className="text-xs text-subtext2">
-                                Pays {source.sourceData.incomeAmount} on {Util.formatDate(new Date(source.sourceData.nextIncurralData))} {source.sourceData.incomeFrequency}
+                                Pays {source.sourceData.incomeAmount} on {Util.formatDate(new Date(source.sourceData.nextIncurralDate))} {source.sourceData.incomeFrequency}
                             </p>
                         </div>
                     )

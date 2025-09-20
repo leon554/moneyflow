@@ -15,9 +15,9 @@ export class IncomeSource implements ISimulatable{
     }
 
     public step(date: Date): IPayment[]{
-        let {nextIncurralData, incomeAmount, name, incomeFrequency} = this.sourceData
+        let {nextIncurralDate: nextIncurralData, incomeAmount, name, incomeFrequency} = this.sourceData
         if(!isSameDay(date, new Date(nextIncurralData))) return []
-        this.sourceData.nextIncurralData = Util.getNextDate(new Date(nextIncurralData), incomeFrequency).toISOString()
+        this.sourceData.nextIncurralDate = Util.getNextDate(new Date(nextIncurralData), incomeFrequency).toISOString()
         this.currentAmount = this.sourceData.incomeAmount
 
         const payments: IPayment[] = []

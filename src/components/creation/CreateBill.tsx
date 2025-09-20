@@ -3,56 +3,79 @@ import DateInput from "@/components/primitives/DateInput";
 import Select, { type dataFormat } from "@/components/primitives/Select";
 import TextBoxLimited from "@/components/primitives/TextboxLimited";
 import { dataContext } from "@/providers/DataProvider";
-import { IncomeSource } from "@/Util/classes/IncomeSource";
-import { IncurralFrequency, type IncomeDataType } from "@/Util/types";
+import { IncurralFrequency, type BillData} from "@/Util/types";
 import { Util } from "@/Util/util";
 import { useContext, useState } from "react";
-import IncomeSourceCard from "../display/IncomeSourceCard";
+import BillCard from "../display/BillCard";
+import { Bill } from "@/Util/classes/Bill";
 
-export default function Income() {
-
-    const items = Object.values(IncurralFrequency).map((v,i) => ({id: i, name: v.slice(0,1).toUpperCase() + v.slice(1)}))
-    const [name, setName] = useState("")
-    const [amount, setAmount] = useState("")
-    const [date, setDate] = useState(Util.formatDate(new Date()))
-    const [selectedItem, setSelectedItem] = useState<dataFormat>(items[0])
+export default function CreateBill() {
 
     const data = useContext(dataContext)
 
-    function addIncome(){
+    const frequencyItems = Object.values(IncurralFrequency).map((v,i) => ({id: i, name: Util.capFirst(v)}))
+    const sourceItems = Array.from(data.buckets.values()).map((b,i) => ({id: i, name: Util.capFirst(b.bucket.name)}))
+    
+    const [name, setName] = useState("")
+    const [amount, setAmount] = useState("")
+    const [date, setDate] = useState(Util.formatDate(new Date()))
+    const [selectedFrequencyItem, setSelectedFrequencyItem] = useState<dataFormat>(frequencyItems[0])
+    const [selectedSourceItem, setSelectedSourceItem] = useState<dataFormat|null>(null)
+
+
+    function addBill(){
         if(name == "" || amount == "" || date == "") {alert("fill in all fields"); return}
-        const sourceData: IncomeDataType = {
+        if(!selectedSourceItem) {alert("Select or create a bucket source first"); return}
+
+        const billData: BillData= {
             name,
-            incomeAmount: Number(amount),
-            incomeFrequency: selectedItem.name.toLowerCase() as IncurralFrequency,
+            sourceBucketName: selectedSourceItem.name,
+            amount: Number(amount),
+            balance: 0,
+            frequency: selectedFrequencyItem.name.toLowerCase() as IncurralFrequency,
             nextIncurralDate: Util.stringToDate(date).toISOString()
         }
-        data.addIncomeSource(new IncomeSource(sourceData))
+
+        data.addBill(new Bill(billData, Array.from(data.buckets.values())))
     }
 
     return (
      
         <div className="outline-1 bg-panel1 outline-border rounded-md p-4 flex flex-col gap-4">
             <h1 className="text-title text-lg font-medium ">
-                Add Income
+                Create Bill
             </h1>
             <div className="flex flex-col w-full justify-between gap-4 sm:flex-row">
+                 <div className="flex flex-col gap-1.5 w-full">
+                    <p className="text-xs font-medium text-subtext1 relative ">
+                        Source
+                    </p>
+                    <Select
+                        items={sourceItems}
+                        selectedItem={selectedSourceItem}
+                        setSelectedItem={(id) => setSelectedSourceItem(sourceItems[id])}
+                        showIcon={true}
+                        center={true}
+                        defaultText="Select Source"
+                    />
+                </div>
                 <TextBoxLimited 
                     name="Name"
                     charLimit={15}
                     value={name}
                     setValue={setName}
-                    placeHolder="e.g Wage"
-                    />
+                    placeHolder="e.g Insurance"
+                    outerDivStyles="min-w-30"/>
                 <TextBoxLimited 
                     name="Amount"
                     charLimit={10}
                     numeric={true}
                     value={amount}
                     setValue={setAmount}
-                    placeHolder="1200"/>
+                    placeHolder="1200"
+                    outerDivStyles="min-w-20"/>
                 <div className="flex flex-col gap-1.5 w-full">
-                    <p className="font-medium text-subtext1 relative text-xs">
+                    <p className="font-medium text-subtext1 relative text-xs whitespace-nowrap">
                         Next Payment
                     </p>
                     <DateInput
@@ -65,9 +88,9 @@ export default function Income() {
                         Frequency
                     </p>
                     <Select
-                        items={items}
-                        selectedItem={selectedItem}
-                        setSelectedItem={(id) => setSelectedItem(items[id])}
+                        items={frequencyItems}
+                        selectedItem={selectedFrequencyItem}
+                        setSelectedItem={(id) => setSelectedFrequencyItem(frequencyItems[id])}
                         showIcon={true}
                         center={true}
                     />
@@ -76,14 +99,14 @@ export default function Income() {
             <div className="flex w-full gap-7 items-end justify-end">
                 <Button 
                     name="Add"
-                    onSubmit={() => addIncome()}
+                    onSubmit={() => addBill()}
                     highlight={false}
                     style="w-full"/>
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
-                {Array.from(data.incomeSources.values()).map(source => {
+                {Array.from(data.bills.values()).map(bill => {
                     return(
-                        <IncomeSourceCard source={source}/>
+                       <BillCard bill={bill}/>
                     )
                 })}
             </div>

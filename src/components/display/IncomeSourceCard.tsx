@@ -28,7 +28,7 @@ export default function IncomeSourceCard({source}: Props) {
                         Paid {source.sourceData.incomeFrequency}
                     </p>
                     <p>
-                        starting on {Util.formatDate(new Date(source.sourceData.nextIncurralData))}
+                        starting on {Util.formatDate(new Date(source.sourceData.nextIncurralDate))}
                     </p>
                 </div>
             </div>

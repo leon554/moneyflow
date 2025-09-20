@@ -18,7 +18,7 @@ export enum AccountType  {
 export interface IncomeDataType{
     name: string
     incomeAmount: number
-    nextIncurralData: string
+    nextIncurralDate: string
     incomeFrequency: IncurralFrequency
 }
 export interface Source{
@@ -46,12 +46,14 @@ type DeptAccount = BaseBucket<AccountType.DeptAccount> & Interest
 export type BucketDataType = NonInterestAccount | SavingsAccount | DeptAccount
 
 
-export interface Bill{
+
+export interface BillData{
     name: string
-    sourceName: string
-    amount: string
+    sourceBucketName: string
+    amount: number
+    balance: number
     frequency: IncurralFrequency
-    nextIncurralDay: string
+    nextIncurralDate: string
 }
 
 export interface ISimulatable{
