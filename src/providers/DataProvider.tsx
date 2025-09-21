@@ -5,13 +5,14 @@ import { Util } from "@/Util/util"
 import { createContext, useEffect, useState } from "react"
 import { Bucket } from "@/Util/classes/Bucket"
 import { Bill } from "@/Util/classes/Bill"
-
+import { useReactFlow } from "@xyflow/react"
 
 
 interface DataType{
     incomeSources: Map<string, IncomeSource>
     buckets: Map<string, Bucket>
     bills: Map<string, Bill>
+    hydrated: boolean
 
     addIncomeSource: (incomeSource: IncomeSource) => void
     addBucket: (bucket: Bucket) => void
@@ -30,6 +31,7 @@ const defaultValues: DataType = {
     incomeSources: new Map<string, IncomeSource>(),
     buckets: new Map<string, Bucket>(),
     bills: new Map<string, Bill>(),
+    hydrated: false,
 
     addIncomeSource: () => null,
     addBucket: () => null,
@@ -59,12 +61,22 @@ export default function DataProvider({children}: Props) {
     const [incomeSources, setIncomeSources] = useState<Map<string, IncomeSource>>(new Map())
     const [buckets, setBuckets] = useState<Map<string, Bucket>>(new Map())
     const [bills, setBills] = useState<Map<string, Bill>>(new Map())
+    const [hydrated, setHydrated] = useState(false)
 
     useEffect(() => {
         hydrateFromLocalStorage()
+        setHydrated(true)
     }, [])
 
+    const { setEdges } = useReactFlow();
 
+    const playEdge = (edgeId: string) => {
+        setEdges((edges) =>
+            edges.map((edges) =>
+            edges.id === edgeId ? { ...edges, data: { ...edges.data, play: true } } : edges
+            )
+        );
+    };
     function addIncomeSource(incomeSource: IncomeSource){
         const newMap = Util.updateMap(incomeSources, incomeSource.sourceData.name, incomeSource)
         setIncomeSourceData(Array.from(newMap.values()).map(v => v.sourceData))
@@ -152,7 +164,12 @@ export default function DataProvider({children}: Props) {
         setBuckets(new Map(buckets))
         setBills(newBillMap)
 
-        return [incomePayments, billPayments].flat()
+        const pyaments = [incomePayments, billPayments].flat()
+
+        pyaments.forEach(p => {
+            playEdge(`${p.source}-${p.destination}`)
+        })
+        return pyaments
     }
 
 
@@ -169,6 +186,7 @@ export default function DataProvider({children}: Props) {
                     incomeSources,
                     buckets,
                     bills,
+                    hydrated,
                     addIncomeSource,
                     addBucket,
                     addBill,

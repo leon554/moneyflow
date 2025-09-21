@@ -124,6 +124,13 @@ export default function Simulate() {
                     onSubmit={reset}
                     style="w-[30%]"/>
             </div>
+           
+            <Chart/>
+        </div>
+    )
+}
+/*
+ 
             <div className="mb-20 grid sm:grid-cols-2 gap-3">
                 {paymentHistory.map(p => {
                     return(
@@ -146,7 +153,4 @@ export default function Simulate() {
                     )
                 })}
             </div>
-            <Chart/>
-        </div>
-    )
-}
+            */

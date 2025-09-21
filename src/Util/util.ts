@@ -15,7 +15,6 @@ export namespace Util{
         return `${hours}:${minutes}:${seconds}`;
     }
     export function formatDate(date: Date): string {
-        console.log(date)
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0'); 
         const year = date.getFullYear();
@@ -43,6 +42,7 @@ export namespace Util{
         return newMap;
     }
     export function getNextDate(base: Date, freq: IncurralFrequency): Date {
+        freq = freq.toLowerCase() as IncurralFrequency
         const increments: Record<IncurralFrequency, Parameters<typeof add>[1]> = {
             [IncurralFrequency.OneTime]:       { days: 0 },
             [IncurralFrequency.Daily]:       { days: 1 },
