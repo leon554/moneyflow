@@ -33,26 +33,26 @@ export function AnimatedEdge({ id,  sourceX,  sourceY,  targetX,  targetY,  sour
     useEffect(() => {
         if (data?.play) {
             animRef.current?.beginElement();
-            setTimeout(() => handleEnd(), 670)
+            setTimeout(() => handleEnd(), 870)
         }
     }, [data?.play]);
 
     return (
         <>
-        <BaseEdge id={`edge-path-${id}`} path={edgePath} />
+        <BaseEdge id={`edge-path-${id}`} path={edgePath} style={{stroke: "green"}}/>
         {data?.play ? 
            <text
                 style={{ visibility: data?.play ? 'visible' : 'hidden' }}
                 fontSize={16}
-                fontWeight="bold"
-                fill="#ff0073"
+                fontWeight="normal"
+                fill="#aaaaaa"
                 textAnchor="middle"
                 dominantBaseline="middle"
                 >
-                💰
+                💰 ${data?.amount as number}
                     <animateMotion
                         ref={animRef}
-                        dur="0.7s"
+                        dur="0.9s"
                         repeatCount={1}
                         begin="indefinite"
                     >

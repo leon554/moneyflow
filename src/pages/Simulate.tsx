@@ -1,117 +1,31 @@
-import { dataContext } from "@/providers/DataProvider"
-import { useContext} from "react"
-import IncomeSourceCard from "@/components/display/IncomeSourceCard"
-import BucketCard from "@/components/display/BucketCard"
 import { Util } from "@/Util/util"
 import Button from "@/components/primitives/Button"
 import useSimulation from "@/hooks/useSimulation"
-import { PaymentType } from "@/Util/types"
 import Chart from "@/components/Chart"
+import { useEffect } from "react"
 
 
 export default function Simulate() {
 
-    const data = useContext(dataContext)
-    const {date, running, setRunning, reset, paymentHistory} = useSimulation()
+    const {date, running, setRunning, reset} = useSimulation()
 
-    const totalIncome = paymentHistory
-        .map(p => p.payments)
-        .flat()
-        .filter(p => p.paymentType == PaymentType.Incoming)
-        .reduce((a, c) => a + c.amount, 0)
-    const totalSpent = paymentHistory
-        .map(p => p.payments)
-        .flat()
-        .filter(p => p.paymentType == PaymentType.Outgoing)
-        .reduce((a, c) => a + c.amount, 0)
+    useEffect(() => {
+        return reset
+    }, [])
     
     return (
-        <div className="mt-20 m-auto max-w-[700px] w-[95%] flex flex-col gap-5">
+        <div className="mt-20 m-auto max-w-[1000px] w-[95%] flex flex-col gap-5">
             <h1 className="text-2xl text-title font-medium">
                 Simulate
             </h1>
             <hr className="text-border border-t w-full"/>
-            <div className="flex flex-col gap-2 bg-panel1 p-4 pt-3 outline-1 outline-border rounded-md">
-                <h2 className="text-title font-medium">
-                    Income Sources
-                </h2>
-                <div className="grid sm:grid-cols-2 gap-3">
-                    {Array.from(data.incomeSources.values()).map(source => {
-                        return(
-                            <IncomeSourceCard source={source}/>
-                        )
-                    })}
-                </div>
-            </div>
-            <div className="flex flex-col gap-2 bg-panel1 p-4 pt-3 outline-1 outline-border rounded-md">
-                <h2 className="text-title font-medium">
-                    Buckets
-                </h2>
-                <div className="grid sm:grid-cols-2 gap-3">
-                    {Array.from(data.buckets.values()).map(b => {
-                        return(
-                            <BucketCard bucket={b}/>
-                        )
-                    })}
-                </div>
-            </div>
-            <hr className="text-border border-t w-full"/>
-            <div>
-                <p className="text-title">
+            <div className="flex flex-col gap-1.5">
+                <p className="text-subtext1 font-medium text-sm">
                     {Util.formatDate(date)}
                 </p>
-                <p className=" text-subtext1 text-sm">
-                    Amount Earned: ${totalIncome}
-                </p>
-                <p className=" text-subtext1 text-sm">
-                    Amount Spent: ${totalSpent}
-                </p>
+                <Chart/>
             </div>
-            <div className="grid sm:grid-cols-2 gap-3">
-                {Array.from(data.incomeSources.values()).map(source => {
-                    return(
-                        <div className="bg-panel1 p-3 rounded-md outline-1 outline-border text-subtext1 flex flex-col gap-1.5">
-                            <p className="text-sm font-medium">
-                                {source.sourceData.name}
-                            </p>
-                            <p className="text-xs text-subtext2">
-                                Pays {source.sourceData.incomeAmount} on {Util.formatDate(new Date(source.sourceData.nextIncurralDate))} {source.sourceData.incomeFrequency}
-                            </p>
-                        </div>
-                    )
-                })}
-            </div>
-            <div className="grid sm:grid-cols-2 gap-3">
-                {Array.from(data.buckets.values()).map(b => {
-                    return(
-                       <div className="bg-panel1 p-3 rounded-md outline-1 outline-border text-subtext1 flex flex-col gap-1.5">
-                            <p className="text-sm font-medium">
-                                {b.bucket.name}
-                            </p>
-                            <p className="text-xs text-subtext2">
-                                ${b.bucket.balance}{b.bucket.targetBalance == 0 ? null : `/${b.bucket.targetBalance}`}
-                            </p>
-                       </div>
-                    )
-                })}
-            </div>
-            <div className="grid sm:grid-cols-2 gap-3">
-                {Array.from(data.bills.values()).map(b => {
-                    return(
-                       <div className="bg-panel1 p-3 rounded-md outline-1 outline-border text-subtext1 flex flex-col gap-1.5">
-                            <p className="text-sm font-medium">
-                                {b.billData.name}
-                            </p>
-                             <p className="text-xs text-subtext2">
-                                ${b.billData.amount} due on {Util.formatDate(new Date(b.billData.nextIncurralDate))}
-                            </p>
-                            <p className="text-xs text-subtext2">
-                                ${b.billData.balance}
-                            </p>
-                       </div>
-                    )
-                })}
-            </div>
+           
             <div className="flex w-full gap-4">
                 <Button
                     name={`${running ? "Stop Simulations" : " Start Simulation"}`}
@@ -124,33 +38,6 @@ export default function Simulate() {
                     onSubmit={reset}
                     style="w-[30%]"/>
             </div>
-           
-            <Chart/>
         </div>
     )
 }
-/*
- 
-            <div className="mb-20 grid sm:grid-cols-2 gap-3">
-                {paymentHistory.map(p => {
-                    return(
-                        <div className="bg-panel1 p-3 rounded-md outline-1 outline-border flex flex-col gap-1.5">
-                            <p className="text-subtext1 text-sm font-medium">
-                                {Util.formatDate(p.date)}
-                            </p>
-                            <div className="flex flex-col gap-1">
-                                {p.payments.map(payment => {
-                                    return(
-                                        <div>
-                                            <p className="text-xs text-subtext2">
-                                                {payment.source} {"->"} ${payment.amount} {"->"} {payment.destination}
-                                            </p>
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        </div>
-                    )
-                })}
-            </div>
-            */

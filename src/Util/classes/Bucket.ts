@@ -1,9 +1,13 @@
-import type { ISimulatable, BucketDataType, IPayment, Source } from "../types"
+import { type ISimulatable, type BucketDataType, type IPayment, type Source, AccountType } from "../types"
 import { IncomeSource } from "./IncomeSource"
+import { isSameDay } from "date-fns"
+import { Util } from "../util"
 
 export class Bucket implements ISimulatable{
 
     bucket: BucketDataType
+    balanceOverTime: Map<string, number> = new Map()
+
 
     constructor(bucket: BucketDataType, incomeSources: Map<string, IncomeSource>){
         this.bucket =  {...bucket}
@@ -17,7 +21,17 @@ export class Bucket implements ISimulatable{
         })
     }
 
-    public step(_: Date): IPayment[]{
+    public step(date: Date): IPayment[]{
+        
+        if(this.bucket.accountType == AccountType.SavingsAccount && isSameDay(date, new Date(this.bucket.nextIncurralDate))){
+            this.bucket.nextIncurralDate = Util.getNextDate(new Date(this.bucket.nextIncurralDate), this.bucket.compoundFrequency).toISOString()
+            
+            const rate = Util.getInterestRateFromFreq(this.bucket.compoundFrequency, this.bucket.interest/100)
+            const interestEarned = this.bucket.balance * rate
+            this.bucket.balance += interestEarned
+        }
+
+        this.balanceOverTime.set(date.toISOString(), this.bucket.balance)
 
         return []
     }

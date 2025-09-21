@@ -54,6 +54,19 @@ export namespace Util{
         };
         return add(base, increments[freq]);
     }
+    export function getInterestRateFromFreq(freq: IncurralFrequency, rate: number){
+        freq = freq.toLowerCase() as IncurralFrequency
+        const increments: Record<IncurralFrequency, number> = {
+            [IncurralFrequency.OneTime]:      0,
+            [IncurralFrequency.Daily]:       365,
+            [IncurralFrequency.Weekly]:      52,
+            [IncurralFrequency.Fortnightly]: 26,
+            [IncurralFrequency.Monthly]:     12,
+            [IncurralFrequency.Quarterly]:   4,
+            [IncurralFrequency.Yearly]:      1,
+        };
+        return rate/increments[freq];
+    }
     export function capFirst(value: string){
         return value.slice(0, 1).toUpperCase() + value.slice(1)
     }

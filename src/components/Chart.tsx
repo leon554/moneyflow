@@ -42,7 +42,7 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], options: any) => {
     g.setGraph({
         rankdir: options.direction,
         ranksep: 170,  // increase vertical spacing
-        nodesep: 80    // increase horizontal spacing
+        nodesep: 20    // increase horizontal spacing
     });
     
     edges.forEach((edge: Edge) => g.setEdge(edge.source, edge.target));
@@ -159,7 +159,7 @@ export default function Chart() {
     }, [nodesInitialized, nodes, edges, updateNodeInternals, fitView]);
 
     return (
-        <div className="outline-1 outline-border w-full h-[50vh] mb-20 rounded-md">
+        <div className="outline-1 outline-border w-full h-[70vh] rounded-md">
             <ReactFlow
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}

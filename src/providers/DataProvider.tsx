@@ -2,7 +2,7 @@ import useLocalStorage from "@/hooks/useLocalStorage"
 import { IncomeSource } from "@/Util/classes/IncomeSource"
 import { type BillData, type BucketDataType, type IncomeDataType, type IPayment, type Source } from "@/Util/types"
 import { Util } from "@/Util/util"
-import { createContext, useEffect, useState } from "react"
+import { createContext, useEffect, useRef, useState } from "react"
 import { Bucket } from "@/Util/classes/Bucket"
 import { Bill } from "@/Util/classes/Bill"
 import { useReactFlow } from "@xyflow/react"
@@ -12,7 +12,8 @@ interface DataType{
     incomeSources: Map<string, IncomeSource>
     buckets: Map<string, Bucket>
     bills: Map<string, Bill>
-    hydrated: boolean
+    hydrated: boolean,
+    simTimeoutId: React.RefObject<NodeJS.Timeout | null> | null
 
     addIncomeSource: (incomeSource: IncomeSource) => void
     addBucket: (bucket: Bucket) => void
@@ -32,6 +33,7 @@ const defaultValues: DataType = {
     buckets: new Map<string, Bucket>(),
     bills: new Map<string, Bill>(),
     hydrated: false,
+    simTimeoutId:null,
 
     addIncomeSource: () => null,
     addBucket: () => null,
@@ -62,6 +64,8 @@ export default function DataProvider({children}: Props) {
     const [buckets, setBuckets] = useState<Map<string, Bucket>>(new Map())
     const [bills, setBills] = useState<Map<string, Bill>>(new Map())
     const [hydrated, setHydrated] = useState(false)
+    const simTimeoutId = useRef<NodeJS.Timeout | null>(null)
+    
 
     useEffect(() => {
         hydrateFromLocalStorage()
@@ -70,10 +74,10 @@ export default function DataProvider({children}: Props) {
 
     const { setEdges } = useReactFlow();
 
-    const playEdge = (edgeId: string) => {
+    const playEdge = (edgeId: string, amount: number) => {
         setEdges((edges) =>
             edges.map((edges) =>
-            edges.id === edgeId ? { ...edges, data: { ...edges.data, play: true } } : edges
+            edges.id === edgeId ? { ...edges, data: { ...edges.data, play: true, amount } } : edges
             )
         );
     };
@@ -152,22 +156,26 @@ export default function DataProvider({children}: Props) {
 
     function step(date: Date): IPayment[]{
         const incomeSourceArr = Array.from(incomeSources.values())
+        const bucketArr = Array.from(buckets.values())
         const billArr = Array.from(bills.values())
 
         const incomePayments =  incomeSourceArr.map(source => source.step(date)).flat()
         const billPayments = billArr.map(bill => bill.step(date, buckets)).flat()
+        bucketArr.map(bucket => bucket.step(date))
 
         const newIncomeSourceMap = new Map(incomeSourceArr.map(i => [i.sourceData.name, i]))
         const newBillMap = new Map(billArr.map(b => [b.billData.name, b]))
 
-        setIncomeSources(newIncomeSourceMap)
-        setBuckets(new Map(buckets))
-        setBills(newBillMap)
+        simTimeoutId.current = setTimeout(() => {
+            setIncomeSources(newIncomeSourceMap)
+            setBuckets(new Map(buckets))
+            setBills(newBillMap)
+        }, 900)
 
         const pyaments = [incomePayments, billPayments].flat()
 
         pyaments.forEach(p => {
-            playEdge(`${p.source}-${p.destination}`)
+            playEdge(`${p.source}-${p.destination}`, p.amount)
         })
         return pyaments
     }
@@ -195,7 +203,8 @@ export default function DataProvider({children}: Props) {
                     step,
                     resetBuckets,
                     addSourcesToBucket,
-                    deleteBill
+                    deleteBill,
+                    simTimeoutId
                 }}>
                 {children}
             </dataContext.Provider>

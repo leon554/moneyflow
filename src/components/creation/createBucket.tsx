@@ -15,7 +15,7 @@ export default function CreateBucket() {
     const data = useContext(dataContext)
     
     const accountItems = Object.values(AccountType).map((v,i) => ({id: i, name: v.toString()}))
-    const incurralItems = Object.values(IncurralFrequency).map((v,i) => ({id: i - 1, name: v.slice(0,1).toUpperCase() + v.slice(1)})).filter(i => i.name != "OneTime")
+    const incurralItems = Object.values(IncurralFrequency).map((v,i) => ({id: i, name: v.slice(0,1).toUpperCase() + v.slice(1)})).filter(i => i.name != "OneTime")
 
 
     const [selectedAccountItem, setSelectedAccountItem] = useState<dataFormat>(accountItems[0])

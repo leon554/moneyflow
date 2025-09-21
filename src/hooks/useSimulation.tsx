@@ -46,10 +46,14 @@ export default function useSimulation() {
 
     function reset(){
         setIsRunning(false)
+        stopSimulation()
         setDate(getStartSimulationDate())
         data.resetBuckets()
         setPaymentHistory([])
         simDays.current = 0
+        if(!data.simTimeoutId) return
+        if(data.simTimeoutId.current === null) return
+        clearInterval(data.simTimeoutId.current)
     }
 
     return {running: isRunning, setRunning: setIsRunning, date, reset, paymentHistory}

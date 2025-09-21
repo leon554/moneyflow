@@ -24,7 +24,7 @@ export function IncomeSourceNode(props: NodeProps<IncomeSourceNode>) {
                         ${incomeSource.sourceData.incomeAmount} {incomeSource.sourceData.incomeFrequency}
                     </p>
                     <p className="text-xs text-subtext2">
-                        Next {Util.formatDate(new Date(incomeSource.sourceData.nextIncurralDate))}
+                         📅 {Util.formatDate(new Date(incomeSource.sourceData.nextIncurralDate))}
                     </p>
                     <Handle type="source" position={Position.Bottom} />
                 </div> :
