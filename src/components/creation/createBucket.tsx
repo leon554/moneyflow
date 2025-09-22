@@ -32,6 +32,7 @@ export default function CreateBucket() {
 
     const [editBucket, setEditBucket] = useState(false)
     const [selectedEditBucketId, setSelectedEditBucketId] = useState("")
+    const [modifiedBucket, setModifiedBucket] = useState(false)
 
     useEffect(() => {
         if(!editBucket) return
@@ -50,7 +51,7 @@ export default function CreateBucket() {
             name,
             balance: Number(startingValue),
             targetBalance: Number(goal),
-            sources: [...sources],
+            sources: sources,
             accountType: AccountType.CashAccount
         }
         if(selectedEditBucketId != ""){
@@ -68,6 +69,7 @@ export default function CreateBucket() {
             }
         }
         data.addBucket(new Bucket(bucket, data.incomeSources))
+        setModifiedBucket(!modifiedBucket)
         resetFormValues()
     }
 
@@ -104,7 +106,7 @@ export default function CreateBucket() {
             <h1 className="text-title text-lg font-medium mb-4">
                 Add Bucket
             </h1>
-            <SourceForm sources={sources} setSources={setSources}/>
+            <SourceForm sources={sources} setSources={setSources} modifiedBucket={modifiedBucket}/>
             <div className="flex flex-col gap-4 pt-4">
                 <h1 className="text-title  font-medium ">
                     Add Bucket Details

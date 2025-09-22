@@ -1,18 +1,20 @@
 import Select from "../primitives/Select"
 import TextBoxLimited from "../primitives/TextboxLimited"
 import Button from "../primitives/Button"
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { dataContext } from "@/providers/DataProvider"
 import type { dataFormat } from "../primitives/Select"
 import { FaRegTrashAlt } from "react-icons/fa"
 import type { Source } from "@/Util/types"
 import { FaPlus } from "react-icons/fa";
+import { FaRegEdit } from "react-icons/fa";
 
 interface Props{
     sources: Source[]
     setSources: (source: Source[]) => void
+    modifiedBucket: boolean
 }
-export default function SourceForm({sources, setSources}: Props) {
+export default function SourceForm({sources, setSources, modifiedBucket}: Props) {
 
     const data = useContext(dataContext)
 
@@ -25,27 +27,74 @@ export default function SourceForm({sources, setSources}: Props) {
     const [allocation, setAllocation] = useState("")
     const [selectedTypeItem, setSelectedTypeItem] = useState<dataFormat>(typeItems[0])
 
-    const proposedAllocation: Source = {sourceId: selectedSourceItem?.data ?? "undefined", allocation: Number(allocation), isPercentage: selectedTypeItem.name == "%"}
-    const allAllocations = [...sources, proposedAllocation].filter(a => a.sourceId == selectedSourceItem?.name)
-    const filteredSources = [...sources].filter(a => a.sourceId == selectedSourceItem?.name)
-    const enoughMoney = (selectedSourceItem && data.incomeSources.get(selectedSourceItem.data!)!.getAllocatedData(filteredSources).unAllocatedAmount > 0) ?? false
+    const [isEditing, setIsEditing] = useState(false)
+    const [editedSourceId, setEditedSourceId] = useState("")
 
+    const selectedIncomeSource = data.incomeSources.get(selectedSourceItem?.data!)
+    const tempSource: Source = {
+        id: isEditing ? editedSourceId : crypto.randomUUID(), 
+        incomeSourceId: selectedSourceItem?.data!, 
+        bucketTargetId: "", 
+        allocation: isNaN(Number(allocation)) ? 0 : Number(allocation), 
+        isPercentage: selectedTypeItem.name == "%"
+    }
+    const filteredSources = sources.filter(s => s.incomeSourceId == selectedIncomeSource?.sourceData.id)
+    const allocationData = selectedIncomeSource?.getAllocatedDataWithTemp(filteredSources, tempSource, editedSourceId)
+
+    useEffect(() => {
+        if(selectedRemainingItem.name == "Yes"){
+            setAllocation("")
+        }
+    }, [selectedRemainingItem])
+
+    useEffect(() => {
+        console.log("updated")
+        setIsEditing(false)
+        setEditedSourceId("")
+    }, [modifiedBucket])
+  
     function addSource(){
         if(!selectedSourceItem) {alert("Select or create a source before creating this bucket"); return}
         if(allocation == "" && selectedRemainingItem.name == "No") {alert("Add allocation value"); return}
         if(selectedTypeItem.name == "%" && Number(allocation) > 100) {alert("can't have percentage higher than 100"); return}
 
         const newSource: Source = {
-            sourceId: selectedSourceItem.data!,
+            id: crypto.randomUUID(),
+            incomeSourceId: selectedSourceItem.data!,
+            bucketTargetId: "",
             allocation: selectedRemainingItem.name == "Yes" ? 
-                data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(allAllocations).unAllocatedAmount: 
+                allocationData?.unAllocatedAmount ?? 0 :
                 Number(allocation),
             isPercentage: selectedTypeItem.name == "%" && selectedRemainingItem.name == "No"
         }
 
+        
         setSelectedRemainingItem(remainingItems[1])
         setAllocation("");
-        setSources([...sources, newSource])
+
+        if(isEditing){
+            newSource.id = editedSourceId
+            const updatedSourceIndex = sources.findIndex(s => s.id == editedSourceId)
+            setSources([...sources.map((s, i) =>
+                i === updatedSourceIndex ? {...s, ...newSource} : s
+            )]);
+            setIsEditing(false)
+            setEditedSourceId("")
+        }else{
+            setSources([...sources, newSource])
+        }
+    }
+
+
+    function edit(id: string){
+        setIsEditing(true)
+        setEditedSourceId(id)
+        const source = sources.find(s => s.id == id)!
+        setSelectedSourceItem(sourceItems.find(s => s.data == source.incomeSourceId)!)
+        setAllocation(source.allocation.toString())
+        setSelectedTypeItem(source.isPercentage ? typeItems[0] : typeItems[1])
+        setSelectedRemainingItem(remainingItems[1])
+
     }
 
     return (
@@ -68,7 +117,7 @@ export default function SourceForm({sources, setSources}: Props) {
                         divStyles="sm:w-fit"
                     />
                 </div>
-                {enoughMoney ?
+                {(allocationData?.unAllocatedAmount ?? -1) > 0 || allocation != ""?
                     <>
                     {selectedRemainingItem.name == "Yes" ? 
                     null :
@@ -81,7 +130,7 @@ export default function SourceForm({sources, setSources}: Props) {
                             setValue={setAllocation}
                             placeHolder="1200"
                             outerDivStyles="w-full"
-                            invalidFunc={(_) => selectedSourceItem ? !data.incomeSources.get(selectedSourceItem.data!)!.canAffordAllocation(allAllocations) : false}/>
+                            invalidFunc={(_) => selectedSourceItem ? ((allocationData?.unAllocatedAmount ?? 0) < 0) : false}/>
                         <div className="flex flex-col gap-1.5">
                             <p className="text-xs font-medium text-subtext1 relative ">
                                 Type
@@ -119,21 +168,23 @@ export default function SourceForm({sources, setSources}: Props) {
                     </div>
                 }
             </div>
-                {selectedSourceItem && enoughMoney ? 
+                {selectedSourceItem && (((allocationData?.unAllocatedAmount ?? 0) > 0) || allocation != "") ? 
                     <p className="text-subtext2 text-xs">
-                        {selectedRemainingItem.name == "Yes" ? 
-                        "The remaining $" + data.incomeSources.get(selectedSourceItem.data!)!.getAllocatedData(allAllocations).unAllocatedAmount + 
-                        " from your " + selectedSourceItem.name + " will be allocated to this bucket":
-                        "$" + data.incomeSources.get(selectedSourceItem.data!)!.getAllocatedData(allAllocations).unAllocatedAmount + " unallocated" +
-                        " and $" + data.incomeSources.get(selectedSourceItem.data!)!.getAllocatedData(allAllocations).allocatedAmount + " all ready allocated" +
-                        ". " + (data.incomeSources.get(selectedSourceItem.data!)!.canAffordAllocation(allAllocations) ? 
-                        "You have enough unallocated money left to create this source" : 
-                        "You DON'T have enough money left from the selected income source to create this source")}
+                       {selectedRemainingItem.name == "Yes" 
+                        ? "The remaining $" + allocationData?.unAllocatedAmount + 
+                        " from your " + selectedSourceItem.name + " will be allocated to this bucket"
+                        : "$" + Math.round((allocationData?.unAllocatedAmount ?? 0) * 100)/100 + " unallocated" +
+                        " and $" + Math.round((allocationData?.allocatedAmount ?? 0) * 100)/100 + " already allocated" +
+                        ". " + (
+                            ((allocationData?.unAllocatedAmount ?? 0) < 0)
+                            ? "You DON'T have enough money left from the selected income source to create this source"
+                            : "You have enough unallocated money left to create this source"
+                        )}
                     </p>
                     : null
                 }
             <Button 
-                name="Add Source"
+                name={isEditing ? "Save" : "Add Source"}
                 onSubmit={() => addSource()}
                 highlight={false}
                 style="w-full flex gap-1.5"
@@ -145,15 +196,21 @@ export default function SourceForm({sources, setSources}: Props) {
                         <div className=" w-full bg-panel2 p-2 rounded-md text-subtext1 outline-1 outline-border2 flex justify-between items-center px-3">
                             <div className="flex gap-1.5">
                                 <p className="text-title">
-                                    {data.incomeSources.get(s.sourceId)!.sourceData.name}
+                                    {data.incomeSources.get(s.incomeSourceId)!.sourceData.name}
                                 </p>
                                 <p className="text-xs bg-btn text-btn-text px-1.5 rounded-full font-medium  py-[1px]">
                                     {s.isPercentage ? `${s.allocation}%` : `$${s.allocation}`}
                                 </p>
                             </div>
-                            <div className="hover:cursor-pointer text-subtext2"
-                                onClick={() => setSources([...sources.filter(source => source.sourceId != s.sourceId || source.allocation != s.allocation)])}>
-                                <FaRegTrashAlt className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
+                            <div className="flex items-center gap-3">
+                                <div className="hover:cursor-pointer text-subtext2"
+                                    onClick={() => setSources([...sources.filter(source => source.incomeSourceId != s.incomeSourceId || source.allocation != s.allocation)])}>
+                                    <FaRegTrashAlt className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
+                                </div>
+                                <div className="hover:cursor-pointer text-subtext2"
+                                    onClick={() => {edit(s.id)}}>
+                                    <FaRegEdit className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
+                                </div>
                             </div>
                         </div>
                     )

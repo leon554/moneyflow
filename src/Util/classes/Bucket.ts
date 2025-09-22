@@ -11,7 +11,7 @@ export class Bucket implements ISimulatable{
 
     constructor(bucket: BucketDataType, incomeSources: Map<string, IncomeSource>){
         this.bucket =  {...bucket, id: bucket.id ?? crypto.randomUUID()}
-        const incomeSourceArr = bucket.sources.map(s => incomeSources.get(s.sourceId)).filter(s => s != undefined)
+        const incomeSourceArr = bucket.sources.map(s => incomeSources.get(s.incomeSourceId)).filter(s => s != undefined)
         const usedIds = new Set<string>()
         incomeSourceArr.forEach(source => {
             if(!usedIds.has(source.sourceData.id!)){
@@ -44,10 +44,10 @@ export class Bucket implements ISimulatable{
     }
 
 
-    public getMoneyAllocated(moneyEarned: number, moneyLeft: number, sourceId: string){
+    public getMoneyAllocated(moneyEarned: number, moneyLeft: number, sourceId: string, excludeSourceId: string){
         let totalMoneyWanted = 0
         this.bucket.sources.forEach(source => {
-            if(source.sourceId != sourceId)return
+            if(source.incomeSourceId != sourceId || source.id == excludeSourceId)return
             let moneyWanted = 0
             if(source.isPercentage){
                 moneyWanted = this.getMoneyAllocatedPercentage(moneyEarned, moneyLeft, source)
@@ -60,6 +60,9 @@ export class Bucket implements ISimulatable{
             
         })
         return totalMoneyWanted
+    }
+    public getAllocations(sourceId: string){
+        return this.bucket.sources.filter(s => s.incomeSourceId == sourceId)
     }
     private getMoneyAllocatedPercentage(moneyEarned: number, moneyLeft: number, source: Source){
         const percent = source.allocation/100

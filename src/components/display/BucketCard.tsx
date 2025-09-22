@@ -35,16 +35,18 @@ export default function BucketCard({bucket, setEdit}: Props) {
                     </p> : null}
                 </div>
                 <p className="truncate text-xs max-w-[100%] text-subtext2 flex-1 overflow-ellipsis">
-                    {bucket.bucket.sources.map((s: Source) => `${data.incomeSources.get(s.sourceId)?.sourceData.name} pays ${s.isPercentage ? `${s.allocation}%` : `$${s.allocation}`}`).join(", ")}
+                    {bucket.bucket.sources.map((s: Source) => `${data.incomeSources.get(s.incomeSourceId)?.sourceData.name} pays ${s.isPercentage ? `${s.allocation}%` : `$${s.allocation}`}`).join(", ")}
                 </p>
             </div>
-            <div className="hover:cursor-pointer text-subtext2"
-                onClick={() => data.deleteBucket(bucket.bucket.id!)}>
-                <FaRegTrashAlt className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
-            </div>
-              <div className="hover:cursor-pointer text-subtext2"
-                onClick={() => setEdit()}>
-                <FaRegEdit className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
+            <div className="flex gap-3">
+                <div className="hover:cursor-pointer text-subtext2"
+                    onClick={() => data.deleteBucket(bucket.bucket.id!)}>
+                    <FaRegTrashAlt className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
+                </div>
+                <div className="hover:cursor-pointer text-subtext2"
+                    onClick={() => setEdit()}>
+                    <FaRegEdit className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
+                </div>
             </div>
         </div>
     )

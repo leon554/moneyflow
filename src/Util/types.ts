@@ -18,11 +18,13 @@ export interface IncomeDataType{
     incomeFrequency: IncurralFrequency
 }
 export interface Source{
-    sourceId: string
+    id: string
+    incomeSourceId: string
+    bucketTargetId: string
     allocation: number
     isPercentage: boolean
 }
-export type Allocation = Pick<Source, "allocation" | "isPercentage">
+
 
 export enum AccountType  {
     CashAccount = "Cash",

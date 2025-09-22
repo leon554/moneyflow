@@ -1,4 +1,4 @@
-import{ PaymentType, type Allocation, type IPayment, type ISimulatable, type IncomeDataType } from "../types";
+import{ PaymentType, type IPayment, type ISimulatable, type IncomeDataType, type Source } from "../types";
 import { isSameDay} from "date-fns";
 import { Util } from "../util";
 import { Bucket } from "./Bucket";
@@ -25,7 +25,7 @@ export class IncomeSource implements ISimulatable{
 
         const payments: IPayment[] = []
         for(const bucket of this.destinationBuckets){
-            const paymentAmount = bucket.getMoneyAllocated(incomeAmount, this.currentAmount, this.sourceData.id!)
+            const paymentAmount = bucket.getMoneyAllocated(incomeAmount, this.currentAmount, this.sourceData.id!, "")
             if(paymentAmount <= 0) continue
 
             this.currentAmount -= paymentAmount
@@ -36,33 +36,38 @@ export class IncomeSource implements ISimulatable{
         return payments
     }
     public addDependantBucket(bucket: Bucket){
-        if(this.destinationBuckets.some(b => b.bucket.id! == bucket.bucket.id)) return
+        this.destinationBuckets = this.destinationBuckets.filter(b => b.bucket.id != bucket.bucket.id)
         this.destinationBuckets.push(bucket)
     }
     public deleteBucket(id: string){
         this.destinationBuckets = this.destinationBuckets.filter(b => b.bucket.id != id)
     }
-    public getAllocatedData(allocation?: Allocation[]){
-        let totalAllocated = 0 + ((allocation?.length != 0 && allocation) ? allocation.reduce((a, c) => a + this.getAllocationPrice(c), 0) : 0)
+    public getAllocatedData(allocations: Source[], excludeSourceId: string){
+        const allAllocations: Map<string, Source> = new Map()
+
+        let totalAllocated = 0 
         for(const bucket of this.destinationBuckets){
-            totalAllocated += bucket.getMoneyAllocated(this.sourceData.incomeAmount, this.sourceData.incomeAmount, this.sourceData.id!)
+            bucket.getAllocations(this.sourceData.id!).forEach(a => allAllocations.set(a.id, a))
         }
+        allocations.forEach(a => {
+            allAllocations.set(a.id, a);
+        });
+        allAllocations.delete(excludeSourceId)
+        totalAllocated += Array.from(allAllocations.values()).reduce((a, c) => a + this.getAllocationPrice(c), 0)
+
         return {allocatedAmount: totalAllocated, unAllocatedAmount: this.sourceData.incomeAmount - totalAllocated}
     }
-    public canAffordAllocation(allocations: Allocation[]): boolean{
-        const {unAllocatedAmount} = this.getAllocatedData()
-        let totalAllocationAmount = 0
-        allocations.forEach(allocation => {
-            if(allocation.isPercentage){
-                totalAllocationAmount += (this.sourceData.incomeAmount * (allocation.allocation/100)) 
-            }
-            else{
-                totalAllocationAmount += allocation.allocation
-            }
-        })
-        return totalAllocationAmount <= unAllocatedAmount
+    public getAllocatedDataWithTemp(allocations: Source[], tempSource: Source, excludeSourceId: string){
+        const data = this.getAllocatedData(allocations, excludeSourceId)
+        const price = this.getAllocationPrice(tempSource)
+
+        return {allocatedAmount: data.allocatedAmount + price, unAllocatedAmount: data.unAllocatedAmount - price}
     }
-    public getAllocationPrice(allocation: Allocation){
+    public canAffordAllocation(allocations: Source[], excludeSourceId: string): boolean{
+        const {unAllocatedAmount} = this.getAllocatedData(allocations, excludeSourceId)
+        return unAllocatedAmount >= 0
+    }
+    public getAllocationPrice(allocation: Source){
         if(allocation.isPercentage){
             return (this.sourceData.incomeAmount * (allocation.allocation/100))
         }
