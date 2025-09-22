@@ -14,12 +14,10 @@ interface DataType{
     bills: Map<string, Bill>
     hydrated: boolean,
     simTimeoutId: React.RefObject<NodeJS.Timeout | null> | null
-    sourceData: Source[]
 
     addIncomeSource: (incomeSource: IncomeSource) => void
     addBucket: (bucket: Bucket) => void
     addBill: (bill: Bill) => void
-    addSource: (source: Source) => void
 
     deleteIncomeSource: (id: string) => void
     deleteBucket: (id: string) => void
@@ -36,12 +34,10 @@ const defaultValues: DataType = {
     bills: new Map<string, Bill>(),
     hydrated: false,
     simTimeoutId:null,
-    sourceData: [],
 
     addIncomeSource: () => null,
     addBucket: () => null,
     addBill: () => null,
-    addSource: () => null,
 
     deleteIncomeSource: () => null,
     deleteBucket: () => null,
@@ -63,7 +59,6 @@ export default function DataProvider({children}: Props) {
     const [incomeSourceData, setIncomeSourceData] = useLocalStorage<IncomeDataType[]>("incomeSourceData", [])
     const [bucketData, setBucketData] = useLocalStorage<BucketDataType[]>("bucketData", [])
     const [billData, setBillData] = useLocalStorage<BillData[]>("billData", [])
-    const [sourceData, setSourceData] = useLocalStorage<Source[]>("sourceData", [])
 
     const [incomeSources, setIncomeSources] = useState<Map<string, IncomeSource>>(new Map())
     const [buckets, setBuckets] = useState<Map<string, Bucket>>(new Map())
@@ -101,9 +96,6 @@ export default function DataProvider({children}: Props) {
         const newMap = Util.updateMap(bills, bill.billData.id!, bill)
         setBillData(Array.from(newMap.values()).map(b => b.billData))
         setBills(newMap)
-    }
-    function addSource(source: Source){
-        setSourceData([...sourceData, source])
     }
 
     function hydrateFromLocalStorage(){
@@ -214,8 +206,6 @@ export default function DataProvider({children}: Props) {
                     addSourcesToBucket,
                     deleteBill,
                     simTimeoutId,
-                    addSource,
-                    sourceData
                 }}>
                 {children}
             </dataContext.Provider>
