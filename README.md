@@ -1,69 +1,20 @@
-# React + TypeScript + Vite
+## MoneyFlow
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+MoneyFlow is a website i'm working on to visualise how your money flows through your financial system by designating income sources, buckets and bills.
+***
+For this project I will be using:
+- ReactFlow
+- React
+- Tailwind
+- TypeScript
+- Supabase
+***
+Some early development screen shots can be seen below:
 
-Currently, two official plugins are available:
+<img width="934" height="797" alt="image" src="https://github.com/user-attachments/assets/c9d94d56-17dd-4d41-8f16-b078bdde9367" />
+<img width="649" height="759" alt="image" src="https://github.com/user-attachments/assets/fdaa796c-d2b7-4b08-8d4f-dee9ffd22377" />
+<img width="654" height="453" alt="image" src="https://github.com/user-attachments/assets/7cd59d76-656b-4108-8009-9576e1496cba" />
+<img width="661" height="460" alt="image" src="https://github.com/user-attachments/assets/7a2a787c-0298-4b3a-b02f-164065ab73c7" />
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
