@@ -7,7 +7,7 @@ export class Bill implements ISimulatable{
     billData: BillData
 
     constructor(billData: BillData){
-        this.billData = {...billData}
+        this.billData = {...billData, id: billData.id ?? crypto.randomUUID()}
     }
 
 
@@ -15,13 +15,13 @@ export class Bill implements ISimulatable{
         if(!isSameDay(date, new Date(this.billData.nextIncurralDate))) return []
         this.billData.nextIncurralDate = Util.getNextDate(new Date(this.billData.nextIncurralDate), this.billData.frequency).toISOString()
 
-        const sourceBucket = buckets.get(this.billData.sourceBucketName)
-        if(!sourceBucket) {new Error("Bill source bucket is not defined"); return []}
+        const sourceBucket = buckets.get(this.billData.sourceBucketId)
+        if(!sourceBucket) {throw new Error("Bill source bucket is not defined");}
 
         const payment = sourceBucket.requestMoneyFromBucket(this.billData.amount)
         this.billData.balance += payment
 
-        return [{source: sourceBucket.bucket.name, amount: payment, destination: this.billData.name, paymentType: PaymentType.Outgoing}]
+        return [{sourceId: this.billData.sourceBucketId!, amount: payment, destinationId: this.billData.id!, paymentType: PaymentType.Outgoing}]
     }
 
 

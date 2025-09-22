@@ -2,7 +2,7 @@ import { Link } from "react-router-dom"
 
 export default function Navbar() {
     return (
-        <div className="top-0 left-0 z-50 border-b-1 border-border fixed bg-panel1  w-full h-12 flex items-center justify-between ">
+        <div className="top-0 left-0 z-10 border-b-1 border-border fixed bg-panel1  w-full h-12 flex items-center justify-between ">
             <div>
                 <h1 className="px-3 text-lg  text-title ">
                     Money<span className="text-highlight">Flow</span>
@@ -16,7 +16,7 @@ export default function Navbar() {
                 </Link>
                 <Link to={"/home"} className="h-full">
                     <button className="hover:cursor-pointer text-subtext1 h-full hover:bg-highlight hover:text-btn-text  text-xs transition-all duration-200 ease-in-out px-3">
-                        Home
+                        Create
                     </button>
                 </Link>
                 <Link to={"/simulate"} className="h-full">

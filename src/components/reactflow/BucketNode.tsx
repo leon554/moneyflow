@@ -9,12 +9,12 @@ import { AccountType } from "@/Util/types";
 import BucketChart from "../BucketChart";
 
 
-export type BucketNodeType = Node<{sourceName: string},'incomeSource'>
+export type BucketNodeType = Node<{sourceId: string},'incomeSource'>
 
 export function BucketNode(props: NodeProps<BucketNodeType>) {
 
     const data = useContext(dataContext)
-    const bucket = data.buckets.get(props.data.sourceName)
+    const bucket = data.buckets.get(props.data.sourceId)
     
     return (
         <div className="text-updater-node">
@@ -53,7 +53,7 @@ export function BucketNode(props: NodeProps<BucketNodeType>) {
                         <p className="text-xs text-subtext1">
                             Balance Over Time
                         </p>
-                        <BucketChart bucketName={bucket.bucket.name}/>
+                        <BucketChart bucketId={bucket.bucket.id!}/>
                     </div>
                     <Handle type="target" position={Position.Top} />
                     <Handle type="source" position={Position.Bottom} />

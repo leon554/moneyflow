@@ -23,12 +23,12 @@ export default function BillCard({bill}: Props) {
                 </div>
 
                 <p className="max-w-[100%] truncate text-subtext2 text-xs whitespace-nowrap overflow-ellipsis">
-                    ${bill.billData.amount} {Util.capFirst(bill.billData.frequency)} from "{bill.billData.sourceBucketName}" bucket
+                    ${bill.billData.amount} {Util.capFirst(bill.billData.frequency)} from "{data.buckets.get(bill.billData.sourceBucketId)?.bucket.name}" bucket
                 </p>
 
             </div>
             <div className="hover:cursor-pointer text-subtext2"
-                onClick={() => {data.deleteBill(bill.billData.name)}}>
+                onClick={() => {data.deleteBill(bill.billData.id!)}}>
                 <FaRegTrashAlt className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
             </div>
         </div>

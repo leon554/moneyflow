@@ -10,13 +10,13 @@ export class Bucket implements ISimulatable{
 
 
     constructor(bucket: BucketDataType, incomeSources: Map<string, IncomeSource>){
-        this.bucket =  {...bucket}
-        const incomeSourceArr = bucket.sources.map(s => incomeSources.get(s.sourceName)).filter(s => s != undefined)
-        const usedNames = new Set<string>()
+        this.bucket =  {...bucket, id: bucket.id ?? crypto.randomUUID()}
+        const incomeSourceArr = bucket.sources.map(s => incomeSources.get(s.sourceId)).filter(s => s != undefined)
+        const usedIds = new Set<string>()
         incomeSourceArr.forEach(source => {
-            if(!usedNames.has(source.sourceData.name)){
+            if(!usedIds.has(source.sourceData.id!)){
                 source.addDependantBucket(this)
-                usedNames.add(source.sourceData.name)
+                usedIds.add(source.sourceData.id!)
             }
         })
     }
@@ -30,6 +30,13 @@ export class Bucket implements ISimulatable{
             const interestEarned = this.bucket.balance * rate
             this.bucket.balance += interestEarned
         }
+        if(this.bucket.accountType == AccountType.DeptAccount && isSameDay(date, new Date(this.bucket.nextIncurralDate))){
+            
+            this.bucket.nextIncurralDate = Util.getNextDate(new Date(this.bucket.nextIncurralDate), this.bucket.compoundFrequency).toISOString()
+            const rate = Util.getInterestRateFromFreq(this.bucket.compoundFrequency, this.bucket.interest/100)
+            const interestToBePaid = this.bucket.balance * rate
+            this.bucket.balance -= Math.abs(interestToBePaid)
+        }
 
         this.balanceOverTime.set(date.toISOString(), this.bucket.balance)
 
@@ -37,10 +44,10 @@ export class Bucket implements ISimulatable{
     }
 
 
-    public getMoneyAllocated(moneyEarned: number, moneyLeft: number, sourceName: string){
+    public getMoneyAllocated(moneyEarned: number, moneyLeft: number, sourceId: string){
         let totalMoneyWanted = 0
         this.bucket.sources.forEach(source => {
-            if(source.sourceName != sourceName)return
+            if(source.sourceId != sourceId)return
             let moneyWanted = 0
             if(source.isPercentage){
                 moneyWanted = this.getMoneyAllocatedPercentage(moneyEarned, moneyLeft, source)
@@ -70,11 +77,11 @@ export class Bucket implements ISimulatable{
     }   
 
     public addSources(sources: Source[], incomeSources: IncomeSource[]){
-        const usedNames = new Set<string>()
+        const usedIds = new Set<string>()
         incomeSources.forEach(source => {
-            if(usedNames.has(source.sourceData.name)) return
+            if(usedIds.has(source.sourceData.id!)) return
             source.addDependantBucket(this)
-            usedNames.add(source.sourceData.name)
+            usedIds.add(source.sourceData.id!)
         })
         this.bucket.sources = [...this.bucket.sources, ...sources]
     }

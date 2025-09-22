@@ -33,7 +33,7 @@ export default function IncomeSourceCard({source}: Props) {
                 </div>
             </div>
             <div className="hover:cursor-pointer text-subtext2"
-                onClick={() => data.deleteIncomeSource(source.sourceData.name)}>
+                onClick={() => data.deleteIncomeSource(source.sourceData.id!)}>
                 <FaRegTrashAlt className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
             </div>
         </div>

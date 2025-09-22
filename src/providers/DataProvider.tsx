@@ -19,13 +19,13 @@ interface DataType{
     addBucket: (bucket: Bucket) => void
     addBill: (bill: Bill) => void
 
-    deleteIncomeSource: (name: string) => void
-    deleteBucket: (name: string) => void
-    deleteBill: (name: string) => void
+    deleteIncomeSource: (id: string) => void
+    deleteBucket: (id: string) => void
+    deleteBill: (id: string) => void
 
     step: (date: Date) => IPayment[]
     resetBuckets: () => void
-    addSourcesToBucket: (bucketName: string, sources: Source[]) => void
+    addSourcesToBucket: (bucketId: string, sources: Source[]) => void
 }
 
 const defaultValues: DataType = {
@@ -82,17 +82,17 @@ export default function DataProvider({children}: Props) {
         );
     };
     function addIncomeSource(incomeSource: IncomeSource){
-        const newMap = Util.updateMap(incomeSources, incomeSource.sourceData.name, incomeSource)
+        const newMap = Util.updateMap(incomeSources, incomeSource.sourceData.id!, incomeSource)
         setIncomeSourceData(Array.from(newMap.values()).map(v => v.sourceData))
         setIncomeSources(newMap)
     }
     function addBucket(bucket: Bucket){
-        const newMap = Util.updateMap(buckets, bucket.bucket.name, bucket)
+        const newMap = Util.updateMap(buckets, bucket.bucket.id!, bucket)
         setBucketData(Array.from(newMap.values()).map(v => v.bucket))
         setBuckets(newMap)
     }
     function addBill(bill: Bill){
-        const newMap = Util.updateMap(bills, bill.billData.name, bill)
+        const newMap = Util.updateMap(bills, bill.billData.id!, bill)
         setBillData(Array.from(newMap.values()).map(b => b.billData))
         setBills(newMap)
     }
@@ -104,13 +104,13 @@ export default function DataProvider({children}: Props) {
 
 
         incomeSourceData.forEach(source => {
-            incomeMap.set(source.name, new IncomeSource(source))
+            incomeMap.set(source.id!, new IncomeSource(source))
         })
         bucketData.forEach(bucketData => {
-            bucketMap.set(bucketData.name, new Bucket(bucketData, incomeMap))
+            bucketMap.set(bucketData.id!, new Bucket(bucketData, incomeMap))
         })
         billData.forEach(bill => {
-            billMap.set(bill.name, new Bill(bill))
+            billMap.set(bill.id!, new Bill(bill))
         })
 
         setIncomeSources(incomeMap)
@@ -118,37 +118,37 @@ export default function DataProvider({children}: Props) {
         setBills(billMap)
     }
 
-    function addSourcesToBucket(bucketName: string, sources: Source[]){
-        const bucket = buckets.get(bucketName)
-        if(!bucket) {new Error("Bucket name doesn't exist"); return}
+    function addSourcesToBucket(bucketId: string, sources: Source[]){
+        const bucket = buckets.get(bucketId)
+        if(!bucket) {new Error("Bucket id doesn't exist"); return}
 
         bucket.addSources(sources, Array.from(incomeSources.values()))
         setBuckets(new Map(buckets))
         setIncomeSources(new Map(incomeSources))
     }
-    function deleteBucket(name: string){
+    function deleteBucket(id: string){
         const newMap = new Map(buckets)
-        newMap.delete(name)
+        newMap.delete(id)
 
         const incomeSourceMap = new Map(Array.from(incomeSources.values()).map(incomeSource => {
-            incomeSource.deleteBucket(name)
+            incomeSource.deleteBucket(id)
             return incomeSource
-        }).map(incSrc => [incSrc.sourceData.name, incSrc]))
+        }).map(incSrc => [incSrc.sourceData.id!, incSrc]))
 
 
         setIncomeSources(incomeSourceMap)
         setBucketData([...Array.from(newMap.values()).map(v => v.bucket)])
         setBuckets(newMap)
     }
-    function deleteIncomeSource(name: string){
+    function deleteIncomeSource(id: string){
         const newMap = new Map(incomeSources)
-        newMap.delete(name)
+        newMap.delete(id)
         setIncomeSourceData([...Array.from(newMap.values()).map(v => v.sourceData)])
         setIncomeSources(newMap)
     }
-    function deleteBill(name: string){
+    function deleteBill(id: string){
         const newMap = new Map(bills)
-        newMap.delete(name)
+        newMap.delete(id)
 
         setBills(newMap)
         setBillData([...Array.from(newMap.values()).map(b => b.billData)])
@@ -163,8 +163,8 @@ export default function DataProvider({children}: Props) {
         const billPayments = billArr.map(bill => bill.step(date, buckets)).flat()
         bucketArr.map(bucket => bucket.step(date))
 
-        const newIncomeSourceMap = new Map(incomeSourceArr.map(i => [i.sourceData.name, i]))
-        const newBillMap = new Map(billArr.map(b => [b.billData.name, b]))
+        const newIncomeSourceMap = new Map(incomeSourceArr.map(i => [i.sourceData.id!, i]))
+        const newBillMap = new Map(billArr.map(b => [b.billData.id!, b]))
 
         simTimeoutId.current = setTimeout(() => {
             setIncomeSources(newIncomeSourceMap)
@@ -175,7 +175,7 @@ export default function DataProvider({children}: Props) {
         const pyaments = [incomePayments, billPayments].flat()
 
         pyaments.forEach(p => {
-            playEdge(`${p.source}-${p.destination}`, p.amount)
+            playEdge(`${p.sourceId}-${p.destinationId}`, p.amount)
         })
         return pyaments
     }

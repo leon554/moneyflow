@@ -86,25 +86,25 @@ export default function Chart() {
         let sourceNodes: Node[] = incomeSourceArr.map((s, i) => {
             return {
                 type: "incomeSourceNode",
-                id: s.sourceData.name,
+                id: s.sourceData.id!,
                 position: {x: i * 150, y: 0},
-                data: {label: s.sourceData.name, sourceName: s.sourceData.name}
+                data: {label: s.sourceData.name, sourceId: s.sourceData.id!}
             }
         })
         let bucketNodes: Node[] = bucketArr.map((b, i) => {
             return {
                 type: "bucketNode",
-                id: b.bucket.name,
+                id: b.bucket.id!,
                 position: {x: i * 150, y: 200},
-                data: {label: b.bucket.name, sourceName: b.bucket.name}
+                data: {label: b.bucket.name, sourceId: b.bucket.id!}
             }
         })
         let billNodes: Node[] = billArr.map((b, i) => {
             return {
                 type: "billNode",
-                id: b.billData.name,
+                id: b.billData.id!,
                 position: {x: i * 150, y: 400},
-                data: {label: b.billData.name, sourceName: b.billData.name}
+                data: {label: b.billData.name, sourceId: b.billData.id!}
             }
         })
 
@@ -113,9 +113,9 @@ export default function Chart() {
         incomeSourceArr.forEach((i, index) => {
             i.destinationBuckets.forEach(b=> {
                 edges.push({
-                    id: `${i.sourceData.name}-${b.bucket.name}`,
-                    source: i.sourceData.name,
-                    target: b.bucket.name,
+                    id: `${i.sourceData.id}-${b.bucket.id}`,
+                    source: i.sourceData.id!,
+                    target: b.bucket.id!,
                     animated: true,
                     type: "animatedEdge",
                     label: `$${b.getMoneyAllocated(i.sourceData.incomeAmount, i.sourceData.incomeAmount, i.sourceData.name)}`,
@@ -125,11 +125,11 @@ export default function Chart() {
         })
         billArr.forEach(b => {
             edges.push({
-                id: `${b.billData.sourceBucketName}-${b.billData.name}`,
-                source: b.billData.sourceBucketName,
+                id: `${b.billData.sourceBucketId}-${b.billData.id}`,
+                source: b.billData.sourceBucketId,
+                target: b.billData.id!,
                 type: "animatedEdge",
                 data: {play: false},
-                target: b.billData.name,
                 animated: true,
                 label: `$${b.billData.amount}`,
                 style: {stroke: "greenyellow"}

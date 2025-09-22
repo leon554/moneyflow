@@ -9,26 +9,28 @@ export enum IncurralFrequency {
     Quarterly = "quarterly",
     Yearly = "yearly"
 }
-export enum AccountType  {
-    CashAccount = "Cash",
-    SavingsAccount = "Savings",
-    DeptAccount = "Debt",
-}
 
 export interface IncomeDataType{
+    id?: string
     name: string
     incomeAmount: number
     nextIncurralDate: string
     incomeFrequency: IncurralFrequency
 }
 export interface Source{
-    sourceName: string
+    sourceId: string
     allocation: number
     isPercentage: boolean
 }
 export type Allocation = Pick<Source, "allocation" | "isPercentage">
 
+export enum AccountType  {
+    CashAccount = "Cash",
+    SavingsAccount = "Savings",
+    DeptAccount = "Debt",
+}
 interface BaseBucket<T extends AccountType>{
+    id?: string
     name: string
     sources: Source[]
     balance: number
@@ -40,16 +42,17 @@ interface Interest{
     compoundFrequency: IncurralFrequency
     nextIncurralDate: string
 }
-type NonInterestAccount = BaseBucket<AccountType.CashAccount>
-type SavingsAccount = BaseBucket<AccountType.SavingsAccount> & Interest
-type DeptAccount = BaseBucket<AccountType.DeptAccount> & Interest
+export type NonInterestAccount = BaseBucket<AccountType.CashAccount>
+export type SavingsAccount = BaseBucket<AccountType.SavingsAccount> & Interest
+export type DeptAccount = BaseBucket<AccountType.DeptAccount> & Interest
 export type BucketDataType = NonInterestAccount | SavingsAccount | DeptAccount
 
 
 
 export interface BillData{
+    id?: string
     name: string
-    sourceBucketName: string
+    sourceBucketId: string
     amount: number
     balance: number
     frequency: IncurralFrequency
@@ -60,8 +63,8 @@ export interface ISimulatable{
     step: (date: Date, ...arg: any) => IPayment[]
 }
 export interface IPayment{
-    source: string
-    destination: string
+    sourceId: string
+    destinationId: string
     paymentType: PaymentType
     amount: number
 }

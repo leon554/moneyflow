@@ -14,7 +14,7 @@ export default function CreateBill() {
     const data = useContext(dataContext)
 
     const frequencyItems = Object.values(IncurralFrequency).map((v,i) => ({id: i, name: Util.capFirst(v)}))
-    const sourceItems = Array.from(data.buckets.values()).map((b,i) => ({id: i, name: Util.capFirst(b.bucket.name)}))
+    const sourceItems = Array.from(data.buckets.values()).map((b,i) => ({id: i, name: Util.capFirst(b.bucket.name), data: b.bucket.id!}))
     
     const [name, setName] = useState("")
     const [amount, setAmount] = useState("")
@@ -29,7 +29,7 @@ export default function CreateBill() {
 
         const billData: BillData= {
             name,
-            sourceBucketName: selectedSourceItem.name,
+            sourceBucketId: selectedSourceItem.data!,
             amount: Number(amount),
             balance: 0,
             frequency: selectedFrequencyItem.name.toLowerCase() as IncurralFrequency,

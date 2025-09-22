@@ -14,11 +14,11 @@ ChartJS.register(
 )
 
 interface Props{
-    bucketName: string
+    bucketId: string
 }
-export default function BucketChart({bucketName} : Props) {
+export default function BucketChart({bucketId} : Props) {
     const dc = useContext(dataContext)
-    const data = Array.from(dc.buckets.get(bucketName)!.balanceOverTime.entries())
+    const data = Array.from(dc.buckets.get(bucketId)!.balanceOverTime.entries())
 
     const rootStyles = getComputedStyle(document.documentElement)
 

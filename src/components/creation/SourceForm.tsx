@@ -6,7 +6,7 @@ import { dataContext } from "@/providers/DataProvider"
 import type { dataFormat } from "../primitives/Select"
 import { FaRegTrashAlt } from "react-icons/fa"
 import type { Source } from "@/Util/types"
-
+import { FaPlus } from "react-icons/fa";
 
 interface Props{
     sources: Source[]
@@ -16,7 +16,7 @@ export default function SourceForm({sources, setSources}: Props) {
 
     const data = useContext(dataContext)
 
-    let sourceItems = Array.from(data.incomeSources.values()).map((v,i) => ({id: i, name: v.sourceData.name}))
+    let sourceItems = Array.from(data.incomeSources.values()).map((v,i) => ({id: i, name: v.sourceData.name, data: v.sourceData.id!}))
     const remainingItems = [{id: 0, name: "Yes"}, {id: 1, name: "No"}]
     const typeItems = [{id: 0, name: "%"}, {id: 1, name: "$"}]
 
@@ -25,10 +25,10 @@ export default function SourceForm({sources, setSources}: Props) {
     const [allocation, setAllocation] = useState("")
     const [selectedTypeItem, setSelectedTypeItem] = useState<dataFormat>(typeItems[0])
 
-    const proposedAllocation = {sourceName: selectedSourceItem?.name ?? "undefined", allocation: Number(allocation), isPercentage: selectedTypeItem.name == "%"}
-    const allAllocations = [...sources, proposedAllocation].filter(a => a.sourceName == selectedSourceItem?.name)
-    const filteredSources = [...sources].filter(a => a.sourceName == selectedSourceItem?.name)
-    const enoughMoney = (selectedSourceItem && data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(filteredSources).unAllocatedAmount > 0) ?? false
+    const proposedAllocation: Source = {sourceId: selectedSourceItem?.data ?? "undefined", allocation: Number(allocation), isPercentage: selectedTypeItem.name == "%"}
+    const allAllocations = [...sources, proposedAllocation].filter(a => a.sourceId == selectedSourceItem?.name)
+    const filteredSources = [...sources].filter(a => a.sourceId == selectedSourceItem?.name)
+    const enoughMoney = (selectedSourceItem && data.incomeSources.get(selectedSourceItem.data!)!.getAllocatedData(filteredSources).unAllocatedAmount > 0) ?? false
 
     function addSource(){
         if(!selectedSourceItem) {alert("Select or create a source before creating this bucket"); return}
@@ -36,7 +36,7 @@ export default function SourceForm({sources, setSources}: Props) {
         if(selectedTypeItem.name == "%" && Number(allocation) > 100) {alert("can't have percentage higher than 100"); return}
 
         const newSource: Source = {
-            sourceName: selectedSourceItem.name,
+            sourceId: selectedSourceItem.data!,
             allocation: selectedRemainingItem.name == "Yes" ? 
                 data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(allAllocations).unAllocatedAmount: 
                 Number(allocation),
@@ -81,7 +81,7 @@ export default function SourceForm({sources, setSources}: Props) {
                             setValue={setAllocation}
                             placeHolder="1200"
                             outerDivStyles="w-full"
-                            invalidFunc={(_) => selectedSourceItem ? !data.incomeSources.get(selectedSourceItem.name)!.canAffordAllocation(allAllocations) : false}/>
+                            invalidFunc={(_) => selectedSourceItem ? !data.incomeSources.get(selectedSourceItem.data!)!.canAffordAllocation(allAllocations) : false}/>
                         <div className="flex flex-col gap-1.5">
                             <p className="text-xs font-medium text-subtext1 relative ">
                                 Type
@@ -122,11 +122,11 @@ export default function SourceForm({sources, setSources}: Props) {
                 {selectedSourceItem && enoughMoney ? 
                     <p className="text-subtext2 text-xs">
                         {selectedRemainingItem.name == "Yes" ? 
-                        "The remaining $" + data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(allAllocations).unAllocatedAmount + 
+                        "The remaining $" + data.incomeSources.get(selectedSourceItem.data!)!.getAllocatedData(allAllocations).unAllocatedAmount + 
                         " from your " + selectedSourceItem.name + " will be allocated to this bucket":
-                        "$" + data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(allAllocations).unAllocatedAmount + " unallocated" +
-                        " and $" + data.incomeSources.get(selectedSourceItem.name)!.getAllocatedData(allAllocations).allocatedAmount + " all ready allocated" +
-                        ". " + (data.incomeSources.get(selectedSourceItem.name)!.canAffordAllocation(allAllocations) ? 
+                        "$" + data.incomeSources.get(selectedSourceItem.data!)!.getAllocatedData(allAllocations).unAllocatedAmount + " unallocated" +
+                        " and $" + data.incomeSources.get(selectedSourceItem.data!)!.getAllocatedData(allAllocations).allocatedAmount + " all ready allocated" +
+                        ". " + (data.incomeSources.get(selectedSourceItem.data!)!.canAffordAllocation(allAllocations) ? 
                         "You have enough unallocated money left to create this source" : 
                         "You DON'T have enough money left from the selected income source to create this source")}
                     </p>
@@ -136,7 +136,8 @@ export default function SourceForm({sources, setSources}: Props) {
                 name="Add Source"
                 onSubmit={() => addSource()}
                 highlight={false}
-                style="w-full"/>
+                style="w-full flex gap-1.5"
+                icon={<FaPlus size={12}/>}/>
             {sources.length != 0 ?
             <div className="grid sm:grid-cols-2 gap-3 ">
                 {sources.map(s => {
@@ -144,14 +145,14 @@ export default function SourceForm({sources, setSources}: Props) {
                         <div className=" w-full bg-panel2 p-2 rounded-md text-subtext1 outline-1 outline-border2 flex justify-between items-center px-3">
                             <div className="flex gap-1.5">
                                 <p className="text-title">
-                                    {s.sourceName}
+                                    {data.incomeSources.get(s.sourceId)!.sourceData.name}
                                 </p>
                                 <p className="text-xs bg-btn text-btn-text px-1.5 rounded-full font-medium  py-[1px]">
                                     {s.isPercentage ? `${s.allocation}%` : `$${s.allocation}`}
                                 </p>
                             </div>
                             <div className="hover:cursor-pointer text-subtext2"
-                                onClick={() => setSources([...sources.filter(source => source.sourceName != s.sourceName || source.allocation != s.allocation)])}>
+                                onClick={() => setSources([...sources.filter(source => source.sourceId != s.sourceId || source.allocation != s.allocation)])}>
                                 <FaRegTrashAlt className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
                             </div>
                         </div>

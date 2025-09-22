@@ -6,12 +6,12 @@ import { dataContext } from "@/providers/DataProvider";
 import { Util } from "@/Util/util";
 
 
-export type IncomeSourceNode = Node<{sourceName: string},'incomeSource'>
+export type IncomeSourceNode = Node<{sourceId: string},'incomeSource'>
 
 export function IncomeSourceNode(props: NodeProps<IncomeSourceNode>) {
 
     const data = useContext(dataContext)
-    const incomeSource = data.incomeSources.get(props.data.sourceName)
+    const incomeSource = data.incomeSources.get(props.data.sourceId)
     
     return (
         <div className="text-updater-node">

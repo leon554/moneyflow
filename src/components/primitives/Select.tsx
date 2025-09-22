@@ -5,6 +5,7 @@ export interface dataFormat{
     icon?: ReactNode
     name: string,
     id: number
+    data?: string
 }
 
 interface SelectProps {
@@ -56,7 +57,7 @@ export default function Select(props: SelectProps) {
 
     return (
         <div className={`relative ${props.divStyles}`} ref={focusElement}>
-            <button className={`whitespace-nowrap group  relative transition-transform flex justify-between bg-panel2 items-center gap-1  hover:cursor-pointer ${props.style ? props.style : "w-full flex outline-1 px-3 h-7 rounded-md outline-border text-subtext3 "}`}
+            <button className={`whitespace-nowrap group text-xs relative transition-transform flex justify-between bg-panel2 items-center gap-1  hover:cursor-pointer ${props.style ? props.style : "w-full flex outline-1 px-3 h-7 rounded-md outline-border text-subtext3 "}`}
                 onClick={(e) => {
                     setClicked(!clicked)
                     props.onBtnClick?.()

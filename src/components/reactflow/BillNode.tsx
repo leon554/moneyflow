@@ -5,12 +5,12 @@ import { dataContext } from "@/providers/DataProvider";
 import { Util } from "@/Util/util";
 
 
-export type BillNodeType = Node<{sourceName: string},'incomeSource'>
+export type BillNodeType = Node<{sourceId: string},'incomeSource'>
 
 export function BillNode(props: NodeProps<BillNodeType>) {
 
     const data = useContext(dataContext)
-    const bill = data.bills.get(props.data.sourceName)
+    const bill = data.bills.get(props.data.sourceId)
     
     return (
         <div className="text-updater-node">

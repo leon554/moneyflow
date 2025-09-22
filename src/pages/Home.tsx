@@ -54,32 +54,32 @@ export default function Home() {
                     pageIndex == 1 ?
                     <>
                         <CreateBucket/> 
-                        <div className="flex w-full justify-between">
+                        <div className="flex w-full justify-between mb-10 gap-3">
                             <Button
                                 name={"Previous"}
                                 icon={<FaAngleRight className="text-subtext2 sm:block hidden rotate-180 " size={0}/>}
                                 highlight={false}
                                 onSubmit={() => {setPageIndex(0)}}
-                                style="gap-1.5"/>
+                                style="gap-1.5 w-full"/>
                             <Button
                                 name={"Next"}
                                 highlight={false}
                                 icon={<FaAngleRight className="text-subtext2 sm:block hidden " size={0}/>}
                                 onSubmit={() => {setPageIndex(2)}}
-                                style="gap-1.5"
+                                style="gap-1.5 w-full"
                                 rightSide={true}/>
                         </div>
                     </>
                     :
                     <>
                         <CreateBill/>
-                        <div className="flex w-full justify-between">
+                        <div className="flex w-full justify-between mb-10 gap-3">
                             <Button
                                 name={"Previous"}
                                 icon={<FaAngleRight className="text-subtext2 sm:block hidden rotate-180 " size={0}/>}
                                 highlight={false}
                                 onSubmit={() => {setPageIndex(1)}}
-                                style="gap-1.5"/>
+                                style="gap-1.5 w-full"/>
                             <Button
                                 name={"Simulate Your System"}
                                 highlight={false}
@@ -88,7 +88,7 @@ export default function Home() {
                                     setPageIndex(0)
                                     navigate("/simulate")
                                 }}
-                                style="gap-1.5"
+                                style="gap-1.5 w-full"
                                 rightSide={true}/>
                         </div>
                     </>
