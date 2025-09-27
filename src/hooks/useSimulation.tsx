@@ -1,12 +1,13 @@
-import { useContext, useState, useEffect, useRef} from "react"
-import { dataContext } from "@/providers/DataProvider"
+import {  useState, useEffect, useRef} from "react"
 import {add, sub} from "date-fns"
-import type { IPaymentHistory } from "@/Util/types"
+import type { IPayment, IPaymentHistory } from "@/Util/types"
 
-
-export default function useSimulation() {
-    const data = useContext(dataContext)
-
+interface Props{
+    step: (date: Date) => IPayment[]
+    resetBuckets: () => void
+    simTimeoutId:  React.RefObject<NodeJS.Timeout | null>
+}
+export default function useSimulation({step, resetBuckets, simTimeoutId: simTimeOutId}: Props) {
     const [date, setDate] = useState(getStartSimulationDate())
     const [isRunning, setIsRunning] = useState(false)
     const [paymentHistory, setPaymentHistory] = useState<IPaymentHistory[]>([])
@@ -34,7 +35,7 @@ export default function useSimulation() {
         function tick(){
             const localDate = add(new Date, {days: simDays.current})
 
-            const payments = data.step(localDate)
+            const payments = step(localDate)
             payments.length != 0 ? setPaymentHistory(prev => [...prev, {date: localDate, payments}]) : null
             
             setDate(localDate)
@@ -48,12 +49,12 @@ export default function useSimulation() {
         setIsRunning(false)
         stopSimulation()
         setDate(getStartSimulationDate())
-        data.resetBuckets()
+        resetBuckets()
         setPaymentHistory([])
         simDays.current = 0
-        if(!data.simTimeoutId) return
-        if(data.simTimeoutId.current === null) return
-        clearInterval(data.simTimeoutId.current)
+        if(!simTimeOutId) return
+        if(simTimeOutId.current === null) return
+        clearInterval(simTimeOutId.current)
     }
 
     return {running: isRunning, setRunning: setIsRunning, date, reset, paymentHistory}

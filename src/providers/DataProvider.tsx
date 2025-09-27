@@ -1,12 +1,12 @@
 import useLocalStorage from "@/hooks/useLocalStorage"
 import { IncomeSource } from "@/Util/classes/IncomeSource"
-import { AccountType, type BillData, type BucketDataType, type IncomeDataType, type IPayment, type Source } from "@/Util/types"
+import { AccountType, type BillData, type BucketDataType, type IncomeDataType, type IPayment, type SimulationType, type Source } from "@/Util/types"
 import { Util } from "@/Util/util"
 import { createContext, useEffect, useRef, useState } from "react"
 import { Bucket } from "@/Util/classes/Bucket"
 import { Bill } from "@/Util/classes/Bill"
 import { useReactFlow } from "@xyflow/react"
-
+import useSimulation from "@/hooks/useSimulation"
 
 interface DataType{
     incomeSources: Map<string, IncomeSource>
@@ -15,6 +15,7 @@ interface DataType{
     hydrated: boolean,
     simTimeoutId: React.RefObject<NodeJS.Timeout | null> | null
     updated: boolean
+    simulation: SimulationType | null
 
     addIncomeSource: (incomeSource: IncomeSource) => void
     addBucket: (bucket: Bucket) => void
@@ -27,6 +28,7 @@ interface DataType{
     step: (date: Date) => IPayment[]
     resetBuckets: () => void
     addSourcesToBucket: (bucketId: string, sources: Source[]) => void
+    setUpdated: (u: boolean) => void
 }
 
 const defaultValues: DataType = {
@@ -36,6 +38,7 @@ const defaultValues: DataType = {
     hydrated: false,
     simTimeoutId:null,
     updated: false,
+    simulation: null,
 
     addIncomeSource: () => null,
     addBucket: () => null,
@@ -47,7 +50,8 @@ const defaultValues: DataType = {
 
     step: () => [],
     resetBuckets: () => null,
-    addSourcesToBucket: () => null
+    addSourcesToBucket: () => null,
+    setUpdated: () => null
 }
 
 export const dataContext = createContext<DataType>(defaultValues)
@@ -69,6 +73,7 @@ export default function DataProvider({children}: Props) {
     const [updated, setUpdated] = useState(false)
     const simTimeoutId = useRef<NodeJS.Timeout | null>(null)
     
+    const simulation = useSimulation({step, resetBuckets, simTimeoutId})
 
     useEffect(() => {
         hydrateFromLocalStorage()
@@ -208,6 +213,7 @@ export default function DataProvider({children}: Props) {
                     bills,
                     hydrated,
                     updated,
+                    simulation,
                     addIncomeSource,
                     addBucket,
                     addBill,
@@ -218,6 +224,7 @@ export default function DataProvider({children}: Props) {
                     addSourcesToBucket,
                     deleteBill,
                     simTimeoutId,
+                    setUpdated
                 }}>
                 {children}
             </dataContext.Provider>

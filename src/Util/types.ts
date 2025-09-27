@@ -78,3 +78,11 @@ export interface IPaymentHistory{
     date: Date
     payments: IPayment[]
 }
+
+export interface SimulationType{
+    running: boolean;
+    setRunning: React.Dispatch<React.SetStateAction<boolean>>;
+    date: Date;
+    reset: () => void;
+    paymentHistory: IPaymentHistory[];
+}

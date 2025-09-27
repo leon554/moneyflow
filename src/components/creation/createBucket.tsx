@@ -56,6 +56,7 @@ export default function CreateBucket() {
         }
         if(selectedEditBucketId != ""){
             bucket.id = data.buckets.get(selectedEditBucketId)!.bucket.id!
+            bucket.sources = sources.map(s => ({...s, bucketTargetId: bucket.id!}))
             setSelectedEditBucketId("")
         }
 

@@ -54,6 +54,19 @@ export namespace Util{
         };
         return add(base, increments[freq]);
     }
+    export function getPayPerDay(amount: number, frequency: IncurralFrequency): number {
+        frequency = frequency.toLowerCase() as IncurralFrequency
+        const divider: Record<IncurralFrequency, number> = {
+            [IncurralFrequency.OneTime]:     1,
+            [IncurralFrequency.Daily]:       1,
+            [IncurralFrequency.Weekly]:      7,
+            [IncurralFrequency.Fortnightly]: 14,
+            [IncurralFrequency.Monthly]:     30,
+            [IncurralFrequency.Quarterly]:   90,
+            [IncurralFrequency.Yearly]:      365,
+        };
+        return amount/divider[frequency];
+    }
     export function getInterestRateFromFreq(freq: IncurralFrequency, rate: number){
         freq = freq.toLowerCase() as IncurralFrequency
         const increments: Record<IncurralFrequency, number> = {
@@ -98,5 +111,17 @@ export namespace Util{
 
         const round = (num: number) => Math.round(num*100)/100
         return {moneyIn: round(paymentData.moneyIn), moneyOut: round(paymentData.moneyOut)}
+    }
+    export function formatNum(number: number){
+        const round = (num: number) => Math.round(num*100)/100
+        if(number < 1000){
+            return `${round(number)}`
+        }
+        else if(number < 1000000){
+            return round(number/1000) + "k"
+        }
+        else if(number < 1000000000){
+            return round(number/1000000) + "m"
+        }
     }
 }

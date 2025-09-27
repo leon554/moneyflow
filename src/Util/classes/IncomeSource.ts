@@ -8,6 +8,7 @@ import { Bucket } from "./Bucket";
 export class IncomeSource implements ISimulatable{
     sourceData: IncomeDataType
     currentAmount: number = 0
+    totalPaid: number = 0
     destinationBucketsIds: string[] = []
 
     constructor(incomeSourceData: IncomeDataType){
@@ -32,6 +33,7 @@ export class IncomeSource implements ISimulatable{
             if(paymentAmount <= 0) continue
 
             this.currentAmount -= paymentAmount
+            this.totalPaid += paymentAmount
             bucket.addMoney(paymentAmount)
             payments.push({sourceId: id!, destinationId: bucket.bucket.id!, amount: paymentAmount, paymentType: PaymentType.Incoming})
         }
@@ -58,9 +60,19 @@ export class IncomeSource implements ISimulatable{
             allAllocations.set(a.id, a);
         });
         allAllocations.delete(excludeSourceId)
-        totalAllocated += Array.from(allAllocations.values()).reduce((a, c) => a + this.getAllocationPrice(c), 0)
 
-        return {allocatedAmount: totalAllocated, unAllocatedAmount: this.sourceData.incomeAmount - totalAllocated}
+        const allocationDistribution: {name: string, allocated: number}[] = []
+        totalAllocated += Array.from(allAllocations.values()).reduce((a, c) => {
+            const allocationPrice = this.getAllocationPrice(c)
+            allocationDistribution.push({name: buckets.get(c.bucketTargetId)!.bucket.name, allocated: allocationPrice})
+            return a + allocationPrice
+        }, 0)
+
+        return {
+            allocatedAmount: totalAllocated, 
+            unAllocatedAmount: this.sourceData.incomeAmount - totalAllocated,
+            allocationDistribution
+        }
     }
     public getAllocatedDataWithTemp(allocations: Source[], tempSource: Source, excludeSourceId: string, buckets: Map<string, Bucket>){
         const data = this.getAllocatedData(allocations, excludeSourceId, buckets)

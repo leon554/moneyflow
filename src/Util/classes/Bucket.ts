@@ -12,6 +12,7 @@ export class Bucket implements ISimulatable{
 
     constructor(bucket: BucketDataType, incomeSources: Map<string, IncomeSource>){
         this.bucket =  {...bucket, id: bucket.id ?? crypto.randomUUID()}
+        bucket.sources.forEach(s => s.bucketTargetId == "" ? s.bucketTargetId = this.bucket.id! : null)
         const incomeSourceArr = bucket.sources.map(s => incomeSources.get(s.incomeSourceId)).filter(s => s != undefined)
         const usedIds = new Set<string>()
         incomeSourceArr.forEach(source => {
@@ -47,7 +48,7 @@ export class Bucket implements ISimulatable{
     }
 
 
-    public getMoneyAllocated(moneyEarned: number, moneyLeft: number, sourceId: string, excludeSourceId: string){
+    public getMoneyAllocated(moneyEarned: number, moneyLeft: number, sourceId: string, excludeSourceId?: string){
         let totalMoneyWanted = 0
         this.bucket.sources.forEach(source => {
             if(source.incomeSourceId != sourceId || source.id == excludeSourceId)return

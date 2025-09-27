@@ -1,17 +1,20 @@
 import { Util } from "@/Util/util"
 import Button from "@/components/primitives/Button"
-import useSimulation from "@/hooks/useSimulation"
 import Chart from "@/components/Chart"
 import { useContext, useEffect } from "react"
 import { dataContext } from "@/providers/DataProvider"
+import { FaPlay } from "react-icons/fa";
+import { FaPause } from "react-icons/fa";
+import { FaRedoAlt } from "react-icons/fa";
 
 
 export default function Simulate() {
 
-    const {date, running, setRunning, reset, paymentHistory} = useSimulation()
+    const data = useContext(dataContext)
+
+    const {date, running, setRunning, reset, paymentHistory} = data.simulation!
     const {moneyIn, moneyOut} = Util.getMoneyInAndOut(paymentHistory)
 
-    const data = useContext(dataContext)
     const networth = Math.round(Array.from(data.buckets.values()).reduce((a, c) => a + c.bucket.balance, 0)*100)/100
 
     useEffect(() => {
@@ -30,13 +33,13 @@ export default function Simulate() {
                         <span className="font-normal text-xs text-subtext2">Current Date:</span> {Util.formatDate(date)}
                     </p>
                     <p className="text-subtext1 font-medium text-sm">
-                        <span className="font-normal text-xs text-subtext2">Money In:</span> ${moneyIn}
+                        <span className="font-normal text-xs text-subtext2">Money In:</span> ${Util.formatNum(moneyIn)}
                     </p>
                     <p className="text-subtext1 font-medium text-sm">
-                        <span className="font-normal text-xs text-subtext2">Money Out:</span> ${moneyOut}
+                        <span className="font-normal text-xs text-subtext2">Money Out:</span> ${Util.formatNum(moneyOut)}
                     </p>
                     <p className="text-subtext1 font-medium text-sm">
-                        <span className="font-normal text-xs text-subtext2">Net Worth:</span> ${networth}
+                        <span className="font-normal text-xs text-subtext2">Net Worth:</span> ${Util.formatNum(networth)}
                     </p>
                 </div>
                 <Chart/>
@@ -47,12 +50,14 @@ export default function Simulate() {
                     name={`${running ? "Stop Simulations" : " Start Simulation"}`}
                     highlight={true}
                     onSubmit={() => {setRunning(!running)}}
-                    style="w-[70%]"/>
+                    style="w-[70%] flex gap-2 items-center"
+                    icon={running ? <FaPause className="mt-0.5" size={13}/> : <FaPlay className="mt-0.5" size={13}/>}/>
                 <Button
                     name="Reset Simulation"
                     highlight={false}
                     onSubmit={reset}
-                    style="w-[30%]"/>
+                    style="w-[30%] flex gap-2 items-center"
+                    icon={<FaRedoAlt className="mt-0.5" size={13}/>}/>
             </div>
         </div>
     )
