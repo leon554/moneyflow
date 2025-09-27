@@ -8,6 +8,7 @@ import { IncurralFrequency, type IncomeDataType } from "@/Util/types";
 import { Util } from "@/Util/util";
 import { useContext, useState } from "react";
 import IncomeSourceCard from "../display/IncomeSourceCard";
+import { FaPlus, FaSave } from "react-icons/fa";
 
 export default function Income() {
 
@@ -17,9 +18,11 @@ export default function Income() {
     const [date, setDate] = useState(Util.formatDate(new Date()))
     const [selectedItem, setSelectedItem] = useState<dataFormat>(items[0])
 
+    const [edit, setEdit] = useState({isInEditMode: false, editId: ""})
+
     const data = useContext(dataContext)
 
-    function addIncome(){
+    function handleSubmit(){
         if(name == "" || amount == "" || date == "") {alert("fill in all fields"); return}
         const sourceData: IncomeDataType = {
             name,
@@ -27,7 +30,24 @@ export default function Income() {
             incomeFrequency: selectedItem.name.toLowerCase() as IncurralFrequency,
             nextIncurralDate: Util.stringToDate(date).toISOString()
         }
-        data.addIncomeSource(new IncomeSource(sourceData))
+
+        const newSourceData = new IncomeSource(sourceData) 
+        if(edit.isInEditMode){
+            newSourceData.sourceData.id = edit.editId
+            newSourceData.destinationBucketsIds = [...data.incomeSources.get(edit.editId)!.destinationBucketsIds]
+            setEdit({isInEditMode: false, editId: ""})
+        }
+        data.addIncomeSource(newSourceData)
+    }
+
+    function populateFormFields(id: string){
+        const incomeSource = data.incomeSources.get(id)
+        if(!incomeSource) return new Error("Id provided doesn't match existing income source")
+
+        setName(incomeSource.sourceData.name)
+        setAmount(incomeSource.sourceData.incomeAmount.toString())
+        setDate(Util.formatDate(new Date(incomeSource.sourceData.nextIncurralDate)))
+        setSelectedItem(items.find(i => i.name.toLowerCase() == incomeSource.sourceData.incomeFrequency.toLowerCase())!)
     }
 
     return (
@@ -75,15 +95,19 @@ export default function Income() {
             </div>
             <div className="flex w-full gap-7 items-end justify-end">
                 <Button 
-                    name="Add"
-                    onSubmit={() => addIncome()}
+                    icon={edit.isInEditMode ? <FaSave size={12}/> : <FaPlus size={12}/>}
+                    name={edit.isInEditMode ? "Save" : "Add"}
+                    onSubmit={() => handleSubmit()}
                     highlight={false}
-                    style="w-full"/>
+                    style="w-full flex gap-1.5 items-center"/>
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
                 {Array.from(data.incomeSources.values()).map(source => {
                     return(
-                        <IncomeSourceCard source={source}/>
+                        <IncomeSourceCard source={source} setEdit={() => {
+                            setEdit({isInEditMode: true, editId: source.sourceData.id!})
+                            populateFormFields(source.sourceData.id!)
+                        }}/>
                     )
                 })}
             </div>

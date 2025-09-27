@@ -15,6 +15,12 @@ export default function BucketCard({bucket, setEdit}: Props) {
 
     const data = useContext(dataContext)
 
+    function deleteBucket(){
+        const hasReference = Array.from(data.bills.values()).some(b => b.billData.sourceBucketId == bucket.bucket.id)
+        if(hasReference) {alert("Can't delete a bucket with bills referring it delete the bills that reference this bucket first"); return}
+        data.deleteBucket(bucket.bucket.id!)
+    }
+
     return (
         <div className="w-full bg-panel2 p-2 rounded-md text-subtext1 outline-1 outline-border2 flex justify-between items-center px-3">
             <div className="flex flex-col gap-1.5 w-[80%]">
@@ -40,7 +46,7 @@ export default function BucketCard({bucket, setEdit}: Props) {
             </div>
             <div className="flex gap-3">
                 <div className="hover:cursor-pointer text-subtext2"
-                    onClick={() => data.deleteBucket(bucket.bucket.id!)}>
+                    onClick={() => deleteBucket()}>
                     <FaRegTrashAlt className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
                 </div>
                 <div className="hover:cursor-pointer text-subtext2"

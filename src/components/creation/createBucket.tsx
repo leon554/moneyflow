@@ -83,8 +83,8 @@ export default function CreateBucket() {
         setCompoundDate(Util.formatDate(new Date()))
     }
 
-    function setFormFromExistingBucket(bucketName: string){
-        const bucket = data.buckets.get(bucketName)
+    function setFormFromExistingBucket(bucketId: string){
+        const bucket = data.buckets.get(bucketId)
         if(!bucket) {throw new Error("Bucket is not found when trying to set form from existing bucket");}
 
         setSources([...bucket.bucket.sources])

@@ -15,7 +15,7 @@ export class Bucket implements ISimulatable{
         const usedIds = new Set<string>()
         incomeSourceArr.forEach(source => {
             if(!usedIds.has(source.sourceData.id!)){
-                source.addDependantBucket(this)
+                source.addDependantBucketId(this.bucket.id!)
                 usedIds.add(source.sourceData.id!)
             }
         })
@@ -83,7 +83,7 @@ export class Bucket implements ISimulatable{
         const usedIds = new Set<string>()
         incomeSources.forEach(source => {
             if(usedIds.has(source.sourceData.id!)) return
-            source.addDependantBucket(this)
+            source.addDependantBucketId(this.bucket.id!)
             usedIds.add(source.sourceData.id!)
         })
         this.bucket.sources = [...this.bucket.sources, ...sources]

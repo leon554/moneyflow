@@ -3,14 +3,17 @@ import type { IncomeSource } from "@/Util/classes/IncomeSource"
 import { Util } from "@/Util/util"
 import { useContext } from "react"
 import { FaRegTrashAlt } from "react-icons/fa"
+import { FaRegEdit } from "react-icons/fa";
 
 
 interface Props{
     source: IncomeSource
+    setEdit: () => void
 }
-export default function IncomeSourceCard({source}: Props) {
+export default function IncomeSourceCard({source, setEdit}: Props) {
 
     const data = useContext(dataContext)
+
 
     return (
         <div className="w-full bg-panel2 p-2 rounded-md text-subtext1 outline-1 outline-border2 flex justify-between items-center px-3">
@@ -32,9 +35,15 @@ export default function IncomeSourceCard({source}: Props) {
                     </p>
                 </div>
             </div>
-            <div className="hover:cursor-pointer text-subtext2"
-                onClick={() => data.deleteIncomeSource(source.sourceData.id!)}>
-                <FaRegTrashAlt className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
+            <div className="flex items-center gap-3">
+                <div className="hover:cursor-pointer text-subtext2"
+                    onClick={() => data.deleteIncomeSource(source.sourceData.id!)}>
+                    <FaRegTrashAlt className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
+                </div>
+                <div className="hover:cursor-pointer text-subtext2"
+                    onClick={() => setEdit()}>
+                    <FaRegEdit className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
+                </div>
             </div>
         </div>
     )

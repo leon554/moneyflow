@@ -111,14 +111,14 @@ export default function Chart() {
         let edges: Edge[] = []
 
         incomeSourceArr.forEach((i, index) => {
-            i.destinationBuckets.forEach(b=> {
+            i.destinationBucketsIds.forEach(bucketId=> {
                 edges.push({
-                    id: `${i.sourceData.id}-${b.bucket.id}`,
+                    id: `${i.sourceData.id}-${bucketId}`,
                     source: i.sourceData.id!,
-                    target: b.bucket.id!,
+                    target: bucketId!,
                     animated: true,
                     type: "animatedEdge",
-                    label: `$${b.getMoneyAllocated(i.sourceData.incomeAmount, i.sourceData.incomeAmount, i.sourceData.name)}`,
+                    label: `$${data.buckets.get(bucketId)!.getMoneyAllocated(i.sourceData.incomeAmount, i.sourceData.incomeAmount, i.sourceData.id!, "")}`,
                     style: {stroke: `${colors[index]}`, backgroundColor: "brown"}
                 })
             })
@@ -140,7 +140,7 @@ export default function Chart() {
         setNodes([...sourceNodes, ...bucketNodes, ...billNodes]);
         setEdges([...edges]);
       
-    }, [data.hydrated])
+    }, [data.hydrated, data.updated])
     
     useEffect(() => {
         if (!nodesInitialized) return;

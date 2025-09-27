@@ -8,6 +8,7 @@ import { Util } from "@/Util/util";
 import { useContext, useState } from "react";
 import BillCard from "../display/BillCard";
 import { Bill } from "@/Util/classes/Bill";
+import { FaSave, FaPlus } from "react-icons/fa";
 
 export default function CreateBill() {
 
@@ -22,6 +23,8 @@ export default function CreateBill() {
     const [selectedFrequencyItem, setSelectedFrequencyItem] = useState<dataFormat>(frequencyItems[0])
     const [selectedSourceItem, setSelectedSourceItem] = useState<dataFormat|null>(null)
 
+    const [edit, setEdit] = useState({isInEditMode: false, editId: ""})
+
 
     function addBill(){
         if(name == "" || amount == "" || date == "") {alert("fill in all fields"); return}
@@ -35,8 +38,34 @@ export default function CreateBill() {
             frequency: selectedFrequencyItem.name.toLowerCase() as IncurralFrequency,
             nextIncurralDate: Util.stringToDate(date).toISOString()
         }
+        const newBill = new Bill(billData)
 
-        data.addBill(new Bill(billData))
+        if(edit.isInEditMode){
+            newBill.billData.id = edit.editId
+            setEdit({isInEditMode: false, editId: ""})
+        }
+
+        data.addBill(newBill)
+        clearForm()
+    }
+
+    function populateForm(billId: string){
+        const bill = data.bills.get(billId)
+        if(!bill) throw new Error("No bills found with id: " + billId)
+
+        setSelectedSourceItem(sourceItems.find(i => i.data! == bill.billData.sourceBucketId)!)
+        setName(bill.billData.name)
+        setAmount(bill.billData.amount.toString())
+        setDate(Util.formatDate(new Date(bill.billData.nextIncurralDate)))
+        setSelectedFrequencyItem(frequencyItems.find(i => i.name.toLowerCase() == bill.billData.frequency.toLowerCase())!)
+    }   
+
+    function clearForm(){
+        setName("")
+        setAmount("")
+        setDate(Util.formatDate(new Date()))
+        setSelectedFrequencyItem(frequencyItems[0])
+        setSelectedSourceItem(null)
     }
 
     return (
@@ -98,15 +127,19 @@ export default function CreateBill() {
             </div>
             <div className="flex w-full gap-7 items-end justify-end">
                 <Button 
-                    name="Add"
+                    name={edit.isInEditMode ? "Save" : "Add"}
+                    icon={edit.isInEditMode ? <FaSave size={12}/> : <FaPlus size={12}/>}
                     onSubmit={() => addBill()}
                     highlight={false}
-                    style="w-full"/>
+                    style="w-full flex gap-1.5 items-center"/>
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
                 {Array.from(data.bills.values()).map(bill => {
                     return(
-                       <BillCard bill={bill}/>
+                        <BillCard bill={bill} setEdit={() => {
+                            setEdit({isInEditMode: true, editId: bill.billData.id!})
+                            populateForm(bill.billData.id!)
+                        }}/>
                     )
                 })}
             </div>

@@ -52,7 +52,7 @@ export function AnimatedEdge({ id,  sourceX,  sourceY,  targetX,  targetY,  sour
                 💰 ${data?.amount as number}
                     <animateMotion
                         ref={animRef}
-                        dur="0.9s"
+                        dur="0.91s"
                         repeatCount={1}
                         begin="indefinite"
                     >

@@ -14,6 +14,7 @@ interface DataType{
     bills: Map<string, Bill>
     hydrated: boolean,
     simTimeoutId: React.RefObject<NodeJS.Timeout | null> | null
+    updated: boolean
 
     addIncomeSource: (incomeSource: IncomeSource) => void
     addBucket: (bucket: Bucket) => void
@@ -34,6 +35,7 @@ const defaultValues: DataType = {
     bills: new Map<string, Bill>(),
     hydrated: false,
     simTimeoutId:null,
+    updated: false,
 
     addIncomeSource: () => null,
     addBucket: () => null,
@@ -64,6 +66,7 @@ export default function DataProvider({children}: Props) {
     const [buckets, setBuckets] = useState<Map<string, Bucket>>(new Map())
     const [bills, setBills] = useState<Map<string, Bill>>(new Map())
     const [hydrated, setHydrated] = useState(false)
+    const [updated, setUpdated] = useState(false)
     const simTimeoutId = useRef<NodeJS.Timeout | null>(null)
     
 
@@ -86,16 +89,19 @@ export default function DataProvider({children}: Props) {
         const newMap = Util.updateMap(incomeSources, incomeSource.sourceData.id!, incomeSource)
         setIncomeSourceData(Array.from(newMap.values()).map(v => v.sourceData))
         setIncomeSources(newMap)
+        setUpdated(!updated)
     }
     function addBucket(bucket: Bucket){
         const newMap = Util.updateMap(buckets, bucket.bucket.id!, bucket)
         setBucketData(Array.from(newMap.values()).map(v => v.bucket))
         setBuckets(newMap)
+        setUpdated(!updated)
     }
     function addBill(bill: Bill){
         const newMap = Util.updateMap(bills, bill.billData.id!, bill)
         setBillData(Array.from(newMap.values()).map(b => b.billData))
         setBills(newMap)
+        setUpdated(!updated)
     }
 
     function hydrateFromLocalStorage(){
@@ -132,7 +138,7 @@ export default function DataProvider({children}: Props) {
         newMap.delete(id)
 
         const incomeSourceMap = new Map(Array.from(incomeSources.values()).map(incomeSource => {
-            incomeSource.deleteBucket(id)
+            incomeSource.deleteBucketId(id)
             return incomeSource
         }).map(incSrc => [incSrc.sourceData.id!, incSrc]))
 
@@ -160,7 +166,7 @@ export default function DataProvider({children}: Props) {
         const bucketArr = Array.from(buckets.values())
         const billArr = Array.from(bills.values())
 
-        const incomePayments =  incomeSourceArr.map(source => source.step(date)).flat()
+        const incomePayments =  incomeSourceArr.map(source => source.step(date, buckets)).flat()
         const billPayments = billArr.map(bill => bill.step(date, buckets)).flat()
         bucketArr.map(bucket => bucket.step(date))
 
@@ -173,12 +179,12 @@ export default function DataProvider({children}: Props) {
             setBills(newBillMap)
         }, 900)
 
-        const pyaments = [incomePayments, billPayments].flat()
+        const payments = [incomePayments, billPayments].flat()
 
-        pyaments.forEach(p => {
+        payments.forEach(p => {
             playEdge(`${p.sourceId}-${p.destinationId}`, p.amount)
         })
-        return pyaments
+        return payments
     }
 
 
@@ -196,6 +202,7 @@ export default function DataProvider({children}: Props) {
                     buckets,
                     bills,
                     hydrated,
+                    updated,
                     addIncomeSource,
                     addBucket,
                     addBill,

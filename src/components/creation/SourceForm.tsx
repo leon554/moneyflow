@@ -8,6 +8,7 @@ import { FaRegTrashAlt } from "react-icons/fa"
 import type { Source } from "@/Util/types"
 import { FaPlus } from "react-icons/fa";
 import { FaRegEdit } from "react-icons/fa";
+import { FaSave } from "react-icons/fa"
 
 interface Props{
     sources: Source[]
@@ -39,7 +40,7 @@ export default function SourceForm({sources, setSources, modifiedBucket}: Props)
         isPercentage: selectedTypeItem.name == "%"
     }
     const filteredSources = sources.filter(s => s.incomeSourceId == selectedIncomeSource?.sourceData.id)
-    const allocationData = selectedIncomeSource?.getAllocatedDataWithTemp(filteredSources, tempSource, editedSourceId)
+    const allocationData = selectedIncomeSource?.getAllocatedDataWithTemp(filteredSources, tempSource, editedSourceId, data.buckets)
 
     useEffect(() => {
         if(selectedRemainingItem.name == "Yes"){
@@ -48,15 +49,17 @@ export default function SourceForm({sources, setSources, modifiedBucket}: Props)
     }, [selectedRemainingItem])
 
     useEffect(() => {
-        console.log("updated")
         setIsEditing(false)
         setEditedSourceId("")
+        setAllocation("")
+        setSelectedSourceItem(undefined)
     }, [modifiedBucket])
   
     function addSource(){
         if(!selectedSourceItem) {alert("Select or create a source before creating this bucket"); return}
         if(allocation == "" && selectedRemainingItem.name == "No") {alert("Add allocation value"); return}
         if(selectedTypeItem.name == "%" && Number(allocation) > 100) {alert("can't have percentage higher than 100"); return}
+        if(allocationData!.unAllocatedAmount < 0 ) {alert("Income source doesn't have enough money unallocated to create this source "); return}
 
         const newSource: Source = {
             id: crypto.randomUUID(),
@@ -86,10 +89,10 @@ export default function SourceForm({sources, setSources, modifiedBucket}: Props)
     }
 
 
-    function edit(id: string){
+    function enableEditMode(editId: string){
         setIsEditing(true)
-        setEditedSourceId(id)
-        const source = sources.find(s => s.id == id)!
+        setEditedSourceId(editId)
+        const source = sources.find(s => s.id == editId)!
         setSelectedSourceItem(sourceItems.find(s => s.data == source.incomeSourceId)!)
         setAllocation(source.allocation.toString())
         setSelectedTypeItem(source.isPercentage ? typeItems[0] : typeItems[1])
@@ -188,7 +191,7 @@ export default function SourceForm({sources, setSources, modifiedBucket}: Props)
                 onSubmit={() => addSource()}
                 highlight={false}
                 style="w-full flex gap-1.5"
-                icon={<FaPlus size={12}/>}/>
+                icon={isEditing ?  <FaSave size={12}/> : <FaPlus size={12}/>}/>
             {sources.length != 0 ?
             <div className="grid sm:grid-cols-2 gap-3 ">
                 {sources.map(s => {
@@ -208,7 +211,7 @@ export default function SourceForm({sources, setSources, modifiedBucket}: Props)
                                     <FaRegTrashAlt className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
                                 </div>
                                 <div className="hover:cursor-pointer text-subtext2"
-                                    onClick={() => {edit(s.id)}}>
+                                    onClick={() => {enableEditMode(s.id)}}>
                                     <FaRegEdit className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
                                 </div>
                             </div>
