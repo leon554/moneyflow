@@ -1,6 +1,6 @@
 import useLocalStorage from "@/hooks/useLocalStorage"
 import { IncomeSource } from "@/Util/classes/IncomeSource"
-import { type BillData, type BucketDataType, type IncomeDataType, type IPayment, type Source } from "@/Util/types"
+import { AccountType, type BillData, type BucketDataType, type IncomeDataType, type IPayment, type Source } from "@/Util/types"
 import { Util } from "@/Util/util"
 import { createContext, useEffect, useRef, useState } from "react"
 import { Bucket } from "@/Util/classes/Bucket"
@@ -111,12 +111,17 @@ export default function DataProvider({children}: Props) {
 
 
         incomeSourceData.forEach(source => {
+            source.nextIncurralDate = Util.adjustDate(new Date(source.nextIncurralDate), source.incomeFrequency).toISOString()
             incomeMap.set(source.id!, new IncomeSource(source))
         })
         bucketData.forEach(bucketData => {
+            if(bucketData.accountType != AccountType.CashAccount){
+                bucketData.nextIncurralDate = Util.adjustDate(new Date(bucketData.nextIncurralDate), bucketData.compoundFrequency).toISOString()
+            }
             bucketMap.set(bucketData.id!, new Bucket(bucketData, incomeMap))
         })
         billData.forEach(bill => {
+            bill.nextIncurralDate = Util.adjustDate(new Date(bill.nextIncurralDate), bill.frequency).toISOString()
             billMap.set(bill.id!, new Bill(bill))
         })
 

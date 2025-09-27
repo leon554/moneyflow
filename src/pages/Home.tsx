@@ -26,12 +26,12 @@ export default function Home() {
                 <FaAngleRight className=" text-subtext3" size={12}/>
                 <p className={`text-subtext3 text-sm whitespace-nowrap hover:cursor-pointer hover:text-subtext2 transition-all duration-150 ease-in-out ${pageIndex == 1 ? "underline" : ""} `}
                     onClick={() => setPageIndex(1)}>
-                    Income Source 
+                    Buckets
                 </p>
                 <FaAngleRight className=" text-subtext3" size={12}/>
                  <p className={`text-subtext3 text-sm whitespace-nowrap hover:cursor-pointer hover:text-subtext2 transition-all duration-150 ease-in-out ${pageIndex == 2 ? "underline" : ""} `}
                     onClick={() => setPageIndex(2)}>
-                    Income Source 
+                    Bills
                 </p>
             </div>
             <div className="text-sm w-full flex flex-col gap-3 mb-15">

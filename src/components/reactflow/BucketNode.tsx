@@ -13,7 +13,7 @@ export type BucketNodeType = Node<{sourceId: string},'incomeSource'>
 
 export function BucketNode(props: NodeProps<BucketNodeType>) {
 
-    const data = useContext(dataContext)
+    const data = useContext(dataContext) 
     const bucket = data.buckets.get(props.data.sourceId)
     
     return (
@@ -42,9 +42,16 @@ export function BucketNode(props: NodeProps<BucketNodeType>) {
                         }
                     </div>
                     {bucket.bucket.accountType != AccountType.CashAccount ? 
-                    <p className="text-xs text-subtext1">
-                        Interest Rate: {bucket.bucket.interest} %
-                    </p> : null
+                        <>
+                            <p className="text-xs text-subtext1">
+                                Interest Rate: {bucket.bucket.interest} %
+                            </p>
+                             <p className="text-xs text-subtext1">
+                                Interest {bucket.bucket.accountType == AccountType.SavingsAccount ? "earned: " : "payed: "}  
+                                ${Math.round(bucket.interestAmount*100)/100}
+                            </p>
+                        </>
+                        : null
                     }
                     {bucket.bucket.targetBalance == 0 ? null :
                         <ProgressBar value={bucket.bucket.balance/bucket.bucket.targetBalance}/>

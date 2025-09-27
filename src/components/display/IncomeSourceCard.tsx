@@ -14,6 +14,13 @@ export default function IncomeSourceCard({source, setEdit}: Props) {
 
     const data = useContext(dataContext)
 
+    function deleteIncomeSource(){
+        if(source.destinationBucketsIds.length != 0){
+            alert("You can't delete this income source as some buckets references it delete them first")
+            return
+        }
+        data.deleteIncomeSource(source.sourceData.id!)
+    }
 
     return (
         <div className="w-full bg-panel2 p-2 rounded-md text-subtext1 outline-1 outline-border2 flex justify-between items-center px-3">
@@ -37,7 +44,7 @@ export default function IncomeSourceCard({source, setEdit}: Props) {
             </div>
             <div className="flex items-center gap-3">
                 <div className="hover:cursor-pointer text-subtext2"
-                    onClick={() => data.deleteIncomeSource(source.sourceData.id!)}>
+                    onClick={deleteIncomeSource}>
                     <FaRegTrashAlt className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
                 </div>
                 <div className="hover:cursor-pointer text-subtext2"

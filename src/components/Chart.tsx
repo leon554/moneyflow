@@ -1,5 +1,5 @@
 import { useState,  useEffect, useContext } from 'react';
-import { ReactFlow, type Node, type Edge,  useReactFlow, useNodesState, useEdgesState } from '@xyflow/react';
+import { ReactFlow, type Node, type Edge,  useReactFlow, useNodesState, useEdgesState, Background, BackgroundVariant } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { dataContext } from '@/providers/DataProvider';
 import { IncomeSourceNode } from './reactflow/IncomeSourceNode';
@@ -168,6 +168,7 @@ export default function Chart() {
                 nodes={nodes}
                 edges={edges}
                 fitView>
+                    <Background color="#636363" variant={BackgroundVariant.Dots} />
             </ReactFlow>
         </div>
     )

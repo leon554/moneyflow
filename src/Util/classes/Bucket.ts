@@ -7,6 +7,7 @@ export class Bucket implements ISimulatable{
 
     bucket: BucketDataType
     balanceOverTime: Map<string, number> = new Map()
+    interestAmount: number = 0
 
 
     constructor(bucket: BucketDataType, incomeSources: Map<string, IncomeSource>){
@@ -28,6 +29,7 @@ export class Bucket implements ISimulatable{
             
             const rate = Util.getInterestRateFromFreq(this.bucket.compoundFrequency, this.bucket.interest/100)
             const interestEarned = this.bucket.balance * rate
+            this.interestAmount += interestEarned
             this.bucket.balance += interestEarned
         }
         if(this.bucket.accountType == AccountType.DeptAccount && isSameDay(date, new Date(this.bucket.nextIncurralDate))){
@@ -35,6 +37,7 @@ export class Bucket implements ISimulatable{
             this.bucket.nextIncurralDate = Util.getNextDate(new Date(this.bucket.nextIncurralDate), this.bucket.compoundFrequency).toISOString()
             const rate = Util.getInterestRateFromFreq(this.bucket.compoundFrequency, this.bucket.interest/100)
             const interestToBePaid = this.bucket.balance * rate
+            this.interestAmount += interestToBePaid
             this.bucket.balance -= Math.abs(interestToBePaid)
         }
 

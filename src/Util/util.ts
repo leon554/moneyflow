@@ -1,5 +1,5 @@
 import { isValid, isAfter, isBefore, add} from "date-fns";
-import { IncurralFrequency } from "./types";
+import { IncurralFrequency, PaymentType, type IPaymentHistory } from "./types";
 
 export namespace Util{
     export function setValueLim(setFunc: (value: string) => void, value: string, lim: number){
@@ -73,5 +73,30 @@ export namespace Util{
     export function stringToDate(date: string){
         const componets = date.split("/").map(c => Number(c)).filter(c => !isNaN(c))
         return new Date(`${componets[2]}-${String(componets[1]).padStart(2, "0")}-${String(componets[0]).padStart(2, "0")}`)
+    }
+    export function adjustDate(date: Date, incurralFrequency: IncurralFrequency){
+        const today = new Date().setHours(0,0,0)
+        let depth = 0
+
+        while(isBefore(date, today)){
+            date = getNextDate(date, incurralFrequency)
+            depth++
+            if(depth > 10000) throw new Error("Maximum depth exceeded")
+        }
+        return date
+    }
+    export function getMoneyInAndOut(paymentHistory: IPaymentHistory[]){    
+        const paymentData = paymentHistory.reduce((a, c) => {
+            a.moneyIn += c.payments
+                .filter(p => p.paymentType == PaymentType.Incoming)
+                .reduce((a1, c1) => a1 += c1.amount, 0)
+            a.moneyOut += c.payments
+                .filter(p => p.paymentType == PaymentType.Outgoing)
+                .reduce((a1, c1) => a1 += c1.amount, 0)
+            return a
+        }, {moneyIn: 0, moneyOut: 0})
+
+        const round = (num: number) => Math.round(num*100)/100
+        return {moneyIn: round(paymentData.moneyIn), moneyOut: round(paymentData.moneyOut)}
     }
 }
