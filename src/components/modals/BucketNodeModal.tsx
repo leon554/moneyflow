@@ -32,10 +32,10 @@ export default function BucketNodeModal({bucket, setOpen}: Props) {
             </p>
             <div className="grid grid-cols-2 gap-1.5">
                 <p className="text-xs text-subtext1">
-                    Balance: <span className="font-medium text-title">${Util.formatNum(Math.round(bucket!.bucket.balance*100)/100)}</span> 
+                    Balance: <span className="font-medium text-title">{Util.formatNum(bucket!.bucket.balance, true)}</span> 
                 </p>
                 <p className="text-xs text-subtext1">
-                    Goal: <span className="font-medium text-title">${Util.formatNum(bucket.bucket.targetBalance)}</span> 
+                    Goal: <span className="font-medium text-title">{Util.formatNum(bucket.bucket.targetBalance, true)}</span> 
                 </p>
                 {bucket!.bucket.accountType != AccountType.CashAccount ? 
                 <>
@@ -45,7 +45,7 @@ export default function BucketNodeModal({bucket, setOpen}: Props) {
                     </p>
                     <p className="text-xs text-subtext1">
                         Interest {bucket!.bucket.accountType == AccountType.SavingsAccount ? "earned: " : "payed: "}  
-                        <span className="font-medium text-title">${Util.formatNum(Math.round(bucket!.interestAmount*100)/100)}</span> 
+                        <span className="font-medium text-title">{Util.formatNum(Math.abs(bucket!.interestAmount), true)}</span> 
                     </p> 
                 </> : null}
             </div>

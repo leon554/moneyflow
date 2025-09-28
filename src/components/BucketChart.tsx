@@ -18,6 +18,9 @@ interface Props{
     bucketId: string
     detailed: boolean
 }
+
+
+
 export default function BucketChart({bucketId, detailed} : Props) {
     const dc = useContext(dataContext)
     const data = Array.from(dc.buckets.get(bucketId)!.balanceOverTime.entries())
@@ -31,26 +34,30 @@ export default function BucketChart({bucketId, detailed} : Props) {
     const highlight = rootStyles.getPropertyValue('--color-highlight').trim()
 
     const formatedData = {
-        labels: data.map(d => Util.formatDate(new Date(d[0]))),
+        labels: data.map(d => Util.formatDate(new Date(d[0])).slice(0, 5)).slice(-365),
         datasets: [
             {
                 label: "Balance",
-                data: data?.map(d => Math.round((d[1] ?? 0)*100)/100) ?? [],
+                data: (data?.map(d => Math.round((d[1] ?? 0)*100)/100) ?? []).slice(-365),
                 borderColor: highlight,
                 backgroundColor: `#10b98120`,
                 borderWidth: 2, 
                 tension: 0.1,
                 fill: true,
+                pointRadius: 0,
+                pointHoverRadius: 3,
+                stepped: false,
             },
         ]
     }
+    
     const options = {
         responsive: true,
         maintainAspectRatio: false,
         devicePixelRatio: window.devicePixelRatio,
         plugins: {
             legend: {
-            display: false, 
+                display: false, 
             },
             tooltip: {
                 mode: "index" as const,         
@@ -73,50 +80,40 @@ export default function BucketChart({bucketId, detailed} : Props) {
                 displayColors: false   
             },
         },
-        elements: {
-            point: {
-            radius: 0, 
-            },
-        },
+
         scales: {
             x: {
+                offset: false,
                 display: detailed,
                 ticks: {
-                    display: true, 
-                    maxTicksLimit: 10, 
+                    display: true,
+                    maxTicksLimit: 6,
                 },
                 grid: {
-                    display: false, 
-                    stepSzie: 20,
-                    borderDash: [50, 50],
                     color: border,
-                    drawBorder: false
+                    drawTicks: true,
                 },
             },
             y: {
-                border: {
-                    display: true,       
-                },
                 display: true,  
                 ticks: {
                     display: detailed,  
-                    maxTicksLimit: 6, 
+                    maxTicksLimit: 4, 
+                    callback: (value: string) => Util.formatNum(Number(value), true)
                 },
                 grid: {
-                    display: true, 
-                    stepSzie: 20,
-                    borderDash: [50, 50],
+                    drawTicks: detailed,
                     color: border,
-                    drawBorder: false
+                    tickBorderDashOffset: 10
                 },
             },
         },
     }
 
     return (
-        <div className={`bg-panel1 rounded-md outline-1 outline-border w-full ${detailed ? "p-3" :" "} flex flex-col gap-6`}>
+        <div className={`bg-panel1 rounded-md outline-1 outline-border ${detailed ? "p-3" :" "} flex flex-col gap-6`}>
             <div className={`${detailed ? "h-[250px]" : "h-33"}`}>
-                <Line options={options} data={formatedData as ChartData<"line", number[], string>}/>
+                <Line options={options as any} data={formatedData as ChartData<"line", number[], string>}/>
             </div>         
         </div>
     )

@@ -87,7 +87,7 @@ export default function Select(props: SelectProps) {
                     return (
                     <p
                         key={crypto.randomUUID()}
-                        className={`hover:bg-highlight gap-1.5 w-full flex items-center justify-start p-1 px-0.5 ${props.largeText ? "" : "text-sm"} rounded-lg transition duration-100 ease-in-out hover:cursor-pointer text-nowrap hover:text-btn-text px-3`}
+                        className={`hover:bg-highlight transition-colors duration-200 ease-in-out gap-1.5 w-full flex items-center justify-start p-1 px-0.5 ${props.largeText ? "" : "text-sm"} rounded-lg transition duration-100 ease-in-out hover:cursor-pointer text-nowrap hover:text-btn-text px-3`}
                         onClick={() => {
                             props.onInnerClick?.()
                             setItem(h.id)

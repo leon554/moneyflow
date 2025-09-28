@@ -50,6 +50,7 @@ export default function CreateBucket() {
         let bucket: BucketDataType = {
             name,
             balance: Number(startingValue),
+            startBalance: Number(startingValue),
             targetBalance: Number(goal),
             sources: sources,
             accountType: AccountType.CashAccount

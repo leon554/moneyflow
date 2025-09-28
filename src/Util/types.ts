@@ -36,6 +36,7 @@ interface BaseBucket<T extends AccountType>{
     name: string
     sources: Source[]
     balance: number
+    startBalance: number
     targetBalance: number
     accountType: T
 }

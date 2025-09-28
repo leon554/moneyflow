@@ -1,6 +1,7 @@
 import { BaseEdge, type EdgeProps, getSimpleBezierPath } from '@xyflow/react';
 import { useReactFlow } from '@xyflow/react';
 import { useRef, useEffect, useCallback } from 'react';
+import { Util } from '@/Util/util';
 
 export function AnimatedEdge({ id,  sourceX,  sourceY,  targetX,  targetY,  sourcePosition,  targetPosition,  data,}: EdgeProps) {
     const [edgePath] = getSimpleBezierPath({ sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition,});
@@ -18,7 +19,7 @@ export function AnimatedEdge({ id,  sourceX,  sourceY,  targetX,  targetY,  sour
             : edge
         )
         );
-    }, [id, setEdges]);
+    }, [id, setEdges, data?.play]);
 
 
     useEffect(() => {
@@ -33,7 +34,7 @@ export function AnimatedEdge({ id,  sourceX,  sourceY,  targetX,  targetY,  sour
     useEffect(() => {
         if (data?.play) {
             animRef.current?.beginElement();
-            setTimeout(() => handleEnd(), 750)
+            setTimeout(() => handleEnd(), 800)
         }
     }, [data?.play]);
 
@@ -49,7 +50,7 @@ export function AnimatedEdge({ id,  sourceX,  sourceY,  targetX,  targetY,  sour
                 textAnchor="middle"
                 dominantBaseline="middle"
                 >
-                💰 ${data?.amount as number}
+                💰 ${Util.formatNum(data?.amount as number)}
                     <animateMotion
                         ref={animRef}
                         dur="0.90s"

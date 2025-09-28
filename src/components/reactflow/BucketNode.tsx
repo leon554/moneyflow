@@ -35,7 +35,7 @@ export function BucketNode(props: NodeProps<BucketNodeType>) {
                     </div>
                     <div className="flex gap-2">
                         <p className="text-xs text-subtext1">
-                            💵 ${Util.formatNum(Math.round(bucket.bucket.balance*100)/100)}
+                            💵 {Util.formatNum(bucket.bucket.balance, true)}
                         </p>
                         {bucket.bucket.targetBalance == 0 ? null : 
                         <p className="text-xs text-subtext1">
@@ -46,17 +46,17 @@ export function BucketNode(props: NodeProps<BucketNodeType>) {
                     {bucket.bucket.accountType != AccountType.CashAccount ? 
                         <>
                             <p className="text-xs text-subtext1">
-                                Interest Rate: {bucket.bucket.interest} %
+                                Interest Rate: {bucket.bucket.interest}%
                             </p>
                              <p className="text-xs text-subtext1">
                                 Interest {bucket.bucket.accountType == AccountType.SavingsAccount ? "earned: " : "payed: "}  
-                                ${Math.round(bucket.interestAmount*100)/100}
+                                {Util.formatNum(Math.abs(bucket.interestAmount), true)}
                             </p>
                         </>
                         : null
                     }
                     {bucket.bucket.targetBalance == 0 ? null :
-                        <ProgressBar value={bucket.bucket.balance/bucket.bucket.targetBalance}/>
+                        <ProgressBar value={Util.getProgress(bucket.bucket.startBalance, bucket.bucket.balance, bucket.bucket.targetBalance)}/>
                     }
                     <div className="flex flex-col gap-1.5">
                         <p className="text-xs text-subtext1">

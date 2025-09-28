@@ -30,7 +30,7 @@ export class Bucket implements ISimulatable{
             this.bucket.nextIncurralDate = Util.getNextDate(new Date(this.bucket.nextIncurralDate), this.bucket.compoundFrequency).toISOString()
             
             const rate = Util.getInterestRateFromFreq(this.bucket.compoundFrequency, this.bucket.interest/100)
-            const interestEarned = this.bucket.balance * rate
+            const interestEarned = Math.max(this.bucket.balance, 0) * rate
             this.interestAmount += interestEarned
             this.bucket.balance += interestEarned
         }
@@ -38,7 +38,7 @@ export class Bucket implements ISimulatable{
             
             this.bucket.nextIncurralDate = Util.getNextDate(new Date(this.bucket.nextIncurralDate), this.bucket.compoundFrequency).toISOString()
             const rate = Util.getInterestRateFromFreq(this.bucket.compoundFrequency, this.bucket.interest/100)
-            const interestToBePaid = this.bucket.balance * rate
+            const interestToBePaid = Math.min(0, this.bucket.balance) * rate
             this.interestAmount += interestToBePaid
             this.bucket.balance -= Math.abs(interestToBePaid)
         }

@@ -112,16 +112,33 @@ export namespace Util{
         const round = (num: number) => Math.round(num*100)/100
         return {moneyIn: round(paymentData.moneyIn), moneyOut: round(paymentData.moneyOut)}
     }
-    export function formatNum(number: number){
+    export function formatNum(number: number, isMoney?: boolean){
         const round = (num: number) => Math.round(num*100)/100
+        const isNeg = number < 0
+        let output = ""
+        number = Math.abs(number)
+
         if(number < 1000){
-            return `${round(number)}`
+            output = `${round(number)}`
         }
         else if(number < 1000000){
-            return round(number/1000) + "k"
+            output = round(number/1000) + "k"
         }
-        else if(number < 1000000000){
-            return round(number/1000000) + "m"
+        else{
+            output = round(number/1000000) + "m"
         }
+
+        if(isMoney){
+            return isNeg ? "-$" + output : "$" + output
+        }else{
+            return isNeg ? "-" + output : output
+        }
+    }
+
+    export function getProgress(start: number, current: number, goal: number){
+        if(goal == start) return 1
+        const adjustedGoal = goal - start
+        const adjustedStart = current - start
+        return adjustedStart/adjustedGoal
     }
 }
