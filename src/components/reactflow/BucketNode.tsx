@@ -8,8 +8,8 @@ import ProgressBar from "../primitives/ProgressBar";
 import { AccountType } from "@/Util/types";
 import BucketChart from "../BucketChart";
 import { MdInfoOutline } from "react-icons/md";
-import Button from "../primitives/Button";
 import Modal from "../primitives/Modal";
+import BucketNodeModal from "../modals/BucketNodeModal";
 
 
 export type BucketNodeType = Node<{sourceId: string},'incomeSource'>
@@ -35,7 +35,7 @@ export function BucketNode(props: NodeProps<BucketNodeType>) {
                     </div>
                     <div className="flex gap-2">
                         <p className="text-xs text-subtext1">
-                            💵 ${Math.round(bucket.bucket.balance*100)/100}
+                            💵 ${Util.formatNum(Math.round(bucket.bucket.balance*100)/100)}
                         </p>
                         {bucket.bucket.targetBalance == 0 ? null : 
                         <p className="text-xs text-subtext1">
@@ -62,7 +62,7 @@ export function BucketNode(props: NodeProps<BucketNodeType>) {
                         <p className="text-xs text-subtext1">
                             Balance Over Time
                         </p>
-                        <BucketChart bucketId={bucket.bucket.id!}/>
+                        <BucketChart bucketId={bucket.bucket.id!} detailed={false}/>
                     </div>
                     <Handle type="target" position={Position.Top} />
                     <Handle type="source" position={Position.Bottom} />
@@ -74,21 +74,7 @@ export function BucketNode(props: NodeProps<BucketNodeType>) {
                 </div>
             }
             <Modal open={open} onClose={() => setOpen(false)}>
-                <div className="bg-panel1 outline-1 outline-border rounded-md p-5 flex flex-col gap-1 max-w-[400px] w-[90%]"
-                    onClick={e => e.stopPropagation()}
-                >
-                    <p className="text-sm text-title font-medium leading-none mb-1.5">
-                        {Util.capFirst(bucket!.bucket.name)}
-                    </p>
-                            
-                    <Button
-                        name="Done"
-                        highlight={true}
-                        short={true}
-                        onSubmit={() => setOpen(false)}
-                        noAnimation={true}
-                        style="mt-2"/>
-                </div>
+                <BucketNodeModal bucket={bucket!} setOpen={setOpen}/>
             </Modal>
         </div>
     );

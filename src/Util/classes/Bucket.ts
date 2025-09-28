@@ -1,7 +1,8 @@
-import { type ISimulatable, type BucketDataType, type IPayment, type Source, AccountType } from "../types"
+import { type ISimulatable, type BucketDataType, type IPayment, type Source, AccountType} from "../types"
 import { IncomeSource } from "./IncomeSource"
 import { isSameDay } from "date-fns"
 import { Util } from "../util"
+import type { Bill } from "./Bill"
 
 export class Bucket implements ISimulatable{
 
@@ -47,7 +48,25 @@ export class Bucket implements ISimulatable{
         return []
     }
 
+    public getDailyInFlow(incomeSources: Map<string, IncomeSource>){
+        const incomeSourceIds = new Set(this.bucket.sources.map(i => i.incomeSourceId))
+        let dailyPay = 0
 
+        incomeSourceIds.forEach(id => {
+            const incomeSource = incomeSources.get(id)
+            if(!incomeSource) return new Error("Id is invalid this should never happen")
+            const amount = this.getMoneyAllocated(incomeSource.sourceData.incomeAmount, incomeSource.sourceData.incomeAmount, id)
+            console.log(amount)
+            dailyPay += Util.getPayPerDay(amount, incomeSource.sourceData.incomeFrequency)
+        })
+
+        return dailyPay
+    }
+    public getDailyOutFlow(bills: Map<string, Bill>){
+        return Array.from(bills.values())
+            .filter(b => b.billData.sourceBucketId == this.bucket.id)
+            .reduce((a, c) => a += Util.getPayPerDay(c.billData.amount, c.billData.frequency), 0)
+    }
     public getMoneyAllocated(moneyEarned: number, moneyLeft: number, sourceId: string, excludeSourceId?: string){
         let totalMoneyWanted = 0
         this.bucket.sources.forEach(source => {

@@ -40,6 +40,7 @@ export class IncomeSource implements ISimulatable{
 
         return payments
     }
+
     public addDependantBucketId(id: string){
         this.destinationBucketsIds = this.destinationBucketsIds.filter(bucketId => bucketId != id)
         this.destinationBucketsIds.push(id)
@@ -62,8 +63,11 @@ export class IncomeSource implements ISimulatable{
         allAllocations.delete(excludeSourceId)
 
         const allocationDistribution: {name: string, allocated: number}[] = []
+
         totalAllocated += Array.from(allAllocations.values()).reduce((a, c) => {
             const allocationPrice = this.getAllocationPrice(c)
+            const bucket =  buckets.get(c.bucketTargetId)
+            if(!bucket) return a
             allocationDistribution.push({name: buckets.get(c.bucketTargetId)!.bucket.name, allocated: allocationPrice})
             return a + allocationPrice
         }, 0)

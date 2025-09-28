@@ -1,5 +1,5 @@
 import {Line} from "react-chartjs-2"
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, type ChartData} from "chart.js"
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, type ChartData, Filler} from "chart.js"
 import { dataContext } from "@/providers/DataProvider"
 import { useContext } from "react"
 import { Util } from "@/Util/util"
@@ -11,12 +11,14 @@ ChartJS.register(
     LineElement, 
     Title, 
     Tooltip,  
+    Filler
 )
 
 interface Props{
     bucketId: string
+    detailed: boolean
 }
-export default function BucketChart({bucketId} : Props) {
+export default function BucketChart({bucketId, detailed} : Props) {
     const dc = useContext(dataContext)
     const data = Array.from(dc.buckets.get(bucketId)!.balanceOverTime.entries())
 
@@ -32,17 +34,20 @@ export default function BucketChart({bucketId} : Props) {
         labels: data.map(d => Util.formatDate(new Date(d[0]))),
         datasets: [
             {
-                label: "Data",
-                data: data?.map(d => d[1] ?? 0) ?? [],
+                label: "Balance",
+                data: data?.map(d => Math.round((d[1] ?? 0)*100)/100) ?? [],
                 borderColor: highlight,
+                backgroundColor: `#10b98120`,
                 borderWidth: 2, 
                 tension: 0.1,
+                fill: true,
             },
         ]
     }
     const options = {
         responsive: true,
         maintainAspectRatio: false,
+        devicePixelRatio: window.devicePixelRatio,
         plugins: {
             legend: {
             display: false, 
@@ -75,9 +80,10 @@ export default function BucketChart({bucketId} : Props) {
         },
         scales: {
             x: {
-                display: false,
+                display: detailed,
                 ticks: {
                     display: true, 
+                    maxTicksLimit: 10, 
                 },
                 grid: {
                     display: false, 
@@ -89,11 +95,11 @@ export default function BucketChart({bucketId} : Props) {
             },
             y: {
                 border: {
-                    display: false,       
+                    display: true,       
                 },
                 display: true,  
                 ticks: {
-                    display: false,  
+                    display: detailed,  
                     maxTicksLimit: 6, 
                 },
                 grid: {
@@ -108,8 +114,8 @@ export default function BucketChart({bucketId} : Props) {
     }
 
     return (
-        <div className="bg-panel1 rounded-md outline-1 outline-border w-full flex flex-col gap-6 ">
-            <div className="h-33 bg">
+        <div className={`bg-panel1 rounded-md outline-1 outline-border w-full ${detailed ? "p-3" :" "} flex flex-col gap-6`}>
+            <div className={`${detailed ? "h-[250px]" : "h-33"}`}>
                 <Line options={options} data={formatedData as ChartData<"line", number[], string>}/>
             </div>         
         </div>

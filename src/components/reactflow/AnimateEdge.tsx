@@ -33,7 +33,7 @@ export function AnimatedEdge({ id,  sourceX,  sourceY,  targetX,  targetY,  sour
     useEffect(() => {
         if (data?.play) {
             animRef.current?.beginElement();
-            setTimeout(() => handleEnd(), 850)
+            setTimeout(() => handleEnd(), 750)
         }
     }, [data?.play]);
 
@@ -52,7 +52,7 @@ export function AnimatedEdge({ id,  sourceX,  sourceY,  targetX,  targetY,  sour
                 💰 ${data?.amount as number}
                     <animateMotion
                         ref={animRef}
-                        dur="0.91s"
+                        dur="0.90s"
                         repeatCount={1}
                         begin="indefinite"
                     >
