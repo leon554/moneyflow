@@ -1,7 +1,7 @@
 import Select from "../primitives/Select"
 import TextBoxLimited from "../primitives/TextboxLimited"
 import Button from "../primitives/Button"
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useMemo, useState } from "react"
 import { dataContext } from "@/providers/DataProvider"
 import type { dataFormat } from "../primitives/Select"
 import { FaRegTrashAlt } from "react-icons/fa"
@@ -9,6 +9,7 @@ import type { Source } from "@/Util/types"
 import { FaPlus } from "react-icons/fa";
 import { FaRegEdit } from "react-icons/fa";
 import { FaSave } from "react-icons/fa"
+import { Util } from "@/Util/util"
 
 interface Props{
     sources: Source[]
@@ -40,7 +41,7 @@ export default function SourceForm({sources, setSources, modifiedBucket}: Props)
         isPercentage: selectedTypeItem.name == "%"
     }
     const filteredSources = sources.filter(s => s.incomeSourceId == selectedIncomeSource?.sourceData.id)
-    const allocationData = selectedIncomeSource?.getAllocatedDataWithTemp(filteredSources, tempSource, editedSourceId, data.buckets)
+    const allocationData = useMemo(() => selectedIncomeSource?.getAllocatedDataWithTemp(filteredSources, tempSource, editedSourceId, data.buckets), [sources, filteredSources, tempSource, editedSourceId, data.buckets])
 
     useEffect(() => {
         if(selectedRemainingItem.name == "Yes"){
@@ -202,7 +203,7 @@ export default function SourceForm({sources, setSources, modifiedBucket}: Props)
                                     {data.incomeSources.get(s.incomeSourceId)!.sourceData.name}
                                 </p>
                                 <p className="text-xs bg-btn text-btn-text px-1.5 rounded-full font-medium  py-[1px]">
-                                    {s.isPercentage ? `${s.allocation}%` : `$${s.allocation}`}
+                                    {s.isPercentage ? `${s.allocation}%` : `${Util.formatNum(s.allocation, true)}`}
                                 </p>
                             </div>
                             <div className="flex items-center gap-3">

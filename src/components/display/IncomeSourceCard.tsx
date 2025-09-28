@@ -30,7 +30,7 @@ export default function IncomeSourceCard({source, setEdit}: Props) {
                         {Util.capFirst(source.sourceData.name)}
                     </p>
                     <p className="text-xs bg-btn text-btn-text px-1 rounded-full font-medium  py-[1px]">
-                        ${source.sourceData.incomeAmount}
+                        {Util.formatNum(source.sourceData.incomeAmount, true)}
                     </p>
                 </div>
                 <div className="text-xs flex gap-1 text-subtext2">

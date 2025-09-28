@@ -34,7 +34,7 @@ export function IncomeSourceNode(props: NodeProps<IncomeSourceNode>) {
                             </p>
                         </div>
                         <p className="text-xs text-subtext2">
-                            ${incomeSource.sourceData.incomeAmount} {incomeSource.sourceData.incomeFrequency}
+                            {Util.formatNum(incomeSource.sourceData.incomeAmount, true)} {incomeSource.sourceData.incomeFrequency}
                         </p>
                         <p className="text-xs text-subtext2">
                             📅 {Util.formatDate(new Date(incomeSource.sourceData.nextIncurralDate))}
@@ -60,14 +60,14 @@ export function IncomeSourceNode(props: NodeProps<IncomeSourceNode>) {
                         Overview
                     </p>
                     <p className="text-xs text-subtext2">
-                        Pays <span className="font-medium text-title">${incomeSource!.sourceData.incomeAmount}</span> {incomeSource!.sourceData.incomeFrequency}
+                        Pays <span className="font-medium text-title">{Util.formatNum(incomeSource!.sourceData.incomeAmount, true)}</span> {incomeSource!.sourceData.incomeFrequency}
                     </p>
                     <p className="text-xs text-subtext2">
                         Next pay day in: {differenceInDays( new Date(incomeSource!.sourceData.nextIncurralDate), data.simulation!.date)+1} days ({Util.formatDate(new Date(incomeSource!.sourceData.nextIncurralDate))})
                     </p>
                     {allocationData ? 
                     <p className="text-xs text-subtext2">
-                        {Math.round(allocationData.allocatedAmount/allocationData.allocatedAmount + allocationData.unAllocatedAmount)*100}% of income allocated
+                        {Math.round(allocationData.allocatedAmount/(allocationData.allocatedAmount + allocationData.unAllocatedAmount)*100)/100*100}% of income allocated
                     </p> : null}
                     <p className="text-xs text-subtext2">
                         {Util.capFirst(incomeSource!.sourceData.name)} has paid ${Util.formatNum(incomeSource!.totalPaid)} since {Util.formatDate(new Date())}
@@ -92,7 +92,7 @@ export function IncomeSourceNode(props: NodeProps<IncomeSourceNode>) {
                     {allocationData && allocationData.allocationDistribution.map(d => {
                         return(
                             <p className="text-xs text-subtext2">
-                            Pays <span className="font-medium text-title">${d.allocated}</span> ({Math.round((d.allocated/allocationData.allocatedAmount + allocationData.unAllocatedAmount)*100)}%) to {d.name}
+                            Pays <span className="font-medium text-title">{Util.formatNum(d.allocated, true)}</span> ({Math.round((d.allocated/(allocationData.allocatedAmount + allocationData.unAllocatedAmount)*100)/100*100)}%) to {d.name}
                             </p>
                         )
                     })}              

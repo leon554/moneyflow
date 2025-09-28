@@ -42,8 +42,11 @@ export function AnimatedEdge({ id,  sourceX,  sourceY,  targetX,  targetY,  sour
         <>
         <BaseEdge id={`edge-path-${id}`} path={edgePath} style={{stroke: "#10B981"}}/>
         {data?.play ? 
-           <text
-                style={{ visibility: data?.play ? 'visible' : 'hidden' }}
+           <text   
+                style={{ 
+                    visibility: data?.play ? 'visible' : 'hidden', 
+                    backgroundColor: "hsl(0, 0%, 20%)"
+                }}
                 fontSize={16}
                 fontWeight="normal"
                 fill="#aaaaaa"

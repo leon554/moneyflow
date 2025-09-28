@@ -67,7 +67,7 @@ export class IncomeSource implements ISimulatable{
         totalAllocated += Array.from(allAllocations.values()).reduce((a, c) => {
             const allocationPrice = this.getAllocationPrice(c)
             const bucket =  buckets.get(c.bucketTargetId)
-            if(!bucket) return a
+            if(!bucket) return a + allocationPrice
             allocationDistribution.push({name: buckets.get(c.bucketTargetId)!.bucket.name, allocated: allocationPrice})
             return a + allocationPrice
         }, 0)
@@ -81,7 +81,6 @@ export class IncomeSource implements ISimulatable{
     public getAllocatedDataWithTemp(allocations: Source[], tempSource: Source, excludeSourceId: string, buckets: Map<string, Bucket>){
         const data = this.getAllocatedData(allocations, excludeSourceId, buckets)
         const price = this.getAllocationPrice(tempSource)
-
         return {allocatedAmount: data.allocatedAmount + price, unAllocatedAmount: data.unAllocatedAmount - price}
     }
     public canAffordAllocation(allocations: Source[], excludeSourceId: string, buckets: Map<string, Bucket>): boolean{

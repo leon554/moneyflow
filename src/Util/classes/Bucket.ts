@@ -13,7 +13,7 @@ export class Bucket implements ISimulatable{
 
     constructor(bucket: BucketDataType, incomeSources: Map<string, IncomeSource>){
         this.bucket =  {...bucket, id: bucket.id ?? crypto.randomUUID()}
-        bucket.sources.forEach(s => s.bucketTargetId == "" ? s.bucketTargetId = this.bucket.id! : null)
+        bucket.sources.forEach(s => !s.bucketTargetId ? s.bucketTargetId = this.bucket.id! : null)
         const incomeSourceArr = bucket.sources.map(s => incomeSources.get(s.incomeSourceId)).filter(s => s != undefined)
         const usedIds = new Set<string>()
         incomeSourceArr.forEach(source => {
@@ -56,7 +56,6 @@ export class Bucket implements ISimulatable{
             const incomeSource = incomeSources.get(id)
             if(!incomeSource) return new Error("Id is invalid this should never happen")
             const amount = this.getMoneyAllocated(incomeSource.sourceData.incomeAmount, incomeSource.sourceData.incomeAmount, id)
-            console.log(amount)
             dailyPay += Util.getPayPerDay(amount, incomeSource.sourceData.incomeFrequency)
         })
 

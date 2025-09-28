@@ -124,8 +124,13 @@ export namespace Util{
         else if(number < 1000000){
             output = round(number/1000) + "k"
         }
-        else{
+        else if(number < 1000000000){
             output = round(number/1000000) + "m"
+        }
+        else if(number < 1_000_000_000_000){
+            output = round(number/1000000000) + "b"
+        }else{
+            output = round(number/1_000_000_000_000) + "t"
         }
 
         if(isMoney){
