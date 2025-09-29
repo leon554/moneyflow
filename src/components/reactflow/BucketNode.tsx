@@ -74,7 +74,7 @@ export function BucketNode(props: NodeProps<BucketNodeType>) {
                 </div>
             }
             <Modal open={open} onClose={() => setOpen(false)}>
-                <BucketNodeModal bucket={bucket!} setOpen={setOpen}/>
+                {open ? <BucketNodeModal bucket={bucket!} setOpen={setOpen} /> : null}
             </Modal>
         </div>
     );

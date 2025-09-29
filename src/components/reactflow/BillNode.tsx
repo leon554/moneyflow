@@ -45,7 +45,7 @@ export function BillNode(props: NodeProps<BillNodeType>) {
                 </div>
             }
             <Modal open={open} onClose={() => setOpen(false)}>
-                <BillNodeModal bill={bill!} setOpen={setOpen}/>
+                {open ? <BillNodeModal bill={bill!} setOpen={setOpen}/> : null}
             </Modal>
         </div>
     );

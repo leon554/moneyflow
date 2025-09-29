@@ -1,4 +1,4 @@
-import { type ISimulatable, type BucketDataType, type IPayment, type Source, AccountType} from "../types"
+import { type ISimulatable, type BucketDataType, type IPayment, type Source, AccountType, type RecurringPayment} from "../types"
 import { IncomeSource } from "./IncomeSource"
 import { isSameDay } from "date-fns"
 import { Util } from "../util"
@@ -14,8 +14,10 @@ export class Bucket implements ISimulatable{
     constructor(bucket: BucketDataType, incomeSources: Map<string, IncomeSource>){
         this.bucket =  {...bucket, id: bucket.id ?? crypto.randomUUID()}
         bucket.sources.forEach(s => !s.bucketTargetId ? s.bucketTargetId = this.bucket.id! : null)
+        Array.from(incomeSources.values()).forEach(incSource => incSource.deleteBucketId(this.bucket.id!))
         const incomeSourceArr = bucket.sources.map(s => incomeSources.get(s.incomeSourceId)).filter(s => s != undefined)
         const usedIds = new Set<string>()
+
         incomeSourceArr.forEach(source => {
             if(!usedIds.has(source.sourceData.id!)){
                 source.addDependantBucketId(this.bucket.id!)
@@ -48,16 +50,24 @@ export class Bucket implements ISimulatable{
         return []
     }
 
-    public getDailyInFlow(incomeSources: Map<string, IncomeSource>){
+    public getPayments(incomeSources: Map<string, IncomeSource>){
         const incomeSourceIds = new Set(this.bucket.sources.map(i => i.incomeSourceId))
-        let dailyPay = 0
+        const payments: RecurringPayment[] = []
 
         incomeSourceIds.forEach(id => {
             const incomeSource = incomeSources.get(id)
             if(!incomeSource) return new Error("Id is invalid this should never happen")
             const amount = this.getMoneyAllocated(incomeSource.sourceData.incomeAmount, incomeSource.sourceData.incomeAmount, id)
-            dailyPay += Util.getPayPerDay(amount, incomeSource.sourceData.incomeFrequency)
+            payments.push({amount, frequency: incomeSource.sourceData.incomeFrequency, nextIncurralDate: new Date(incomeSource.sourceData.nextIncurralDate)})
         })
+
+        return payments
+    }
+    public getDailyInFlow(incomeSources: Map<string, IncomeSource>){
+        const payments = this.getPayments(incomeSources)
+        let dailyPay = 0
+
+        payments.forEach(payment => dailyPay += Util.getPayPerDay(payment.amount, payment.frequency))
 
         return dailyPay
     }

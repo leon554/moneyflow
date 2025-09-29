@@ -33,7 +33,7 @@ export enum AccountType  {
 }
 interface BaseBucket<T extends AccountType>{
     id?: string
-    name: string
+    name: string    
     sources: Source[]
     balance: number
     startBalance: number
@@ -86,4 +86,16 @@ export interface SimulationType{
     date: Date;
     reset: () => void;
     paymentHistory: IPaymentHistory[];
+}
+
+export interface RecurringPayment{
+    amount: number
+    frequency: IncurralFrequency
+    nextIncurralDate: Date
+}
+export interface LoanInfo{
+    principal: number
+    annualInterest: number
+    compoundFrequency: IncurralFrequency
+    nextCompoundDate: Date
 }

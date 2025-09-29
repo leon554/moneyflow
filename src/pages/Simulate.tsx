@@ -73,7 +73,7 @@ export default function Simulate() {
                     <Button
                         name="Reset Simulation"
                         highlight={false}
-                        onSubmit={reset}
+                        onSubmit={() => reset()}
                         style="w-[30%] flex gap-2 items-center"
                         icon={<FaRedoAlt className="mt-0.5" size={13}/>}/>
                 </div>

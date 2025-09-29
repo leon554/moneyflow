@@ -34,7 +34,7 @@ export function AnimatedEdge({ id,  sourceX,  sourceY,  targetX,  targetY,  sour
     useEffect(() => {
         if (data?.play) {
             animRef.current?.beginElement();
-            setTimeout(() => handleEnd(), 800)
+            setTimeout(() => handleEnd(), 750)
         }
     }, [data?.play]);
 

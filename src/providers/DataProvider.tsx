@@ -7,6 +7,7 @@ import { Bucket } from "@/Util/classes/Bucket"
 import { Bill } from "@/Util/classes/Bill"
 import { useReactFlow } from "@xyflow/react"
 import useSimulation from "@/hooks/useSimulation"
+import type{ Dispatch, SetStateAction } from "react";
 
 interface DataType{
     incomeSources: Map<string, IncomeSource>
@@ -28,7 +29,7 @@ interface DataType{
     step: (date: Date) => IPayment[]
     resetBuckets: () => void
     addSourcesToBucket: (bucketId: string, sources: Source[]) => void
-    setUpdated: (u: boolean) => void
+    setUpdated: Dispatch<SetStateAction<boolean>>;
 }
 
 const defaultValues: DataType = {

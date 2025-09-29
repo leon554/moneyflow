@@ -156,7 +156,7 @@ export default function Chart() {
             fitView();
             setLayoutDone(true);
         });
-    }, [nodesInitialized, nodes, edges, updateNodeInternals, fitView]);
+    }, [nodesInitialized, nodes, edges, updateNodeInternals, fitView, data.updated]);
 
     return (
         <div className="outline-1 outline-border w-full h-[70vh] rounded-md">

@@ -3,6 +3,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 import { dataContext } from "@/providers/DataProvider"
 import { useContext } from "react"
 import { Util } from "@/Util/util"
+import React from "react"
 
 ChartJS.register(
     CategoryScale, 
@@ -21,7 +22,7 @@ interface Props{
 
 
 
-export default function BucketChart({bucketId, detailed} : Props) {
+function BucketChart({bucketId, detailed} : Props) {
     const dc = useContext(dataContext)
     const data = Array.from(dc.buckets.get(bucketId)!.balanceOverTime.entries())
 
@@ -118,3 +119,4 @@ export default function BucketChart({bucketId, detailed} : Props) {
         </div>
     )
 }
+export default React.memo(BucketChart);

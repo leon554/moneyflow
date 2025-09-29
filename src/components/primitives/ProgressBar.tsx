@@ -1,4 +1,4 @@
-
+import { Util } from "@/Util/util"
 
 interface Props{
     value: number
@@ -13,7 +13,7 @@ export default function ProgressBar({value}: Props) {
                 </div>
             </div>
             <p className="text-xs text-subtext2">
-                {Math.round(value * 100*100)/100}%
+                {Util.formatNum(Math.round(value * 100*100)/100)}%
             </p>
         </div>
     )

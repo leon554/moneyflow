@@ -1,5 +1,5 @@
-import { isValid, isAfter, isBefore, add} from "date-fns";
-import { IncurralFrequency, PaymentType, type IPaymentHistory } from "./types";
+import { isValid, isAfter, isBefore, add, isSameDay} from "date-fns";
+import { IncurralFrequency, PaymentType, type IPaymentHistory, type LoanInfo, type RecurringPayment } from "./types";
 
 export namespace Util{
     export function setValueLim(setFunc: (value: string) => void, value: string, lim: number){
@@ -145,5 +145,37 @@ export namespace Util{
         const adjustedGoal = goal - start
         const adjustedStart = current - start
         return adjustedStart/adjustedGoal
+    }
+
+    export function simulateLoanPayoff(loanInfo: LoanInfo, payments: RecurringPayment[], date: Date){
+        console.time("loanCalculation");
+        let simDate = new Date(date)
+        const loanData = {...loanInfo}
+        const interestPerPeriod = getInterestRateFromFreq(loanData.compoundFrequency, loanData.annualInterest/100)
+
+        const loanPaymentInfo = {interestPaid: 0, days: 0, amountPaid: 0, payOffDate: simDate}
+        let message: string | null = null;
+
+        while(loanData.principal > 0){
+            if(isSameDay(simDate, loanData.nextCompoundDate)){
+                const interestToBePaid = loanData.principal * interestPerPeriod
+                loanPaymentInfo.interestPaid += interestToBePaid
+                loanData.principal += interestToBePaid
+                loanData.nextCompoundDate = getNextDate(loanData.nextCompoundDate, loanData.compoundFrequency)
+            }
+            payments.forEach(payment => {
+                if(!isSameDay(payment.nextIncurralDate, simDate)) return
+                loanData.principal -= payment.amount
+                loanPaymentInfo.amountPaid += payment.amount
+                payment.nextIncurralDate = getNextDate(payment.nextIncurralDate, payment.frequency)
+            })
+            simDate = add(simDate, {days: 1})
+            loanPaymentInfo.days++
+            if(loanPaymentInfo.days > 36_524) { message = "Loan will take more than 100 years to pay off"; break}
+        }
+
+        loanData.principal = Math.max(0, loanData.principal);
+        console.timeEnd("loanCalculation");
+        return {...loanPaymentInfo, message, payOffDate: simDate}
     }
 }

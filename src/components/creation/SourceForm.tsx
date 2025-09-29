@@ -10,10 +10,11 @@ import { FaPlus } from "react-icons/fa";
 import { FaRegEdit } from "react-icons/fa";
 import { FaSave } from "react-icons/fa"
 import { Util } from "@/Util/util"
+import type { Dispatch, SetStateAction } from "react"
 
 interface Props{
     sources: Source[]
-    setSources: (source: Source[]) => void
+    setSources: Dispatch<SetStateAction<Source[]>>
     modifiedBucket: boolean
 }
 export default function SourceForm({sources, setSources, modifiedBucket}: Props) {
@@ -208,7 +209,10 @@ export default function SourceForm({sources, setSources, modifiedBucket}: Props)
                             </div>
                             <div className="flex items-center gap-3">
                                 <div className="hover:cursor-pointer text-subtext2"
-                                    onClick={() => setSources([...sources.filter(source => source.incomeSourceId != s.incomeSourceId || source.allocation != s.allocation)])}>
+                                    onClick={() => {
+                                        setSources(prev => [...prev.filter(source => source.incomeSourceId != s.incomeSourceId || source.allocation != s.allocation)])
+                                        data.setUpdated(prev => !prev)
+                                    }}>
                                     <FaRegTrashAlt className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>
                                 </div>
                                 <div className="hover:cursor-pointer text-subtext2"
