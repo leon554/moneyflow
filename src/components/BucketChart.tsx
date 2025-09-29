@@ -112,7 +112,7 @@ function BucketChart({bucketId, detailed} : Props) {
     }
 
     return (
-        <div className={`bg-panel1 rounded-md outline-1 outline-border ${detailed ? "p-3" :" "} flex flex-col gap-6`}>
+        <div className={`bg-panel1 rounded-md border-1 border-border ${detailed ? "p-3" :" "} flex flex-col gap-6`}>
             <div className={`${detailed ? "h-[250px]" : "h-33"}`}>
                 <Line options={options as any} data={formatedData as ChartData<"line", number[], string>}/>
             </div>         

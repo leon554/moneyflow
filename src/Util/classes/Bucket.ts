@@ -9,6 +9,7 @@ export class Bucket implements ISimulatable{
     bucket: BucketDataType
     balanceOverTime: Map<string, number> = new Map()
     interestAmount: number = 0
+    flowData = {in: 0, out: 0}
 
 
     constructor(bucket: BucketDataType, incomeSources: Map<string, IncomeSource>){
@@ -63,12 +64,12 @@ export class Bucket implements ISimulatable{
 
         return payments
     }
+
     public getDailyInFlow(incomeSources: Map<string, IncomeSource>){
         const payments = this.getPayments(incomeSources)
         let dailyPay = 0
 
         payments.forEach(payment => dailyPay += Util.getPayPerDay(payment.amount, payment.frequency))
-
         return dailyPay
     }
     public getDailyOutFlow(bills: Map<string, Bill>){
@@ -76,6 +77,7 @@ export class Bucket implements ISimulatable{
             .filter(b => b.billData.sourceBucketId == this.bucket.id)
             .reduce((a, c) => a += Util.getPayPerDay(c.billData.amount, c.billData.frequency), 0)
     }
+
     public getMoneyAllocated(moneyEarned: number, moneyLeft: number, sourceId: string, excludeSourceId?: string){
         let totalMoneyWanted = 0
         this.bucket.sources.forEach(source => {
@@ -107,9 +109,18 @@ export class Bucket implements ISimulatable{
     }
 
     public requestMoneyFromBucket(amount: number){
+        this.flowData.out += amount
         this.bucket.balance -= amount
         return amount
     }   
+    public addMoney(amount: number){
+        this.bucket.balance += amount
+        this.flowData.in += amount
+    }
+    public removeMoney(amount: number){
+        this.bucket.balance -= amount
+        this.flowData.out += amount
+    }
 
     public addSources(sources: Source[], incomeSources: IncomeSource[]){
         const usedIds = new Set<string>()
@@ -119,11 +130,5 @@ export class Bucket implements ISimulatable{
             usedIds.add(source.sourceData.id!)
         })
         this.bucket.sources = [...this.bucket.sources, ...sources]
-    }
-    public addMoney(amount: number){
-        this.bucket.balance += amount
-    }
-    public removeMoney(amount: number){
-        this.bucket.balance -= amount
     }
 }

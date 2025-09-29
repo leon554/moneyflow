@@ -43,15 +43,20 @@ export default function IncomeSourceNodeModal({incomeSource, setOpen} : Props) {
             <p className="text-xs text-title font-medium leading-none mb-1 mt-2">
                 Pay Rate
             </p>
-            <p className="text-xs text-subtext2">
-                Weekly:  <span className="font-medium text-title">${Util.formatNum(Util.getPayPerDay(incomeSource!.sourceData.incomeAmount, incomeSource!.sourceData.incomeFrequency)*7)}</span> 
-            </p>
-            <p className="text-xs text-subtext2">
-                Monthly:  <span className="font-medium text-title">${Util.formatNum(Util.getPayPerDay(incomeSource!.sourceData.incomeAmount, incomeSource!.sourceData.incomeFrequency)*30)} </span>
-            </p>
-            <p className="text-xs text-subtext2">
-                Yearly:  <span className="font-medium text-title">${Util.formatNum(Util.getPayPerDay(incomeSource!.sourceData.incomeAmount, incomeSource!.sourceData.incomeFrequency)*365)} </span>
-            </p>
+            <div className="grid grid-cols-2 gap-1.5">
+                <p className="text-xs text-subtext2">
+                    Daily:  <span className="font-medium text-title">{Util.formatNum(Util.getPayPerDay(incomeSource!.sourceData.incomeAmount, incomeSource!.sourceData.incomeFrequency), true)}</span> 
+                </p>
+                <p className="text-xs text-subtext2">
+                    Weekly:  <span className="font-medium text-title">{Util.formatNum(Util.getPayPerDay(incomeSource!.sourceData.incomeAmount, incomeSource!.sourceData.incomeFrequency)*7, true)}</span> 
+                </p>
+                <p className="text-xs text-subtext2">
+                    Monthly:  <span className="font-medium text-title">{Util.formatNum(Util.getPayPerDay(incomeSource!.sourceData.incomeAmount, incomeSource!.sourceData.incomeFrequency)*30, true)} </span>
+                </p>
+                <p className="text-xs text-subtext2">
+                    Yearly:  <span className="font-medium text-title">{Util.formatNum(Util.getPayPerDay(incomeSource!.sourceData.incomeAmount, incomeSource!.sourceData.incomeFrequency)*365, true)} </span>
+                </p>
+            </div>
             <hr className="text-border border-t w-full mt-2"/>
             <p className="text-xs text-title font-medium leading-none mb-1 mt-2">
                 Attached Buckets
