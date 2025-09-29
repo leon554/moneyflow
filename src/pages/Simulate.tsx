@@ -9,6 +9,7 @@ import { FaRedoAlt } from "react-icons/fa";
 import Select, { type dataFormat } from "@/components/primitives/Select"
 import useLocalStorage from "@/hooks/useLocalStorage"
 import React from "react"
+import TextView from "./TextView"
 
 
 const items = [{name: "Chart View", id: 0}, {name: "Text View", id: 1}]
@@ -30,7 +31,7 @@ function Simulate() {
     return (
         <div className="mt-20 m-auto max-w-[1000px] w-[95%] flex flex-col gap-5">
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl text-title font-medium">
+                <h1 className="text-4xl text-title font-medium">
                     Simulate
                 </h1>
                
@@ -61,7 +62,7 @@ function Simulate() {
                   
                 </div>
                 {selectedItem.id == 1 ? 
-                "" :
+                <TextView/> :
                 <div className="flex flex-col gap-5">
                     <Chart/>
                 </div>}

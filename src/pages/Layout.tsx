@@ -4,11 +4,11 @@ import Navbar from "../components/Navbar";
 
 export default function Layout() {
     return (
-        <>
+        <div>
             <Navbar/>
-            <main>
+            <main className="">
                 <Outlet/>
             </main>
-        </>
+        </div>
     )
 }
