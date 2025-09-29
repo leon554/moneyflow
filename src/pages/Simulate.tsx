@@ -8,13 +8,15 @@ import { FaPause } from "react-icons/fa";
 import { FaRedoAlt } from "react-icons/fa";
 import Select, { type dataFormat } from "@/components/primitives/Select"
 import useLocalStorage from "@/hooks/useLocalStorage"
+import React from "react"
 
 
-export default function Simulate() {
+const items = [{name: "Chart View", id: 0}, {name: "Text View", id: 1}]
+
+function Simulate() {
 
     const data = useContext(dataContext)
-
-    const items = [{name: "Chart View", id: 0}, {name: "Text View", id: 1}]
+    console.log("rendered")
     const [selectedItem, setSelectedItem] = useLocalStorage<dataFormat>("simstate", items[0])
     const {date, running, setRunning, reset, paymentHistory} = data.simulation!
     const {moneyIn, moneyOut} = Util.getMoneyInAndOut(paymentHistory)
@@ -81,3 +83,5 @@ export default function Simulate() {
         </div>
     )
 }
+
+export default React.memo(Simulate);

@@ -1,10 +1,12 @@
 import type { Bucket } from "@/Util/classes/Bucket"
-import Button from "../primitives/Button"
+import Button from "../../primitives/Button"
 import { AccountType } from "@/Util/types"
 import { Util } from "@/Util/util"
-import { useContext, useMemo } from "react"
+import { useContext} from "react"
 import { dataContext } from "@/providers/DataProvider"
-import BucketChart from "../BucketChart"
+import BucketChart from "../../BucketChart"
+import LoanRepaymentInfo from "./LoanRepaymentInfo"
+import SavingsSimulationInfo from "./SavingsSimulationInfo"
 
 interface Props{
     bucket: Bucket
@@ -18,17 +20,6 @@ export default function BucketNodeModal({bucket, setOpen}: Props) {
     const outflow = bucket?.getDailyOutFlow(data.bills)
     const netflow = inflow - outflow
 
-    const repaymentInfo = useMemo(() => bucket.bucket.accountType == AccountType.DeptAccount?
-        Util.simulateLoanPayoff({
-                principal: Math.abs(bucket.bucket.balance),
-                annualInterest: bucket.bucket.interest,
-                nextCompoundDate: new Date(bucket.bucket.nextIncurralDate),
-                compoundFrequency: bucket.bucket.compoundFrequency
-            }, 
-            bucket.getPayments(data.incomeSources), 
-            data.simulation?.date ?? new Date()
-        ) : null, 
-    [data.simulation?.date])
     return (
        <div className="bg-panel1 outline-1 outline-border rounded-md p-5 flex flex-col gap-1.5 max-w-[400px] w-[90%]"
             onClick={e => e.stopPropagation()}
@@ -85,27 +76,16 @@ export default function BucketNodeModal({bucket, setOpen}: Props) {
                         Avg daily surplus: <span className="font-medium text-title">{Math.round(((netflow)/inflow)*100*100)/100}%</span>
                     </p>
                 </div>
+                
                 {bucket!.bucket.accountType == AccountType.DeptAccount ? 
                 <>
-                    <hr className="text-border border-t w-full mt-2"/>
-                    <p className="text-xs text-title font-medium leading-none mb-1 mt-2">
-                        Repayment Time
-                    </p>
-                    <div className="flex flex-col gap-1.5">
-                        <p className="text-xs text-subtext1">
-                            Days until paid off: <span className="font-medium text-title">{Util.formatNum(repaymentInfo?.days ?? 0)} days</span>
-                        </p>
-                        <p className="text-xs text-subtext1">
-                            Date until paid off: <span className="font-medium text-title">{Util.formatDate(repaymentInfo?.payOffDate ?? new Date)}</span>
-                        </p>
-                        <p className="text-xs text-subtext1">
-                            Interest to be paid for remaining loan: <span className="font-medium text-title">{Util.formatNum(repaymentInfo?.interestPaid ?? 0, true)}</span>
-                        </p>
-                        <p className="text-xs text-subtext1">
-                            Amount to pay off remaining loan: <span className="font-medium text-title">{Util.formatNum(repaymentInfo?.amountPaid ?? 0, true)}</span>
-                        </p>
-                    </div>
+                    <LoanRepaymentInfo bucket={bucket}/>
                 </> : null}
+                {bucket!.bucket.accountType == AccountType.SavingsAccount ? 
+                <>
+                   <SavingsSimulationInfo bucket={bucket}/>
+                </> : null}
+
                 <hr className="text-border border-t w-full mt-2"/>
                 <p className="text-xs text-title font-medium leading-none mb-1.5 mt-2">
                     Balance Over Time

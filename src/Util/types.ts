@@ -99,3 +99,10 @@ export interface LoanInfo{
     compoundFrequency: IncurralFrequency
     nextCompoundDate: Date
 }
+export interface SavingsInfo{
+    currentBalance: number
+    targetBalance: number
+    annualInterest: number
+    compoundFrequency: IncurralFrequency
+    nextCompoundDate: Date
+}

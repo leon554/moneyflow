@@ -1,5 +1,5 @@
 
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import { Handle, Position } from "@xyflow/react";
 import type { Node, NodeProps } from "@xyflow/react";
 import { dataContext } from "@/providers/DataProvider";
@@ -9,7 +9,7 @@ import { AccountType } from "@/Util/types";
 import BucketChart from "../BucketChart";
 import { MdInfoOutline } from "react-icons/md";
 import Modal from "../primitives/Modal";
-import BucketNodeModal from "../modals/BucketNodeModal";
+import BucketNodeModal from "../modals/bucketModal/BucketNodeModal";
 
 
 export type BucketNodeType = Node<{sourceId: string},'incomeSource'>
@@ -17,7 +17,7 @@ export type BucketNodeType = Node<{sourceId: string},'incomeSource'>
 export function BucketNode(props: NodeProps<BucketNodeType>) {
 
     const data = useContext(dataContext) 
-    const bucket = useMemo(() => data.buckets.get(props.data.sourceId), [props.data.sourceId])
+    const bucket = data.buckets.get(props.data.sourceId)
     const [open, setOpen] = useState(false)
 
     return (

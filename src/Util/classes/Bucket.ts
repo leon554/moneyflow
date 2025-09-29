@@ -51,7 +51,7 @@ export class Bucket implements ISimulatable{
         return []
     }
 
-    public getPayments(incomeSources: Map<string, IncomeSource>){
+    public getIncomingPayments(incomeSources: Map<string, IncomeSource>){
         const incomeSourceIds = new Set(this.bucket.sources.map(i => i.incomeSourceId))
         const payments: RecurringPayment[] = []
 
@@ -64,9 +64,18 @@ export class Bucket implements ISimulatable{
 
         return payments
     }
+    public getOutgoingPayments(bills: Map<string, Bill>): RecurringPayment[]{
+        return Array.from(bills.values())
+            .filter(bill => bill.billData.sourceBucketId == this.bucket.id)
+            .map(bill => ({
+                amount: bill.billData.amount, 
+                frequency: bill.billData.frequency, 
+                nextIncurralDate: new Date(bill.billData.nextIncurralDate)
+            }))
+    }  
 
     public getDailyInFlow(incomeSources: Map<string, IncomeSource>){
-        const payments = this.getPayments(incomeSources)
+        const payments = this.getIncomingPayments(incomeSources)
         let dailyPay = 0
 
         payments.forEach(payment => dailyPay += Util.getPayPerDay(payment.amount, payment.frequency))

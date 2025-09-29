@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { IoIosArrowDown } from "react-icons/io";
+import React from "react";
 
 export interface dataFormat{
     icon?: ReactNode
@@ -25,7 +26,7 @@ interface SelectProps {
   dropUp?: boolean
   divStyles?: string            
 }
-export default function Select(props: SelectProps) {
+function Select(props: SelectProps) {
     const focusElement = useRef<null|HTMLDivElement>(null)
     const [clicked, setClicked] = useState(false)
 
@@ -86,7 +87,7 @@ export default function Select(props: SelectProps) {
                 {props.items && props.items.map((h) => {
                     return (
                     <p
-                        key={crypto.randomUUID()}
+                        key={h.id}
                         className={`hover:bg-highlight transition-colors duration-200 ease-in-out gap-1.5 w-full flex items-center justify-start p-1 px-0.5 ${props.largeText ? "" : "text-sm"} rounded-lg transition duration-100 ease-in-out hover:cursor-pointer text-nowrap hover:text-btn-text px-3`}
                         onClick={() => {
                             props.onInnerClick?.()
@@ -100,3 +101,5 @@ export default function Select(props: SelectProps) {
         </div>
     );
 }
+
+export default React.memo(Select);

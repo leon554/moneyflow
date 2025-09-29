@@ -200,6 +200,7 @@ export default function DataProvider({children}: Props) {
 
 
     function resetBuckets(){
+        simTimeoutId.current && clearTimeout(simTimeoutId.current)
         hydrateFromLocalStorage()
     }
 
