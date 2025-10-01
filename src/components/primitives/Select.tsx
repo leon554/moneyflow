@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import React from "react";
+import { Util } from "@/Util/util";
 
 export interface dataFormat{
     icon?: ReactNode
@@ -67,8 +68,8 @@ function Select(props: SelectProps) {
                 <p>
                     {props.setText 
                         ?? (props.selectedItem == null 
-                        ? props.defaultText 
-                        : props.selectedItem.name)} 
+                        ? Util.capFirst(props.defaultText ?? "")
+                        : Util.capFirst(props.selectedItem.name))} 
                 </p>
                 <p>
                     {props.showIcon ? <IoIosArrowDown className={`mt-0.5 transition-transform duration-300 ${
@@ -93,7 +94,7 @@ function Select(props: SelectProps) {
                             props.onInnerClick?.()
                             setItem(h.id)
                         }}>
-                        {h.icon} {h.name}
+                        {h.icon} {Util.capFirst(h.name)}
                     </p>
                     );
                 })}

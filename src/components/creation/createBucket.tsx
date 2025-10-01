@@ -7,99 +7,100 @@ import { Bucket } from "@/Util/classes/Bucket";
 import { AccountType, IncurralFrequency, type BucketDataType, type DeptAccount, type SavingsAccount, type Source } from "@/Util/types";
 import { Util } from "@/Util/util";
 import { useContext, useEffect, useState } from "react";
-import BucketCard from "../display/BucketCard";
-import SourceForm from "./SourceForm";
+import BucketCard from "../cards/BucketCard";
+import CreateSourceForm from "./CreateSourceForm";
 import { FaPlus } from "react-icons/fa";
 import { FaSave } from "react-icons/fa";
+import useForm from "@/hooks/useForm";
 
 
 export default function CreateBucket() {
     const data = useContext(dataContext)
     
-    const accountItems = Object.values(AccountType).map((v,i) => ({id: i, name: v.toString()}))
-    const incurralItems = Object.values(IncurralFrequency).map((v,i) => ({id: i - 1, name: v.slice(0,1).toUpperCase() + v.slice(1)})).filter(i => i.name != "Onetime")
+    const accountTypeItems = Object.values(AccountType).map((v,i) => ({id: i, name: v.toString()}))
 
+    const {form, setForm, setWholeForm, resetForm} = useForm({
+        name: "",
+        initialBalance: "",
+        goalBalance: "",
+        interest: "",
+        compoundDate: Util.formatDate(new Date()),
+        sources: [] as Source[],
+        selectedAccountTypeItem: accountTypeItems[0] as dataFormat,
+        selectedIncurralItem: Util.frequencyItems[0] as dataFormat
+    })
 
-    const [selectedAccountItem, setSelectedAccountItem] = useState<dataFormat>(accountItems[0])
-    const [selectedIncurralItem, setSelectedIncurralItem] = useState<dataFormat>(incurralItems[0])
-
-    const [name, setName] = useState("")
-    const [startingValue, setStartingValue] = useState("")
-    const [goal, setGoal] = useState("")
-    const [interest, setInterest] = useState("")
-    const [compoundDate, setCompoundDate] = useState(Util.formatDate(new Date()))
-    const [sources, setSources] = useState<Source[]>([])
-
-    const [editBucket, setEditBucket] = useState(false)
-    const [selectedEditBucketId, setSelectedEditBucketId] = useState("")
+    const [editData, setEditData] = useState({isEditing: false, bucketId: ""})
     const [modifiedBucket, setModifiedBucket] = useState(false)
 
     useEffect(() => {
-        if(!editBucket) return
-        setFormFromExistingBucket(selectedEditBucketId)
-        setEditBucket(false)
-    }, [editBucket])
+        if(!editData.isEditing) return
+        setFormFromExistingBucket(editData.bucketId)
+    }, [editData])
 
 
     function addBucket(){
-        if(name == "" || goal == "" || startingValue == "") {alert("fill in all fields"); return}
-        if(Number(interest) > 100 || Number(interest) < 0) {alert("interest needs to be between 0 and 100")}
-        if(sources.length == 0) {alert("Create at least one source that will flow into this bucket"); return}
-        if(Number(goal) < Number(startingValue))  {alert("Goal value can't be less than starting value"); return}
+        if(!isValidForm()) return
 
-        let bucket: BucketDataType = {
-            name,
-            balance: Number(startingValue),
-            startBalance: Number(startingValue),
-            targetBalance: Number(goal),
-            sources: sources,
+        let newBucket: BucketDataType = {
+            name: form.name,
+            balance: Number(form.initialBalance),
+            startBalance: Number(form.initialBalance),
+            targetBalance: Number(form.goalBalance),
+            sources: form.sources,
             accountType: AccountType.CashAccount
         }
-        if(selectedEditBucketId != ""){
-            bucket.id = data.buckets.get(selectedEditBucketId)!.bucket.id!
-            bucket.sources = sources.map(s => ({...s, bucketTargetId: bucket.id!}))
-            setSelectedEditBucketId("")
+
+        if(editData.isEditing){
+            newBucket.id = data.buckets.get(editData.bucketId)!.bucket.id!
+            newBucket.sources = form.sources.map(s => ({...s, bucketTargetId: newBucket.id!}))
         }
 
-        if(selectedAccountItem.name != AccountType.CashAccount){
-            bucket= {
-                ...bucket,
-                accountType: selectedAccountItem.name as AccountType.DeptAccount | AccountType.SavingsAccount,
-                interest: Number(interest),
-                compoundFrequency: selectedIncurralItem.name as IncurralFrequency,
-                nextIncurralDate: Util.stringToDate(compoundDate).toISOString()
+        if(form.selectedAccountTypeItem.name != AccountType.CashAccount){
+            newBucket= {
+                ...newBucket,
+                accountType: form.selectedAccountTypeItem.name as AccountType.DeptAccount | AccountType.SavingsAccount,
+                interest: Number(form.interest),
+                compoundFrequency: form.selectedIncurralItem.name as IncurralFrequency,
+                nextIncurralDate: Util.stringToDate(form.compoundDate).toISOString()
             }
         }
-        data.addBucket(new Bucket(bucket, data.incomeSources))
+
+        data.addBucket(new Bucket(newBucket, data.incomeSources))
         setModifiedBucket(!modifiedBucket)
-        resetFormValues()
+        setEditData({isEditing: false, bucketId: ""})
+        resetForm()
     }
 
 
-    function resetFormValues(){
-        setSources([])
-        setName("")
-        setStartingValue("")
-        setGoal("")
-        setInterest("")
-        setCompoundDate(Util.formatDate(new Date()))
-    }
-
+    
     function setFormFromExistingBucket(bucketId: string){
         const bucket = data.buckets.get(bucketId)
         if(!bucket) {throw new Error("Bucket is not found when trying to set form from existing bucket");}
-
-        setSources([...bucket.bucket.sources])
-        setName(bucket.bucket.name)
-        setStartingValue(bucket.bucket.balance.toString())
-        setGoal(bucket.bucket.targetBalance.toString())
-        setSelectedAccountItem(accountItems.find(a => a.name.toLowerCase() == bucket.bucket.accountType.toLowerCase())!)
-
-        if(bucket.bucket.accountType != AccountType.CashAccount){
-            setInterest(bucket.bucket.interest.toString())
-            setCompoundDate(Util.formatDate(new Date(bucket.bucket.nextIncurralDate)))
-            setSelectedIncurralItem(incurralItems.find(i => i.name.toLowerCase() == (bucket.bucket as SavingsAccount | DeptAccount).compoundFrequency.toLowerCase())!)
+        
+        const formData: typeof form = {
+            ...form,
+            sources: [...bucket.bucket.sources],
+            name: bucket.bucket.name,
+            initialBalance: bucket.bucket.balance.toString(),
+            goalBalance: bucket.bucket.targetBalance.toString(),
+            selectedAccountTypeItem: accountTypeItems.find(a => a.name.toLowerCase() == bucket.bucket.accountType.toLowerCase())!
         }
+        
+        if(bucket.bucket.accountType != AccountType.CashAccount){
+            formData.interest = bucket.bucket.interest.toString()
+            formData.compoundDate = Util.formatDate(new Date(bucket.bucket.nextIncurralDate))
+            formData.selectedIncurralItem = Util.frequencyItems.find(i => i.name.toLowerCase() == (bucket.bucket as SavingsAccount | DeptAccount).compoundFrequency.toLowerCase())!
+        }
+        setWholeForm(formData)
+    }
+    
+    function isValidForm(){
+        if(form.name == "" || form.goalBalance == "" || form.initialBalance == "") {alert("fill in all fields"); return false}
+        if(Number(form.interest) > 100 || Number(form.interest) < 0) {alert("interest needs to be between 0 and 100"); return false}
+        if(form.sources.length == 0) {alert("Create at least one source that will flow into this bucket"); return false}
+        if(Number(form.goalBalance) < Number(form.initialBalance))  {alert("Goal value can't be less than starting value"); return false}
+        return true
     }
 
     return (
@@ -108,19 +109,19 @@ export default function CreateBucket() {
             <h1 className="text-title text-lg font-medium mb-4">
                 Add Bucket
             </h1>
-            <SourceForm sources={sources} setSources={setSources} modifiedBucket={modifiedBucket}/>
+            <CreateSourceForm sources={form.sources} setSources={(sources: Source[]) => setForm("sources", sources)} modifiedBucket={modifiedBucket}/>
             <div className="flex flex-col gap-4 pt-4">
                 <h1 className="text-title  font-medium ">
                     Add Bucket Details
                 </h1>
-                {sources.length != 0 ?
+                {form.sources.length != 0 ?
                 <>
                     <div className="flex flex-col w-full gap-4 sm:flex-row">
                         <TextBoxLimited 
                             name="Name"
                             charLimit={15}
-                            value={name}
-                            setValue={setName}
+                            value={form.name}
+                            setValue={name => setForm("name", name)}
                             placeHolder="e.g Holiday"
                             outerDivStyles="w-full sm:min-w-25"
                             />
@@ -128,8 +129,8 @@ export default function CreateBucket() {
                             name="Starting Value"
                             charLimit={10}
                             numeric={true}
-                            value={startingValue}
-                            setValue={setStartingValue}
+                            value={form.initialBalance}
+                            setValue={value => setForm("initialBalance", value)}
                             placeHolder="1200"
                             outerDivStyles="w-full sm:min-w-25"
                             negative={true}/>
@@ -137,8 +138,8 @@ export default function CreateBucket() {
                             name="Goal Value"
                             charLimit={10}
                             numeric={true}
-                            value={goal}
-                            setValue={setGoal}
+                            value={form.goalBalance}
+                            setValue={value => setForm("goalBalance", value)}
                             placeHolder="1200"
                             outerDivStyles="w-full sm:min-w-25"
                             negative={true}/>
@@ -148,9 +149,9 @@ export default function CreateBucket() {
                                     Account Type
                                 </p>
                                 <Select
-                                    items={accountItems}
-                                    selectedItem={selectedAccountItem}
-                                    setSelectedItem={(id) => setSelectedAccountItem(accountItems[id])}
+                                    items={accountTypeItems}
+                                    selectedItem={form.selectedAccountTypeItem}
+                                    setSelectedItem={(id) => setForm("selectedAccountTypeItem", accountTypeItems[id])}
                                     showIcon={true}
                                     center={true}
                                     divStyles="sm:w-fit sm:min-w-[80px]"
@@ -158,14 +159,14 @@ export default function CreateBucket() {
                             </div>
                         </div>
                     </div>
-                    {selectedAccountItem.name != AccountType.CashAccount ? 
+                    {form.selectedAccountTypeItem.name != AccountType.CashAccount ? 
                         <div className="flex flex-col w-full gap-4 sm:flex-row">
                             <TextBoxLimited 
                                 name="Yearly Interest Rate (%)"
                                 charLimit={10}
                                 numeric={true}
-                                value={interest}
-                                setValue={setInterest}
+                                value={form.interest}
+                                setValue={value => setForm("interest", value)}
                                 placeHolder="4.8"
                                 outerDivStyles="sm:w-[40%]"
                                 invalidFunc={(v: string) => Number(v) > 100 || Number(v) < 0}/>
@@ -174,8 +175,8 @@ export default function CreateBucket() {
                                     Next Compound Date
                                 </p>
                                 <DateInput
-                                    date={compoundDate}
-                                    setDate={setCompoundDate}
+                                    date={form.compoundDate}
+                                    setDate={value => setForm("compoundDate", value)}
                                     />
                             </div>
                             <div className="flex flex-col gap-1.5 ">
@@ -183,9 +184,9 @@ export default function CreateBucket() {
                                     Compound
                                 </p>
                                 <Select
-                                    items={incurralItems}
-                                    selectedItem={selectedIncurralItem}
-                                    setSelectedItem={(id) => setSelectedIncurralItem(incurralItems[id])}
+                                    items={Util.frequencyItems}
+                                    selectedItem={form.selectedIncurralItem}
+                                    setSelectedItem={(id) => setForm("selectedIncurralItem", Util.frequencyItems[id])}
                                     showIcon={true}
                                     center={true}
                                     divStyles="sm:w-fit"
@@ -203,18 +204,17 @@ export default function CreateBucket() {
                 <hr className="text-border border-t w-full mt-1 mb-1"/>
                 <div className="flex w-full gap-7 items-end justify-end">
                     <Button 
-                        name={selectedEditBucketId == "" ? "Add Bucket" : "Update Bucket"}
+                        name={!editData.isEditing ? "Add Bucket" : "Update Bucket"}
                         onSubmit={addBucket}
                         highlight={false}
                         style="w-full flex gap-1.5 items-center"
-                        icon={selectedEditBucketId == "" ? <FaPlus size={12}/> : <FaSave size={12}/>}/>
+                        icon={!editData.isEditing ? <FaPlus size={12}/> : <FaSave size={12}/>}/>
                 </div>
                 <div className="grid sm:grid-cols-2 gap-3 ">
                     {Array.from(data.buckets.values()).map(b => {
                         return(
                            <BucketCard bucket={b} setEdit={() => {
-                                setSelectedEditBucketId(b.bucket.id!)
-                                setEditBucket(true)
+                                setEditData({isEditing: true, bucketId: b.bucket.id!})
                             }}/>
                         )
                     })}

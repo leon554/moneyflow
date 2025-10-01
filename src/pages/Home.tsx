@@ -1,6 +1,6 @@
 import CreateBill from "@/components/creation/CreateBill";
-import CreateBucket from "@/components/creation/createBucket";
-import Income from "@/components/creation/Income";
+import CreateBucket from "@/components/creation/CreateBucket";
+import CreateIncomeSource from "@/components/creation/CreateIncomeSource";
 import Button from "@/components/primitives/Button";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { FaAngleRight } from "react-icons/fa";
@@ -37,7 +37,7 @@ export default function Home() {
             <div className="text-sm w-full flex flex-col gap-3 mb-15">
                 {pageIndex == 0?
                     <>
-                        <Income/> 
+                        <CreateIncomeSource/> 
                         <div className="flex w-full justify-end">
                             <Button
                                 name={"Next"}

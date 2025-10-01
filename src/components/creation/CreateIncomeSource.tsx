@@ -7,47 +7,61 @@ import { IncomeSource } from "@/Util/classes/IncomeSource";
 import { IncurralFrequency, type IncomeDataType } from "@/Util/types";
 import { Util } from "@/Util/util";
 import { useContext, useState } from "react";
-import IncomeSourceCard from "../display/IncomeSourceCard";
+import IncomeSourceCard from "../cards/IncomeSourceCard";
 import { FaPlus, FaSave } from "react-icons/fa";
+import useForm from "@/hooks/useForm";
 
-export default function Income() {
 
-    const items = Object.values(IncurralFrequency).map((v,i) => ({id: i, name: v.slice(0,1).toUpperCase() + v.slice(1)}))
-    const [name, setName] = useState("")
-    const [amount, setAmount] = useState("")
-    const [date, setDate] = useState(Util.formatDate(new Date()))
-    const [selectedItem, setSelectedItem] = useState<dataFormat>(items[0])
 
-    const [edit, setEdit] = useState({isInEditMode: false, editId: ""})
+export default function CreateIncomeSource() {
+
+    const [editData, setEditData] = useState({isInEditMode: false, editId: ""})
+    const {form, setForm, setWholeForm, resetForm} = useForm({
+        name: "",
+        amount: "",
+        date: Util.formatDate(new Date()),
+        selectedFrequencyItem: Util.frequencyItems[0] as dataFormat
+    })
 
     const data = useContext(dataContext)
 
     function handleSubmit(){
-        if(name == "" || amount == "" || date == "") {alert("fill in all fields"); return}
+        if(form.name == "" || form.amount == "" || form.date == "") {alert("fill in all fields"); return}
+
         const sourceData: IncomeDataType = {
-            name,
-            incomeAmount: Number(amount),
-            incomeFrequency: selectedItem.name.toLowerCase() as IncurralFrequency,
-            nextIncurralDate: Util.stringToDate(date).toISOString()
+            name: form.name,
+            incomeAmount: Number(form.amount),
+            incomeFrequency: form.selectedFrequencyItem.name as IncurralFrequency,
+            nextIncurralDate: Util.stringToDate(form.date).toISOString()
         }
 
-        const newSourceData = new IncomeSource(sourceData) 
-        if(edit.isInEditMode){
-            newSourceData.sourceData.id = edit.editId
-            newSourceData.destinationBucketsIds = [...data.incomeSources.get(edit.editId)!.destinationBucketsIds]
-            setEdit({isInEditMode: false, editId: ""})
-        }
-        data.addIncomeSource(newSourceData)
+        const newIncomeSource = new IncomeSource(sourceData) 
+        if(!editData.isInEditMode){data.addIncomeSource(newIncomeSource); return}
+
+        newIncomeSource.sourceData.id = editData.editId
+        newIncomeSource.destinationBucketsIds = [...data.incomeSources.get(editData.editId)!.destinationBucketsIds]
+        setEditData({isInEditMode: false, editId: ""})
+
+        data.addIncomeSource(newIncomeSource)
+        resetForm()
     }
 
     function populateFormFields(id: string){
         const incomeSource = data.incomeSources.get(id)
         if(!incomeSource) return new Error("Id provided doesn't match existing income source")
+        
+        setWholeForm({
+            ...form,
+            name: incomeSource.sourceData.name,
+            amount: incomeSource.sourceData.incomeAmount.toString(),
+            date: Util.formatDate(new Date(incomeSource.sourceData.nextIncurralDate)),
+            selectedFrequencyItem: Util.frequencyItems.find(i => i.name == incomeSource.sourceData.incomeFrequency)!
+        })
+    }
 
-        setName(incomeSource.sourceData.name)
-        setAmount(incomeSource.sourceData.incomeAmount.toString())
-        setDate(Util.formatDate(new Date(incomeSource.sourceData.nextIncurralDate)))
-        setSelectedItem(items.find(i => i.name.toLowerCase() == incomeSource.sourceData.incomeFrequency.toLowerCase())!)
+    function onEditClick(incomeSourceID: string){
+        setEditData({isInEditMode: true, editId: incomeSourceID})
+        populateFormFields(incomeSourceID)
     }
 
     return (
@@ -60,24 +74,24 @@ export default function Income() {
                 <TextBoxLimited 
                     name="Name"
                     charLimit={15}
-                    value={name}
-                    setValue={setName}
+                    value={form.name}
+                    setValue={value => setForm("name", value)}
                     placeHolder="e.g Wage"
                     />
                 <TextBoxLimited 
                     name="Amount"
                     charLimit={10}
                     numeric={true}
-                    value={amount}
-                    setValue={setAmount}
+                    value={form.amount}
+                    setValue={value => setForm("amount", value)}
                     placeHolder="1200"/>
                 <div className="flex flex-col gap-1.5 w-full">
                     <p className="font-medium text-subtext1 relative text-xs">
                         Next Payment
                     </p>
                     <DateInput
-                        date={date}
-                        setDate={setDate}
+                        date={form.date}
+                        setDate={value => setForm("date", value)}
                         />
                 </div>
                 <div className="flex flex-col gap-1.5 w-full">
@@ -85,9 +99,9 @@ export default function Income() {
                         Frequency
                     </p>
                     <Select
-                        items={items}
-                        selectedItem={selectedItem}
-                        setSelectedItem={(id) => setSelectedItem(items[id])}
+                        items={Util.frequencyItems}
+                        selectedItem={form.selectedFrequencyItem}
+                        setSelectedItem={(id) => setForm("selectedFrequencyItem", Util.frequencyItems[id])}
                         showIcon={true}
                         center={true}
                     />
@@ -95,8 +109,8 @@ export default function Income() {
             </div>
             <div className="flex w-full gap-7 items-end justify-end">
                 <Button 
-                    icon={edit.isInEditMode ? <FaSave size={12}/> : <FaPlus size={12}/>}
-                    name={edit.isInEditMode ? "Save" : "Add"}
+                    icon={editData.isInEditMode ? <FaSave size={12}/> : <FaPlus size={12}/>}
+                    name={editData.isInEditMode ? "Save" : "Add"}
                     onSubmit={() => handleSubmit()}
                     highlight={false}
                     style="w-full flex gap-1.5 items-center"/>
@@ -104,10 +118,7 @@ export default function Income() {
             <div className="grid sm:grid-cols-2 gap-3">
                 {Array.from(data.incomeSources.values()).map(source => {
                     return(
-                        <IncomeSourceCard source={source} setEdit={() => {
-                            setEdit({isInEditMode: true, editId: source.sourceData.id!})
-                            populateFormFields(source.sourceData.id!)
-                        }}/>
+                        <IncomeSourceCard source={source} setEdit={() => onEditClick(source.sourceData.id!)}/>
                     )
                 })}
             </div>

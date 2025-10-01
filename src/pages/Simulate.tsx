@@ -1,6 +1,6 @@
 import { Util } from "@/Util/util"
 import Button from "@/components/primitives/Button"
-import Chart from "@/components/Chart"
+import Chart from "@/components/charts/Chart"
 import { useContext, useEffect } from "react"
 import { dataContext } from "@/providers/DataProvider"
 import { FaPlay } from "react-icons/fa";

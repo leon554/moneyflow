@@ -4,7 +4,7 @@ import { AccountType } from "@/Util/types"
 import { Util } from "@/Util/util"
 import { useContext} from "react"
 import { dataContext } from "@/providers/DataProvider"
-import BucketChart from "../../BucketChart"
+import BucketChart from "../../charts/BucketChart"
 import LoanRepaymentInfo from "./LoanRepaymentInfo"
 import SavingsSimulationInfo from "./SavingsSimulationInfo"
 

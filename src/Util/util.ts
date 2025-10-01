@@ -44,7 +44,6 @@ export namespace Util{
     export function getNextDate(base: Date, freq: IncurralFrequency): Date {
         freq = freq.toLowerCase() as IncurralFrequency
         const increments: Record<IncurralFrequency, Parameters<typeof add>[1]> = {
-            [IncurralFrequency.OneTime]:       { days: 0 },
             [IncurralFrequency.Daily]:       { days: 1 },
             [IncurralFrequency.Weekly]:      { weeks: 1 },
             [IncurralFrequency.Fortnightly]: { weeks: 2 },
@@ -57,7 +56,6 @@ export namespace Util{
     export function getPayPerDay(amount: number, frequency: IncurralFrequency): number {
         frequency = frequency.toLowerCase() as IncurralFrequency
         const divider: Record<IncurralFrequency, number> = {
-            [IncurralFrequency.OneTime]:     1,
             [IncurralFrequency.Daily]:       1,
             [IncurralFrequency.Weekly]:      7,
             [IncurralFrequency.Fortnightly]: 14,
@@ -70,7 +68,6 @@ export namespace Util{
     export function getInterestRateFromFreq(freq: IncurralFrequency, rate: number){
         freq = freq.toLowerCase() as IncurralFrequency
         const increments: Record<IncurralFrequency, number> = {
-            [IncurralFrequency.OneTime]:      0,
             [IncurralFrequency.Daily]:       365,
             [IncurralFrequency.Weekly]:      52,
             [IncurralFrequency.Fortnightly]: 26,
@@ -146,4 +143,6 @@ export namespace Util{
         const adjustedStart = current - start
         return adjustedStart/adjustedGoal
     }
+
+    export const frequencyItems = Object.values(IncurralFrequency).map((v,i) => ({id: i, name: v}))
 }

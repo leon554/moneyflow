@@ -2,12 +2,12 @@ import { useState,  useEffect, useContext } from 'react';
 import { ReactFlow, type Node, type Edge,  useReactFlow, useNodesState, useEdgesState, Background, BackgroundVariant } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { dataContext } from '@/providers/DataProvider';
-import { IncomeSourceNode } from './reactflow/IncomeSourceNode';
-import { BucketNode } from './reactflow/BucketNode';
-import { BillNode } from './reactflow/BillNode';
+import { IncomeSourceNode } from '../reactflow/IncomeSourceNode';
+import { BucketNode } from '../reactflow/BucketNode';
+import { BillNode } from '../reactflow/BillNode';
 import Dagre from '@dagrejs/dagre';
 import { useNodesInitialized, useUpdateNodeInternals } from "@xyflow/react";
-import { AnimatedEdge } from './reactflow/AnimateEdge';
+import { AnimatedEdge } from '../reactflow/AnimateEdge';
 
 const initialNodes: Node[] = [
     { id: 'n1', position: { x: 0, y: 0 }, data: { label: 'Wage' }},

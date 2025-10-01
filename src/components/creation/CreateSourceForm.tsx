@@ -10,96 +10,105 @@ import { FaPlus } from "react-icons/fa";
 import { FaRegEdit } from "react-icons/fa";
 import { FaSave } from "react-icons/fa"
 import { Util } from "@/Util/util"
-import type { Dispatch, SetStateAction } from "react"
+import useForm from "@/hooks/useForm"
 
 interface Props{
     sources: Source[]
-    setSources: Dispatch<SetStateAction<Source[]>>
+    setSources: (sources: Source[]) => void
     modifiedBucket: boolean
 }
-export default function SourceForm({sources, setSources, modifiedBucket}: Props) {
+export default function CreateSourceForm({sources, setSources, modifiedBucket}: Props) {
 
     const data = useContext(dataContext)
 
-    let sourceItems = Array.from(data.incomeSources.values()).map((v,i) => ({id: i, name: v.sourceData.name, data: v.sourceData.id!}))
+    let incomeSourceItems = Array.from(data.incomeSources.values()).map((v,i) => ({id: i, name: v.sourceData.name, data: v.sourceData.id!}))
     const remainingItems = [{id: 0, name: "Yes"}, {id: 1, name: "No"}]
     const typeItems = [{id: 0, name: "%"}, {id: 1, name: "$"}]
 
-    const [selectedSourceItem, setSelectedSourceItem] = useState<dataFormat>()
-    const [selectedRemainingItem, setSelectedRemainingItem] = useState<dataFormat>(remainingItems[1])
-    const [allocation, setAllocation] = useState("")
-    const [selectedTypeItem, setSelectedTypeItem] = useState<dataFormat>(typeItems[0])
+    const {form, setForm, resetForm, setWholeForm} = useForm({
+        selectedIncomeSourceItem: undefined as dataFormat | undefined,
+        selectedRemainingItem: remainingItems[1] as dataFormat,
+        selectedTypeItem: typeItems[0] as dataFormat,
+        allocation: ""
+    })
 
-    const [isEditing, setIsEditing] = useState(false)
-    const [editedSourceId, setEditedSourceId] = useState("")
+    const [editData, setEditData] = useState({isEditing: false, sourceId: ""})
 
-    const selectedIncomeSource = data.incomeSources.get(selectedSourceItem?.data!)
+    const selectedIncomeSource = data.incomeSources.get(form.selectedIncomeSourceItem?.data!)
+
     const tempSource: Source = {
-        id: isEditing ? editedSourceId : crypto.randomUUID(), 
-        incomeSourceId: selectedSourceItem?.data!, 
+        id: editData.isEditing ? editData.sourceId : crypto.randomUUID(), 
+        incomeSourceId: form.selectedIncomeSourceItem?.data!, 
         bucketTargetId: "", 
-        allocation: isNaN(Number(allocation)) ? 0 : Number(allocation), 
-        isPercentage: selectedTypeItem.name == "%"
+        allocation: isNaN(Number(form.allocation)) ? 0 : Number(form.allocation), 
+        isPercentage: form.selectedTypeItem.name == "%"
     }
-    const filteredSources = sources.filter(s => s.incomeSourceId == selectedIncomeSource?.sourceData.id)
-    const allocationData = useMemo(() => selectedIncomeSource?.getAllocatedDataWithTemp(filteredSources, tempSource, editedSourceId, data.buckets), [sources, filteredSources, tempSource, editedSourceId, data.buckets])
+
+    const selectedIncomeSourceSources = sources.filter(s => s.incomeSourceId == selectedIncomeSource?.sourceData.id)
+    const allocationData = useMemo(() => 
+        selectedIncomeSource?.getAllocatedDataWithTemp(selectedIncomeSourceSources, tempSource, editData.sourceId, data.buckets), 
+    [sources, selectedIncomeSourceSources, tempSource, editData.sourceId, data.buckets])
 
     useEffect(() => {
-        if(selectedRemainingItem.name == "Yes"){
-            setAllocation("")
-        }
-    }, [selectedRemainingItem])
+        if(form.selectedRemainingItem.name != "Yes") return
+        setForm("allocation", "")
+    }, [form.selectedRemainingItem])
 
     useEffect(() => {
-        setIsEditing(false)
-        setEditedSourceId("")
-        setAllocation("")
-        setSelectedSourceItem(undefined)
+        setEditData({isEditing: false, sourceId: ""})
+        setForm("allocation", "")
+        setForm("selectedIncomeSourceItem", undefined)
     }, [modifiedBucket])
   
     function addSource(){
-        if(!selectedSourceItem) {alert("Select or create a source before creating this bucket"); return}
-        if(allocation == "" && selectedRemainingItem.name == "No") {alert("Add allocation value"); return}
-        if(selectedTypeItem.name == "%" && Number(allocation) > 100) {alert("can't have percentage higher than 100"); return}
-        if(allocationData!.unAllocatedAmount < 0 ) {alert("Income source doesn't have enough money unallocated to create this source "); return}
+        if(!isValidForm()) return
 
         const newSource: Source = {
             id: crypto.randomUUID(),
-            incomeSourceId: selectedSourceItem.data!,
+            incomeSourceId: form.selectedIncomeSourceItem!.data!,
             bucketTargetId: "",
-            allocation: selectedRemainingItem.name == "Yes" ? 
+            allocation: form.selectedRemainingItem.name == "Yes" ? 
                 allocationData?.unAllocatedAmount ?? 0 :
-                Number(allocation),
-            isPercentage: selectedTypeItem.name == "%" && selectedRemainingItem.name == "No"
+                Number(form.allocation),
+            isPercentage: form.selectedTypeItem.name == "%" && form.selectedRemainingItem.name == "No"
         }
-
-        
-        setSelectedRemainingItem(remainingItems[1])
-        setAllocation("");
-
-        if(isEditing){
-            newSource.id = editedSourceId
-            const updatedSourceIndex = sources.findIndex(s => s.id == editedSourceId)
-            setSources([...sources.map((s, i) =>
-                i === updatedSourceIndex ? {...s, ...newSource} : s
-            )]);
-            setIsEditing(false)
-            setEditedSourceId("")
+         
+        if(editData.isEditing){
+            newSource.id = editData.sourceId
+            const sourceToUpdateIndex = sources.findIndex(s => s.id == editData.sourceId)
+            const updatedSourceArr = sources.map((s, i) =>
+                i === sourceToUpdateIndex ? {...s, ...newSource} : s
+            )
+            setSources([...updatedSourceArr])
         }else{
             setSources([...sources, newSource])
         }
+        
+        setEditData({isEditing: false, sourceId: ""})
+        setForm("selectedRemainingItem", remainingItems[1])
+        setForm("allocation", "")
+        resetForm()
     }
 
+    function isValidForm(){
+        if(!form.selectedIncomeSourceItem) {alert("Select or create a source before creating this bucket"); return false}
+        if(form.allocation == "" && form.selectedRemainingItem.name == "No") {alert("Add allocation value"); return false}
+        if(form.selectedTypeItem.name == "%" && Number(form.allocation) > 100) {alert("Can't have percentage higher than 100"); return false}
+        if(allocationData!.unAllocatedAmount < 0 ) {alert("Income source doesn't have enough money unallocated to create this source "); return false;}
+        return true
+    }
 
     function enableEditMode(editId: string){
-        setIsEditing(true)
-        setEditedSourceId(editId)
+        setEditData({isEditing: true, sourceId: editId})
         const source = sources.find(s => s.id == editId)!
-        setSelectedSourceItem(sourceItems.find(s => s.data == source.incomeSourceId)!)
-        setAllocation(source.allocation.toString())
-        setSelectedTypeItem(source.isPercentage ? typeItems[0] : typeItems[1])
-        setSelectedRemainingItem(remainingItems[1])
 
+        setWholeForm({
+            ...form,
+            selectedIncomeSourceItem: incomeSourceItems.find(s => s.data == source.incomeSourceId)!,
+            allocation: source.allocation.toString(),
+            selectedTypeItem: source.isPercentage ? typeItems[0] : typeItems[1],
+            selectedRemainingItem: remainingItems[1]
+        })
     }
 
     return (
@@ -113,37 +122,37 @@ export default function SourceForm({sources, setSources, modifiedBucket}: Props)
                         Source
                     </p>
                     <Select
-                        items={sourceItems}
+                        items={incomeSourceItems}
                         defaultText="Select Source"
-                        selectedItem={selectedSourceItem ?? null}
-                        setSelectedItem={(id) => setSelectedSourceItem(sourceItems[id])}
+                        selectedItem={form.selectedIncomeSourceItem ?? null}
+                        setSelectedItem={(id) => setForm("selectedIncomeSourceItem", incomeSourceItems[id])}
                         showIcon={true}
                         center={true}
                         divStyles="sm:w-fit"
                     />
                 </div>
-                {(allocationData?.unAllocatedAmount ?? -1) > 0 || allocation != ""?
+                {(allocationData?.unAllocatedAmount ?? -1) > 0 || form.allocation != ""?
                     <>
-                    {selectedRemainingItem.name == "Yes" ? 
+                    {form.selectedRemainingItem.name == "Yes" ? 
                     null :
                     <>
                         <TextBoxLimited 
                             name="Allocation Amount"
                             charLimit={10}
                             numeric={true}
-                            value={allocation}
-                            setValue={setAllocation}
+                            value={form.allocation}
+                            setValue={value => setForm("allocation", value)}
                             placeHolder="1200"
                             outerDivStyles="w-full"
-                            invalidFunc={(_) => selectedSourceItem ? ((allocationData?.unAllocatedAmount ?? 0) < 0) : false}/>
+                            invalidFunc={(_) => form.selectedIncomeSourceItem ? ((allocationData?.unAllocatedAmount ?? 0) < 0) : false}/>
                         <div className="flex flex-col gap-1.5">
                             <p className="text-xs font-medium text-subtext1 relative ">
                                 Type
                             </p>
                             <Select
                                 items={typeItems}
-                                selectedItem={selectedTypeItem}
-                                setSelectedItem={(id) => setSelectedTypeItem(typeItems[id])}
+                                selectedItem={form.selectedTypeItem}
+                                setSelectedItem={(id) => setForm("selectedTypeItem", typeItems[id])}
                                 showIcon={true}
                                 center={true}
                                 divStyles="sm:w-fit"
@@ -151,20 +160,20 @@ export default function SourceForm({sources, setSources, modifiedBucket}: Props)
                         </div>
                     </>
                     }
-                    <div className={`flex flex-col gap-1.5 ${selectedRemainingItem.name == "Yes" ? "w-full" : "w-fit"}`}>
+                    <div className={`flex flex-col gap-1.5 ${form.selectedRemainingItem.name == "Yes" ? "w-full" : "w-fit"}`}>
                         <p className="text-xs font-medium text-subtext1 relative whitespace-nowrap ">
                             Allocate Remaining
                         </p>
                         <Select
                             items={remainingItems}
-                            selectedItem={selectedRemainingItem}
-                            setSelectedItem={(id) => setSelectedRemainingItem(remainingItems[id])}
+                            selectedItem={form.selectedRemainingItem}
+                            setSelectedItem={(id) => setForm("selectedRemainingItem", remainingItems[id])}
                             showIcon={true}
                             divStyles=""
                         />                
                     </div>
                     </> : 
-                    selectedSourceItem ? 
+                    form.selectedIncomeSourceItem ? 
                     <div className="text-subtext2 text-xs flex  items-end mb-1.5">
                         Not enough money left, select or create different source.
                     </div> :
@@ -173,11 +182,11 @@ export default function SourceForm({sources, setSources, modifiedBucket}: Props)
                     </div>
                 }
             </div>
-                {selectedSourceItem && (((allocationData?.unAllocatedAmount ?? 0) > 0) || allocation != "") ? 
+                {form.selectedIncomeSourceItem && (((allocationData?.unAllocatedAmount ?? 0) > 0) || form.allocation != "") ? 
                     <p className="text-subtext2 text-xs">
-                       {selectedRemainingItem.name == "Yes" 
+                       {form.selectedRemainingItem.name == "Yes" 
                         ? "The remaining $" + allocationData?.unAllocatedAmount + 
-                        " from your " + selectedSourceItem.name + " will be allocated to this bucket"
+                        " from your " + form.selectedIncomeSourceItem.name + " will be allocated to this bucket"
                         : "$" + Math.round((allocationData?.unAllocatedAmount ?? 0) * 100)/100 + " unallocated" +
                         " and $" + Math.round((allocationData?.allocatedAmount ?? 0) * 100)/100 + " already allocated" +
                         ". " + (
@@ -189,11 +198,11 @@ export default function SourceForm({sources, setSources, modifiedBucket}: Props)
                     : null
                 }
             <Button 
-                name={isEditing ? "Save" : "Add Source"}
+                name={editData.isEditing ? "Save" : "Add Source"}
                 onSubmit={() => addSource()}
                 highlight={false}
                 style="w-full flex gap-1.5"
-                icon={isEditing ?  <FaSave size={12}/> : <FaPlus size={12}/>}/>
+                icon={editData.isEditing ?  <FaSave size={12}/> : <FaPlus size={12}/>}/>
             {sources.length != 0 ?
             <div className="grid sm:grid-cols-2 gap-3 ">
                 {sources.map(s => {
@@ -210,7 +219,7 @@ export default function SourceForm({sources, setSources, modifiedBucket}: Props)
                             <div className="flex items-center gap-3">
                                 <div className="hover:cursor-pointer text-subtext2"
                                     onClick={() => {
-                                        setSources(prev => [...prev.filter(source => source.incomeSourceId != s.incomeSourceId || source.allocation != s.allocation)])
+                                        setSources([...sources.filter(source => source.incomeSourceId != s.incomeSourceId || source.allocation != s.allocation)])
                                         data.setUpdated(prev => !prev)
                                     }}>
                                     <FaRegTrashAlt className="hover:text-subtext1 transition-all duration-200 ease-in-out"/>

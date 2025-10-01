@@ -6,7 +6,7 @@ import { dataContext } from "@/providers/DataProvider";
 import { Util } from "@/Util/util";
 import ProgressBar from "../primitives/ProgressBar";
 import { AccountType } from "@/Util/types";
-import BucketChart from "../BucketChart";
+import BucketChart from "../charts/BucketChart";
 import { MdInfoOutline } from "react-icons/md";
 import Modal from "../primitives/Modal";
 import BucketNodeModal from "../modals/bucketModal/BucketNodeModal";

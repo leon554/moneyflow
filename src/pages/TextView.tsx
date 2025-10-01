@@ -1,4 +1,4 @@
-import NetWorthChart from "@/components/NetWorthChart";
+import NetWorthChart from "@/components/charts/NetWorthChart";
 
 
 

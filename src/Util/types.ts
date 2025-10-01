@@ -1,7 +1,6 @@
 
 
 export enum IncurralFrequency {
-    OneTime ="onetime",
     Daily = "daily",
     Weekly =  "weekly",
     Fortnightly = "fortnightly",

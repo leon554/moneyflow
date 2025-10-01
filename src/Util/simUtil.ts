@@ -38,7 +38,7 @@ export namespace simUtil{
             })
             simDate = add(simDate, {days: 1})
             loanPaymentInfo.days++
-            if(loanPaymentInfo.days > 36_524) { message = "Loan will take more than 100 years to pay off"; break}
+            if(loanPaymentInfo.days > 36_524/2) { message = "Loan will take more than 50 years to pay off"; break}
         }
 
         loanData.principal = Math.max(0, loanData.principal);
@@ -79,7 +79,7 @@ export namespace simUtil{
             })
             simDate = add(simDate, {days: 1})
             savingsPaymentInfo.days++
-            if(savingsPaymentInfo.days > 36_524) { message = "Savings goal will take more than 100 years reach"; break}
+            if(savingsPaymentInfo.days > 36_524/2) { message = "Savings goal will take more than 50 years reach"; break}
         }
         
         console.timeEnd("savingsCalculations");
