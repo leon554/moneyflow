@@ -4,6 +4,16 @@ import { isSameDay, add } from "date-fns";
 
 export namespace simUtil{
 
+    function addToMapArr<T, K>(map: Map<T, K[]>, key: T, valueToAdd: K){
+        if(map.has(key)){
+            map.set(key, [...map.get(key)!,valueToAdd ])
+        }else{
+            map.set(key, [valueToAdd])
+        }
+    }
+    //avg 55ms
+    //avg 35
+    //20
     export function simulateLoanPayoff(loanInfo: LoanInfo, inPayments: RecurringPayment[], outPayments: RecurringPayment[], date: Date){
         console.time("loanCalculation");
 
@@ -17,25 +27,49 @@ export namespace simUtil{
         if(loanData.principal >= 0) return {...loanPaymentInfo, message: "Loan has already been paid off"}
         loanData.principal = Math.abs(loanData.principal)
 
+        const inMap = inPayments.reduce((map, p) => 
+            map.set(
+                Util.formatDate(p.nextIncurralDate),
+                [...(map.get(Util.formatDate(p.nextIncurralDate)) || []), p]
+            ),
+            new Map<string, RecurringPayment[]>()
+        );
+        const outMap = outPayments.reduce((map, p) => 
+            map.set(
+                Util.formatDate(p.nextIncurralDate),
+                [...(map.get(Util.formatDate(p.nextIncurralDate)) || []), p]
+            ),
+            new Map<string, RecurringPayment[]>()
+        );
+
         while(loanData.principal > 0){
+            const formatedDate = Util.formatDate(simDate)
             if(isSameDay(simDate, loanData.nextCompoundDate)){
                 const interestToBePaid = loanData.principal * interestPerPeriod
                 loanPaymentInfo.interestPaid += interestToBePaid
                 loanData.principal += interestToBePaid
                 loanData.nextCompoundDate = Util.getNextDate(loanData.nextCompoundDate, loanData.compoundFrequency)
             }
-            outPayments.forEach(payment => {
-                if(!isSameDay(payment.nextIncurralDate, simDate)) return
+
+            const ins = inMap.get(formatedDate) ?? []
+            const outs = outMap.get(formatedDate) ?? []
+
+            outs.forEach(payment => {
                 loanData.principal += payment.amount
                 payment.nextIncurralDate = Util.getNextDate(payment.nextIncurralDate, payment.frequency)
-            })
-            inPayments.forEach(payment => {
-                if(!isSameDay(payment.nextIncurralDate, simDate)) return
+                addToMapArr(outMap, formatedDate, payment)
+            });
+            ins.forEach(payment => {
                 if(loanData.principal <= payment.amount) payment.amount = loanData.principal
                 loanData.principal -= payment.amount
                 loanPaymentInfo.amountPaid += payment.amount
                 payment.nextIncurralDate = Util.getNextDate(payment.nextIncurralDate, payment.frequency)
+                addToMapArr(inMap, formatedDate, payment)
             })
+
+            inMap.delete(formatedDate)
+            outMap.delete(formatedDate)
+
             simDate = add(simDate, {days: 1})
             loanPaymentInfo.days++
             if(loanPaymentInfo.days > 36_524/2) { message = "Loan will take more than 50 years to pay off"; break}

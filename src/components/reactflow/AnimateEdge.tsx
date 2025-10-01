@@ -11,7 +11,6 @@ export function AnimatedEdge({ id,  sourceX,  sourceY,  targetX,  targetY,  sour
 
 
     const handleEnd = useCallback(() => {
-        console.log('Animation ended for edge', id);
         setEdges((edges) =>
         edges.map((edge) =>
             edge.id === id

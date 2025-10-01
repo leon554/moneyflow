@@ -17,7 +17,6 @@ const items = [{name: "Chart View", id: 0}, {name: "Text View", id: 1}]
 function Simulate() {
 
     const data = useContext(dataContext)
-    console.log("rendered")
     const [selectedItem, setSelectedItem] = useLocalStorage<dataFormat>("simstate", items[0])
     const {date, running, setRunning, reset, paymentHistory} = data.simulation!
     const {moneyIn, moneyOut} = Util.getMoneyInAndOut(paymentHistory)
