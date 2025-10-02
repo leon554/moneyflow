@@ -21,7 +21,7 @@ interface DataType{
     systemData: SystemData[]
     setSystemData: (systemData: SystemData[]) => void
     selectedSystem: string
-    setSelectedSystem: (id: string) => void
+    setSelectedSystem: Dispatch<SetStateAction<string>>
 
     addIncomeSource: (incomeSource: IncomeSource) => void
     addBucket: (bucket: Bucket) => void
@@ -127,7 +127,6 @@ export default function DataProvider({children}: Props) {
         const bucketMap = new Map<string, Bucket>()
         const billMap = new Map<string, Bill>()
 
-
         incomeSourceData.filter(s => s.systemId == selectedSystem).forEach(s => {
             const source = {...s}
             source.nextIncurralDate = Util.adjustDate(new Date(source.nextIncurralDate), source.incomeFrequency).getTime()
@@ -145,7 +144,6 @@ export default function DataProvider({children}: Props) {
             bill.nextIncurralDate = Util.adjustDate(new Date(bill.nextIncurralDate), bill.frequency).getTime()
             billMap.set(bill.id!, new Bill(bill))
         })
-        console.log("updated")
         setIncomeSources(new Map(incomeMap))
         setBuckets(new Map(bucketMap))
         setBills(new Map(billMap))

@@ -6,7 +6,7 @@ import { dataContext } from "@/providers/DataProvider";
 import { IncomeSource } from "@/Util/classes/IncomeSource";
 import { IncurralFrequency, type IncomeDataType } from "@/Util/types";
 import { Util } from "@/Util/util";
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import IncomeSourceCard from "../cards/IncomeSourceCard";
 import { FaPlus, FaSave } from "react-icons/fa";
 import useForm from "@/hooks/useForm";
@@ -24,6 +24,11 @@ export default function CreateIncomeSource() {
     })
 
     const data = useContext(dataContext)
+
+    const incomeSourceArr = useMemo(() => {
+        console.log("re calc")
+       return Array.from(data.incomeSources.values())
+    }, [data.incomeSources, data.selectedSystem]) 
 
     function handleSubmit(){
         if(form.name == "" || form.amount == "" || form.date == "") {alert("fill in all fields"); return}
@@ -116,9 +121,11 @@ export default function CreateIncomeSource() {
                     style="w-full flex gap-1.5 items-center"/>
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
-                {Array.from(data.incomeSources.values()).map(source => {
+                {incomeSourceArr.map(source => {
                     return(
-                        <IncomeSourceCard source={source} setEdit={() => onEditClick(source.sourceData.id!)}/>
+                        <div key={source.sourceData.id}>
+                            <IncomeSourceCard source={source} setEdit={() => onEditClick(source.sourceData.id!)}/>
+                        </div>
                     )
                 })}
             </div>

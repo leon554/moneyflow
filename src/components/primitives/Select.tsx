@@ -27,7 +27,7 @@ interface SelectProps {
   dropUp?: boolean
   divStyles?: string            
 }
-function Select(props: SelectProps) {
+export default function Select(props: SelectProps) {
     const focusElement = useRef<null|HTMLDivElement>(null)
     const [clicked, setClicked] = useState(false)
 
@@ -102,5 +102,3 @@ function Select(props: SelectProps) {
         </div>
     );
 }
-
-export default React.memo(Select);

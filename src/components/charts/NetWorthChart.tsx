@@ -3,7 +3,6 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 import { dataContext } from "@/providers/DataProvider"
 import { useContext } from "react"
 import { Util } from "@/Util/util"
-import React from "react"
 
 ChartJS.register(
     CategoryScale, 
@@ -14,7 +13,7 @@ ChartJS.register(
     Tooltip,  
     Filler
 )
-function NetWorthChart() {
+export default function NetWorthChart() {
     const dc = useContext(dataContext)
 
     const data = getData()
@@ -128,4 +127,3 @@ function NetWorthChart() {
         </div>
     )
 }
-export default React.memo(NetWorthChart);

@@ -140,7 +140,6 @@ export default function Chart() {
 
         setNodes([...sourceNodes, ...bucketNodes, ...billNodes]);
         setEdges([...edges]);
-         console.log("2")
       
     }, [data.hydrated, data.updated])
     
@@ -148,7 +147,6 @@ export default function Chart() {
         if (!nodesInitialized) return;
         if (nodes.length === 0) return;
         if (layoutDone) return; 
-        console.log("1")
         nodes.forEach((n) => updateNodeInternals(n.id));
 
         requestAnimationFrame(() => {
@@ -157,7 +155,6 @@ export default function Chart() {
             setEdges(layouted.edges);
             fitView();
             setLayoutDone(true);
-            console.log("fit dta")
         });
     }, [nodesInitialized, nodes, edges, updateNodeInternals, fitView]);
 

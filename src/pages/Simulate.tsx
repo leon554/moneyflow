@@ -28,13 +28,12 @@ export default function Simulate() {
     const networth = Math.round(Array.from(data.buckets.values()).reduce((a, c) => a + c.bucket.balance, 0)*100)/100
 
     useEffect(() => {
-        return reset
-    }, [])
+        return () => reset()
+    }, [data.selectedSystem])
 
     useEffect(() => {
         if(!selectedSystem) return
-        reset()
-        data.setSelectedSystem(selectedSystem.data!)
+        data.setSelectedSystem(_ => selectedSystem.data!)
         setChartKey(prev => prev + 1)
     }, [selectedSystem])
 
