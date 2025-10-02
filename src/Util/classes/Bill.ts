@@ -13,7 +13,7 @@ export class Bill implements ISimulatable{
 
     public step(date: Date, buckets: Map<string, Bucket>): IPayment[]{
         if(!isSameDay(date, new Date(this.billData.nextIncurralDate))) return []
-        this.billData.nextIncurralDate = Util.getNextDate(new Date(this.billData.nextIncurralDate), this.billData.frequency).toISOString()
+        this.billData.nextIncurralDate = Util.getNextDate(new Date(this.billData.nextIncurralDate), this.billData.frequency).getTime()
 
         const sourceBucket = buckets.get(this.billData.sourceBucketId)
         if(!sourceBucket) {throw new Error("Bill source bucket is not defined");}

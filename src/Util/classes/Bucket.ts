@@ -7,7 +7,7 @@ import type { Bill } from "./Bill"
 export class Bucket implements ISimulatable{
 
     bucket: BucketDataType
-    balanceOverTime: Map<string, number> = new Map()
+    balanceOverTime: Map<number, number> = new Map()
     interestAmount: number = 0
     flowData = {in: 0, out: 0}
 
@@ -30,7 +30,7 @@ export class Bucket implements ISimulatable{
     public step(date: Date): IPayment[]{
         
         if(this.bucket.accountType == AccountType.SavingsAccount && isSameDay(date, new Date(this.bucket.nextIncurralDate))){
-            this.bucket.nextIncurralDate = Util.getNextDate(new Date(this.bucket.nextIncurralDate), this.bucket.compoundFrequency).toISOString()
+            this.bucket.nextIncurralDate = Util.getNextDate(new Date(this.bucket.nextIncurralDate), this.bucket.compoundFrequency).getTime()
             
             const rate = Util.getInterestRateFromFreq(this.bucket.compoundFrequency, this.bucket.interest/100)
             const interestEarned = Math.max(this.bucket.balance, 0) * rate
@@ -39,14 +39,14 @@ export class Bucket implements ISimulatable{
         }
         if(this.bucket.accountType == AccountType.DeptAccount && isSameDay(date, new Date(this.bucket.nextIncurralDate))){
             
-            this.bucket.nextIncurralDate = Util.getNextDate(new Date(this.bucket.nextIncurralDate), this.bucket.compoundFrequency).toISOString()
+            this.bucket.nextIncurralDate = Util.getNextDate(new Date(this.bucket.nextIncurralDate), this.bucket.compoundFrequency).getTime()
             const rate = Util.getInterestRateFromFreq(this.bucket.compoundFrequency, this.bucket.interest/100)
             const interestToBePaid = Math.min(0, this.bucket.balance) * rate
             this.interestAmount += interestToBePaid
             this.bucket.balance -= Math.abs(interestToBePaid)
         }
 
-        this.balanceOverTime.set(date.toISOString(), this.bucket.balance)
+        this.balanceOverTime.set(date.getTime(), this.bucket.balance)
 
         return []
     }
@@ -57,7 +57,7 @@ export class Bucket implements ISimulatable{
 
         incomeSourceIds.forEach(id => {
             const incomeSource = incomeSources.get(id)
-            if(!incomeSource) return new Error("Id is invalid this should never happen")
+            if(!incomeSource) throw new Error("Id is invalid this should never happen")
             const amount = this.getMoneyAllocated(incomeSource.sourceData.incomeAmount, incomeSource.sourceData.incomeAmount, id)
             payments.push({amount, frequency: incomeSource.sourceData.incomeFrequency, nextIncurralDate: new Date(incomeSource.sourceData.nextIncurralDate)})
         })

@@ -39,7 +39,7 @@ export default function CreateBill() {
             amount: Number(form.amount),
             balance: 0,
             frequency: form.selectedFrequencyItem.name.toLowerCase() as IncurralFrequency,
-            nextIncurralDate: Util.stringToDate(form.date).toISOString()
+            nextIncurralDate: Util.stringToDate(form.date).getTime()
         }
         const newBill = new Bill(billData)
 

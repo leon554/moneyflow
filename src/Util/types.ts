@@ -1,19 +1,19 @@
 
 
 export enum IncurralFrequency {
-    Daily = "daily",
-    Weekly =  "weekly",
-    Fortnightly = "fortnightly",
-    Monthly = "monthly",
-    Quarterly = "quarterly",
-    Yearly = "yearly"
+    daily = "daily",
+    weekly =  "weekly",
+    fortnightly = "fortnightly",
+    monthly = "monthly",
+    quarterly = "quarterly",
+    yearly = "yearly"
 }
 
 export interface IncomeDataType{
     id?: string
     name: string
     incomeAmount: number
-    nextIncurralDate: string
+    nextIncurralDate: number
     incomeFrequency: IncurralFrequency
 }
 export interface Source{
@@ -42,7 +42,7 @@ interface BaseBucket<T extends AccountType>{
 interface Interest{
     interest: number
     compoundFrequency: IncurralFrequency
-    nextIncurralDate: string
+    nextIncurralDate: number
 }
 export type NonInterestAccount = BaseBucket<AccountType.CashAccount>
 export type SavingsAccount = BaseBucket<AccountType.SavingsAccount> & Interest
@@ -58,7 +58,7 @@ export interface BillData{
     amount: number
     balance: number
     frequency: IncurralFrequency
-    nextIncurralDate: string
+    nextIncurralDate: number
 }
 
 export interface ISimulatable{

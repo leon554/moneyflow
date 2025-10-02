@@ -21,7 +21,7 @@ export class IncomeSource implements ISimulatable{
     public step(date: Date, buckets: Map<string, Bucket>): IPayment[]{
         let {nextIncurralDate, incomeAmount, id, incomeFrequency} = this.sourceData
         if(!isSameDay(date, new Date(nextIncurralDate))) return []
-        this.sourceData.nextIncurralDate = Util.getNextDate(new Date(nextIncurralDate), incomeFrequency).toISOString()
+        this.sourceData.nextIncurralDate = Util.getNextDate(new Date(nextIncurralDate), incomeFrequency).getTime()
         this.currentAmount = this.sourceData.incomeAmount
 
         const payments: IPayment[] = []

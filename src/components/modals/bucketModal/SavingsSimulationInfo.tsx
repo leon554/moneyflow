@@ -8,12 +8,13 @@ import { Util } from "@/Util/util"
 
 interface Props{
     bucket: Bucket
+    netflow: number
 }
-export default function SavingsSimulationInfo({bucket}: Props) {
+export default function SavingsSimulationInfo({bucket, netflow}: Props) {
 
     const data = useContext(dataContext)
 
-    const savingsInfo = useMemo(() => bucket.bucket.accountType == AccountType.SavingsAccount?
+    const savingsInfo = useMemo(() => netflow > 0 && bucket.bucket.accountType == AccountType.SavingsAccount?
         simUtil.simulateSavingsTarget({
                 currentBalance: bucket.bucket.balance,
                 targetBalance: bucket.bucket.targetBalance,
@@ -24,7 +25,7 @@ export default function SavingsSimulationInfo({bucket}: Props) {
             bucket.getIncomingPayments(data.incomeSources), 
             bucket.getOutgoingPayments(data.bills),
             data.simulation?.date ?? new Date()
-        ) : null, 
+        ): null, 
     [data.simulation?.date])
 
     return (
@@ -33,7 +34,7 @@ export default function SavingsSimulationInfo({bucket}: Props) {
             <p className="text-xs text-title font-medium leading-none mb-1 mt-2">
                 Reaching Savings Goal Info
             </p>
-            {!savingsInfo?.message?
+            {!savingsInfo?.message && savingsInfo?
                 <div className="flex flex-col gap-1.5">
                     <p className="text-xs text-subtext1">
                         Time to reach goal (days): <span className="font-medium text-title">{Util.formatNum(savingsInfo?.days ?? 0)} days</span>
@@ -52,7 +53,7 @@ export default function SavingsSimulationInfo({bucket}: Props) {
                     </p>
                 </div> :
                 <p className="text-xs text-subtext1">
-                    {savingsInfo?.message}
+                    {savingsInfo?.message ?? "Goal will take more than 50 years to reach"}
                 </p>
             }
         </>

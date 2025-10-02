@@ -1,4 +1,4 @@
-import { isValid, isAfter, isBefore, add} from "date-fns";
+import { isValid, isAfter, isBefore, add, type Duration} from "date-fns";
 import { IncurralFrequency, PaymentType, type IPaymentHistory} from "./types";
 
 export namespace Util{
@@ -41,39 +41,42 @@ export namespace Util{
         newMap.set(key, newItem);
         return newMap;
     }
+
+    const increments: Record<IncurralFrequency, Duration> = {
+        [IncurralFrequency.daily]:       { days: 1 },
+        [IncurralFrequency.weekly]:      { weeks: 1 },
+        [IncurralFrequency.fortnightly]: { weeks: 2 },
+        [IncurralFrequency.monthly]:     { months: 1 },
+        [IncurralFrequency.quarterly]:   { months: 3 },
+        [IncurralFrequency.yearly]:      { years: 1 },
+    };
     export function getNextDate(base: Date, freq: IncurralFrequency): Date {
         freq = freq.toLowerCase() as IncurralFrequency
-        const increments: Record<IncurralFrequency, Parameters<typeof add>[1]> = {
-            [IncurralFrequency.Daily]:       { days: 1 },
-            [IncurralFrequency.Weekly]:      { weeks: 1 },
-            [IncurralFrequency.Fortnightly]: { weeks: 2 },
-            [IncurralFrequency.Monthly]:     { months: 1 },
-            [IncurralFrequency.Quarterly]:   { months: 3 },
-            [IncurralFrequency.Yearly]:      { years: 1 },
-        };
         return add(base, increments[freq]);
     }
+
+
     export function getPayPerDay(amount: number, frequency: IncurralFrequency): number {
         frequency = frequency.toLowerCase() as IncurralFrequency
         const divider: Record<IncurralFrequency, number> = {
-            [IncurralFrequency.Daily]:       1,
-            [IncurralFrequency.Weekly]:      7,
-            [IncurralFrequency.Fortnightly]: 14,
-            [IncurralFrequency.Monthly]:     30,
-            [IncurralFrequency.Quarterly]:   90,
-            [IncurralFrequency.Yearly]:      365,
+            [IncurralFrequency.daily]:       1,
+            [IncurralFrequency.weekly]:      7,
+            [IncurralFrequency.fortnightly]: 14,
+            [IncurralFrequency.monthly]:     30,
+            [IncurralFrequency.quarterly]:   90,
+            [IncurralFrequency.yearly]:      365,
         };
         return amount/divider[frequency];
     }
     export function getInterestRateFromFreq(freq: IncurralFrequency, rate: number){
         freq = freq.toLowerCase() as IncurralFrequency
         const increments: Record<IncurralFrequency, number> = {
-            [IncurralFrequency.Daily]:       365,
-            [IncurralFrequency.Weekly]:      52,
-            [IncurralFrequency.Fortnightly]: 26,
-            [IncurralFrequency.Monthly]:     12,
-            [IncurralFrequency.Quarterly]:   4,
-            [IncurralFrequency.Yearly]:      1,
+            [IncurralFrequency.daily]:       365,
+            [IncurralFrequency.weekly]:      52,
+            [IncurralFrequency.fortnightly]: 26,
+            [IncurralFrequency.monthly]:     12,
+            [IncurralFrequency.quarterly]:   4,
+            [IncurralFrequency.yearly]:      1,
         };
         return rate/increments[freq];
     }

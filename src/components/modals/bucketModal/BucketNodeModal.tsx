@@ -70,7 +70,7 @@ export default function BucketNodeModal({bucket, setOpen}: Props) {
                         Avg daily out flow: <span className="font-medium text-red-300">{Util.formatNum(outflow, true)}</span>
                     </p>
                     <p className="text-xs text-subtext1">
-                        Avg daily net flow: <span className="font-medium text-title">{Util.formatNum(netflow < 0 ?  netflow * -1 : netflow, true)}</span>
+                        Avg daily net flow: <span className="font-medium text-title">{Util.formatNum(netflow, true)}</span>
                     </p>
                     <p className="text-xs text-subtext1">
                         Avg daily surplus: <span className="font-medium text-title">{Math.round(((netflow)/inflow)*100*100)/100}%</span>
@@ -83,7 +83,7 @@ export default function BucketNodeModal({bucket, setOpen}: Props) {
                 </> : null}
                 {bucket!.bucket.accountType == AccountType.SavingsAccount ? 
                 <>
-                   <SavingsSimulationInfo bucket={bucket}/>
+                   <SavingsSimulationInfo bucket={bucket} netflow={netflow}/>
                 </> : null}
 
                 <hr className="text-border border-t w-full mt-2"/>

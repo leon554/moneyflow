@@ -62,7 +62,7 @@ export default function CreateBucket() {
                 accountType: form.selectedAccountTypeItem.name as AccountType.DeptAccount | AccountType.SavingsAccount,
                 interest: Number(form.interest),
                 compoundFrequency: form.selectedIncurralItem.name as IncurralFrequency,
-                nextIncurralDate: Util.stringToDate(form.compoundDate).toISOString()
+                nextIncurralDate: Util.stringToDate(form.compoundDate).getTime()
             }
         }
 

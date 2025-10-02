@@ -25,6 +25,7 @@ export default function LoanRepaymentInfo({bucket}: Props) {
         ) : null, 
     [data.simulation?.date])
     
+    
     return (
         <>
             <hr className="text-border border-t w-full mt-2"/>

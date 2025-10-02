@@ -117,17 +117,17 @@ export default function DataProvider({children}: Props) {
 
 
         incomeSourceData.forEach(source => {
-            source.nextIncurralDate = Util.adjustDate(new Date(source.nextIncurralDate), source.incomeFrequency).toISOString()
+            source.nextIncurralDate = Util.adjustDate(new Date(source.nextIncurralDate), source.incomeFrequency).getTime()
             incomeMap.set(source.id!, new IncomeSource(source))
         })
         bucketData.forEach(bucketData => {
             if(bucketData.accountType != AccountType.CashAccount){
-                bucketData.nextIncurralDate = Util.adjustDate(new Date(bucketData.nextIncurralDate), bucketData.compoundFrequency).toISOString()
+                bucketData.nextIncurralDate = Util.adjustDate(new Date(bucketData.nextIncurralDate), bucketData.compoundFrequency).getTime()
             }
             bucketMap.set(bucketData.id!, new Bucket(bucketData, incomeMap))
         })
         billData.forEach(bill => {
-            bill.nextIncurralDate = Util.adjustDate(new Date(bill.nextIncurralDate), bill.frequency).toISOString()
+            bill.nextIncurralDate = Util.adjustDate(new Date(bill.nextIncurralDate), bill.frequency).getTime()
             billMap.set(bill.id!, new Bill(bill))
         })
 

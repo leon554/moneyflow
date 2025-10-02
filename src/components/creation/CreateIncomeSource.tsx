@@ -32,7 +32,7 @@ export default function CreateIncomeSource() {
             name: form.name,
             incomeAmount: Number(form.amount),
             incomeFrequency: form.selectedFrequencyItem.name as IncurralFrequency,
-            nextIncurralDate: Util.stringToDate(form.date).toISOString()
+            nextIncurralDate: Util.stringToDate(form.date).getTime()
         }
 
         const newIncomeSource = new IncomeSource(sourceData) 
