@@ -8,18 +8,18 @@ import { FaPause } from "react-icons/fa";
 import { FaRedoAlt } from "react-icons/fa";
 import Select, { type dataFormat } from "@/components/primitives/Select"
 import useLocalStorage from "@/hooks/useLocalStorage"
-import React from "react"
 import TextView from "./TextView"
 
 
 const items = [{name: "Chart View", id: 0}, {name: "Text View", id: 1}]
 
-function Simulate() {
+export default function Simulate() {
 
     const data = useContext(dataContext)
 
     const systemItems = data.systemData.map((d, i) => ({id: i, name: d.name, data: d.id})) as dataFormat[]
     const [selectedSystem, setSelectedSystem] = useState<null | dataFormat>(null)
+    const [chartKey, setChartKey] = useState(0) 
 
     const [selectedItem, setSelectedItem] = useLocalStorage<dataFormat>("simstate", items[0])
     const {date, running, setRunning, reset, paymentHistory} = data.simulation!
@@ -33,7 +33,9 @@ function Simulate() {
 
     useEffect(() => {
         if(!selectedSystem) return
+        reset()
         data.setSelectedSystem(selectedSystem.data!)
+        setChartKey(prev => prev + 1)
     }, [selectedSystem])
 
     useEffect(() => {
@@ -84,7 +86,7 @@ function Simulate() {
                 {selectedItem.id == 1 ? 
                 <TextView/> :
                 <div className="flex flex-col gap-5">
-                    <Chart/>
+                    <Chart key={chartKey}/> 
                 </div>}
                 <div className="flex w-full gap-4">
                     <Button
@@ -104,5 +106,3 @@ function Simulate() {
         </div>
     )
 }
-
-export default React.memo(Simulate);

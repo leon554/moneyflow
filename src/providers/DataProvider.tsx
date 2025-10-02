@@ -105,19 +105,19 @@ export default function DataProvider({children}: Props) {
 
     function addIncomeSource(incomeSource: IncomeSource){
         const newMap = Util.updateMap(incomeSources, incomeSource.sourceData.id!, incomeSource)
-        setIncomeSourceData([...incomeSourceData, ...Array.from(newMap.values()).map(v => v.sourceData)])
+        setIncomeSourceData([...incomeSourceData, incomeSource.sourceData])
         setIncomeSources(newMap)
         setUpdated(!updated)
     }
     function addBucket(bucket: Bucket){
         const newMap = Util.updateMap(buckets, bucket.bucket.id!, bucket)
-        setBucketData([...bucketData, ...Array.from(newMap.values()).map(v => v.bucket)])
+        setBucketData([...bucketData, bucket.bucket])
         setBuckets(newMap)
         setUpdated(!updated)
     }
     function addBill(bill: Bill){
         const newMap = Util.updateMap(bills, bill.billData.id!, bill)
-        setBillData([...billData, ...Array.from(newMap.values()).map(b => b.billData)])
+        setBillData([...billData, bill.billData])
         setBills(newMap)
         setUpdated(!updated)
     }
@@ -128,24 +128,27 @@ export default function DataProvider({children}: Props) {
         const billMap = new Map<string, Bill>()
 
 
-        incomeSourceData.filter(s => s.systemId == selectedSystem).forEach(source => {
+        incomeSourceData.filter(s => s.systemId == selectedSystem).forEach(s => {
+            const source = {...s}
             source.nextIncurralDate = Util.adjustDate(new Date(source.nextIncurralDate), source.incomeFrequency).getTime()
             incomeMap.set(source.id!, new IncomeSource(source))
         })
-        bucketData.filter(b => b.systemId == selectedSystem).forEach(bucketData => {
+        bucketData.filter(b => b.systemId == selectedSystem).forEach(b=> {
+            const bucketData = {...b}
             if(bucketData.accountType != AccountType.CashAccount){
                 bucketData.nextIncurralDate = Util.adjustDate(new Date(bucketData.nextIncurralDate), bucketData.compoundFrequency).getTime()
             }
             bucketMap.set(bucketData.id!, new Bucket(bucketData, incomeMap))
         })
-        billData.filter(b => b.systemId == selectedSystem).forEach(bill => {
+        billData.filter(b => b.systemId == selectedSystem).forEach(b => {
+            const bill = {...b}
             bill.nextIncurralDate = Util.adjustDate(new Date(bill.nextIncurralDate), bill.frequency).getTime()
             billMap.set(bill.id!, new Bill(bill))
         })
-
-        setIncomeSources(incomeMap)
-        setBuckets(bucketMap)
-        setBills(billMap)
+        console.log("updated")
+        setIncomeSources(new Map(incomeMap))
+        setBuckets(new Map(bucketMap))
+        setBills(new Map(billMap))
     }
 
     function addSourcesToBucket(bucketId: string, sources: Source[]){

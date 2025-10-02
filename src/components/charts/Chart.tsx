@@ -159,7 +159,7 @@ export default function Chart() {
             setLayoutDone(true);
             console.log("fit dta")
         });
-    }, [nodesInitialized, nodes, edges, updateNodeInternals, fitView, data.updated, data.hydrated]);
+    }, [nodesInitialized, nodes, edges, updateNodeInternals, fitView]);
 
     return (
         <div className="outline-1 outline-border w-full h-[70vh] rounded-md">
