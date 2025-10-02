@@ -1,7 +1,7 @@
 import { Util } from "@/Util/util"
 import Button from "@/components/primitives/Button"
 import Chart from "@/components/charts/Chart"
-import { useContext, useEffect } from "react"
+import { useContext, useEffect, useState} from "react"
 import { dataContext } from "@/providers/DataProvider"
 import { FaPlay } from "react-icons/fa";
 import { FaPause } from "react-icons/fa";
@@ -17,6 +17,10 @@ const items = [{name: "Chart View", id: 0}, {name: "Text View", id: 1}]
 function Simulate() {
 
     const data = useContext(dataContext)
+
+    const systemItems = data.systemData.map((d, i) => ({id: i, name: d.name, data: d.id})) as dataFormat[]
+    const [selectedSystem, setSelectedSystem] = useState<null | dataFormat>(null)
+
     const [selectedItem, setSelectedItem] = useLocalStorage<dataFormat>("simstate", items[0])
     const {date, running, setRunning, reset, paymentHistory} = data.simulation!
     const {moneyIn, moneyOut} = Util.getMoneyInAndOut(paymentHistory)
@@ -26,6 +30,16 @@ function Simulate() {
     useEffect(() => {
         return reset
     }, [])
+
+    useEffect(() => {
+        if(!selectedSystem) return
+        data.setSelectedSystem(selectedSystem.data!)
+    }, [selectedSystem])
+
+    useEffect(() => {
+        if(!data.selectedSystem) return
+        setSelectedSystem(systemItems.find(i => i.data == data.selectedSystem)!)
+    }, [data.selectedSystem])
     
     return (
         <div className="mt-20 m-auto max-w-[1000px] w-[95%] flex flex-col gap-5">
@@ -38,6 +52,13 @@ function Simulate() {
             <hr className="text-border border-t w-full"/>
             <div className="flex flex-col gap-3">
                 <div className="flex gap-3 items-center ">
+                     <Select
+                        items={systemItems}
+                        selectedItem={selectedSystem}
+                        setSelectedItem={(id) => setSelectedSystem(systemItems[id])}
+                        showIcon={true}
+                        defaultText="Select System"
+                    />
                     <Select
                         selectedItem={selectedItem}
                         setSelectedItem={(id) => setSelectedItem(items[id])}

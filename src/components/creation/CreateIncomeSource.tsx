@@ -29,6 +29,7 @@ export default function CreateIncomeSource() {
         if(form.name == "" || form.amount == "" || form.date == "") {alert("fill in all fields"); return}
 
         const sourceData: IncomeDataType = {
+            systemId: data.selectedSystem,
             name: form.name,
             incomeAmount: Number(form.amount),
             incomeFrequency: form.selectedFrequencyItem.name as IncurralFrequency,
@@ -65,7 +66,6 @@ export default function CreateIncomeSource() {
     }
 
     return (
-     
         <div className="outline-1 bg-panel1 outline-border rounded-md p-4 flex flex-col gap-4">
             <h1 className="text-title text-lg font-medium ">
                 Add Income

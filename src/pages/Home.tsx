@@ -1,15 +1,21 @@
+import AddSystemFirst from "@/components/creation/AddSystemFirst";
 import CreateBill from "@/components/creation/CreateBill";
 import CreateBucket from "@/components/creation/CreateBucket";
 import CreateIncomeSource from "@/components/creation/CreateIncomeSource";
+import CreateSystem from "@/components/creation/CreateSystem";
 import Button from "@/components/primitives/Button";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { dataContext } from "@/providers/DataProvider";
+import { useContext } from "react";
 import { FaAngleRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 
 export default function Home() {
 
-    const [pageIndex, setPageIndex] = useLocalStorage("pageIndex", 0)
+    const data = useContext(dataContext)
+    const [pageIndex, setPageIndex] = useLocalStorage("pageIndex", -1)
+    const hasSelectedSystem = data.selectedSystem != ""
     const navigate = useNavigate()
 
     return (
@@ -19,6 +25,11 @@ export default function Home() {
             </h1>
             <hr className="text-border border-t w-full"/>
             <div className="flex flex-row w-full gap-2 items-center">
+                <p className={`text-subtext3 text-sm whitespace-nowrap hover:cursor-pointer hover:text-subtext2 transition-all duration-150 ease-in-out ${pageIndex == -1 ? "underline" : ""} `}
+                    onClick={() => setPageIndex(-1)}>
+                    System Name 
+                </p>
+                <FaAngleRight className=" text-subtext3" size={12}/>
                 <p className={`text-subtext3 text-sm whitespace-nowrap hover:cursor-pointer hover:text-subtext2 transition-all duration-150 ease-in-out ${pageIndex == 0 ? "underline" : ""} `}
                     onClick={() => setPageIndex(0)}>
                     Income Source 
@@ -37,20 +48,32 @@ export default function Home() {
             <div className="text-sm w-full flex flex-col gap-3 mb-15">
                 {pageIndex == 0?
                     <>
-                        <CreateIncomeSource/> 
-                        <div className="flex w-full justify-end">
+                        {hasSelectedSystem ? 
+                            <CreateIncomeSource/> 
+                            : <AddSystemFirst setPage={setPageIndex}/>
+                        }
+                        <div className="flex w-full justify-between mb-10 gap-3">
+                            <Button
+                                name={"Previous"}
+                                icon={<FaAngleRight className="text-subtext2 sm:block hidden rotate-180 " size={0}/>}
+                                highlight={false}
+                                onSubmit={() => {setPageIndex(-1)}}
+                                style="gap-1.5 w-full"/>
                             <Button
                                 name={"Next"}
                                 highlight={false}
-                                onSubmit={() => {setPageIndex(1)}}
-                                style="gap-1.5"
                                 icon={<FaAngleRight className="text-subtext2 sm:block hidden " size={0}/>}
+                                onSubmit={() => {setPageIndex(1)}}
+                                style="gap-1.5 w-full"
                                 rightSide={true}/>
                         </div>
                     </>:
                     pageIndex == 1 ?
                     <>
+                        {hasSelectedSystem ? 
                         <CreateBucket/> 
+                        : <AddSystemFirst setPage={setPageIndex}/>
+                        }
                         <div className="flex w-full justify-between mb-10 gap-3">
                             <Button
                                 name={"Previous"}
@@ -66,10 +89,13 @@ export default function Home() {
                                 style="gap-1.5 w-full"
                                 rightSide={true}/>
                         </div>
-                    </>
-                    :
+                    </>:
+                    pageIndex == 2 ?
                     <>
-                        <CreateBill/>
+                        {hasSelectedSystem ? 
+                            <CreateBill/> :
+                            <AddSystemFirst setPage={setPageIndex}/>
+                        }
                         <div className="flex w-full justify-between mb-10 gap-3">
                             <Button
                                 name={"Previous"}
@@ -88,10 +114,22 @@ export default function Home() {
                                 style="gap-1.5 w-full"
                                 rightSide={true}/>
                         </div>
+                    </>:
+                    <>
+                        <CreateSystem/>
+                         <div className="flex w-full justify-end">
+                            <Button
+                                name={"Next"}
+                                highlight={false}
+                                onSubmit={() => {setPageIndex(0)}}
+                                style="gap-1.5"
+                                icon={<FaAngleRight className="text-subtext2 sm:block hidden " size={0}/>}
+                                rightSide={true}/>
+                        </div>
                     </>
                 }
             </div>
-        
+            
         </div>
     )
 }

@@ -1,6 +1,7 @@
 import useLocalStorage from "@/hooks/useLocalStorage"
 import { IncomeSource } from "@/Util/classes/IncomeSource"
-import { AccountType, type BillData, type BucketDataType, type IncomeDataType, type IPayment, type SimulationType, type Source } from "@/Util/types"
+import type {SystemData, BillData,  BucketDataType,  IncomeDataType,  IPayment,  SimulationType, Source } from "@/Util/types"
+import { AccountType } from "@/Util/types"
 import { Util } from "@/Util/util"
 import { createContext, useEffect, useRef, useState } from "react"
 import { Bucket } from "@/Util/classes/Bucket"
@@ -16,7 +17,11 @@ interface DataType{
     hydrated: boolean,
     simTimeoutId: React.RefObject<NodeJS.Timeout | null> | null
     updated: boolean
-    simulation: SimulationType | null
+    simulation: SimulationType | null,
+    systemData: SystemData[]
+    setSystemData: (systemData: SystemData[]) => void
+    selectedSystem: string
+    setSelectedSystem: (id: string) => void
 
     addIncomeSource: (incomeSource: IncomeSource) => void
     addBucket: (bucket: Bucket) => void
@@ -40,6 +45,10 @@ const defaultValues: DataType = {
     simTimeoutId:null,
     updated: false,
     simulation: null,
+    systemData: [],
+    setSystemData: () => null,
+    selectedSystem: "",
+    setSelectedSystem: () => null,
 
     addIncomeSource: () => null,
     addBucket: () => null,
@@ -66,6 +75,8 @@ export default function DataProvider({children}: Props) {
     const [incomeSourceData, setIncomeSourceData] = useLocalStorage<IncomeDataType[]>("incomeSourceData", [])
     const [bucketData, setBucketData] = useLocalStorage<BucketDataType[]>("bucketData", [])
     const [billData, setBillData] = useLocalStorage<BillData[]>("billData", [])
+    const [systemData, setSystemData] = useLocalStorage<SystemData[]>("systemData", [])
+    const [selectedSystem, setSelectedSystem] = useLocalStorage("selectedSystem", "")
 
     const [incomeSources, setIncomeSources] = useState<Map<string, IncomeSource>>(new Map())
     const [buckets, setBuckets] = useState<Map<string, Bucket>>(new Map())
@@ -79,7 +90,8 @@ export default function DataProvider({children}: Props) {
     useEffect(() => {
         hydrateFromLocalStorage()
         setHydrated(true)
-    }, [])
+        setUpdated(!updated)
+    }, [selectedSystem])
 
     const { setEdges } = useReactFlow();
 
@@ -93,19 +105,19 @@ export default function DataProvider({children}: Props) {
 
     function addIncomeSource(incomeSource: IncomeSource){
         const newMap = Util.updateMap(incomeSources, incomeSource.sourceData.id!, incomeSource)
-        setIncomeSourceData(Array.from(newMap.values()).map(v => v.sourceData))
+        setIncomeSourceData([...incomeSourceData, ...Array.from(newMap.values()).map(v => v.sourceData)])
         setIncomeSources(newMap)
         setUpdated(!updated)
     }
     function addBucket(bucket: Bucket){
         const newMap = Util.updateMap(buckets, bucket.bucket.id!, bucket)
-        setBucketData(Array.from(newMap.values()).map(v => v.bucket))
+        setBucketData([...bucketData, ...Array.from(newMap.values()).map(v => v.bucket)])
         setBuckets(newMap)
         setUpdated(!updated)
     }
     function addBill(bill: Bill){
         const newMap = Util.updateMap(bills, bill.billData.id!, bill)
-        setBillData(Array.from(newMap.values()).map(b => b.billData))
+        setBillData([...billData, ...Array.from(newMap.values()).map(b => b.billData)])
         setBills(newMap)
         setUpdated(!updated)
     }
@@ -116,17 +128,17 @@ export default function DataProvider({children}: Props) {
         const billMap = new Map<string, Bill>()
 
 
-        incomeSourceData.forEach(source => {
+        incomeSourceData.filter(s => s.systemId == selectedSystem).forEach(source => {
             source.nextIncurralDate = Util.adjustDate(new Date(source.nextIncurralDate), source.incomeFrequency).getTime()
             incomeMap.set(source.id!, new IncomeSource(source))
         })
-        bucketData.forEach(bucketData => {
+        bucketData.filter(b => b.systemId == selectedSystem).forEach(bucketData => {
             if(bucketData.accountType != AccountType.CashAccount){
                 bucketData.nextIncurralDate = Util.adjustDate(new Date(bucketData.nextIncurralDate), bucketData.compoundFrequency).getTime()
             }
             bucketMap.set(bucketData.id!, new Bucket(bucketData, incomeMap))
         })
-        billData.forEach(bill => {
+        billData.filter(b => b.systemId == selectedSystem).forEach(bill => {
             bill.nextIncurralDate = Util.adjustDate(new Date(bill.nextIncurralDate), bill.frequency).getTime()
             billMap.set(bill.id!, new Bill(bill))
         })
@@ -216,6 +228,10 @@ export default function DataProvider({children}: Props) {
                     hydrated,
                     updated,
                     simulation,
+                    systemData,
+                    setSystemData,
+                    selectedSystem,
+                    setSelectedSystem,
                     addIncomeSource,
                     addBucket,
                     addBill,

@@ -79,7 +79,7 @@ export default function BucketNodeModal({bucket, setOpen}: Props) {
                 
                 {bucket!.bucket.accountType == AccountType.DeptAccount ? 
                 <>
-                    <LoanRepaymentInfo bucket={bucket}/>
+                    <LoanRepaymentInfo bucket={bucket} netflow={netflow}/>
                 </> : null}
                 {bucket!.bucket.accountType == AccountType.SavingsAccount ? 
                 <>

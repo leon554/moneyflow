@@ -43,6 +43,7 @@ export default function CreateBucket() {
         if(!isValidForm()) return
 
         let newBucket: BucketDataType = {
+            systemId: data.selectedSystem,
             name: form.name,
             balance: Number(form.initialBalance),
             startBalance: Number(form.initialBalance),
@@ -100,6 +101,7 @@ export default function CreateBucket() {
         if(Number(form.interest) > 100 || Number(form.interest) < 0) {alert("interest needs to be between 0 and 100"); return false}
         if(form.sources.length == 0) {alert("Create at least one source that will flow into this bucket"); return false}
         if(Number(form.goalBalance) < Number(form.initialBalance))  {alert("Goal value can't be less than starting value"); return false}
+        if(data.selectedSystem == ""){alert("Select valid system first"); return false}
         return true
     }
 

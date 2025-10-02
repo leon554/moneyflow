@@ -7,12 +7,14 @@ import { Util } from "@/Util/util"
 
 interface Props{
     bucket: Bucket
+    netflow: number
 }
-export default function LoanRepaymentInfo({bucket}: Props) {
+export default function LoanRepaymentInfo({bucket, netflow}: Props) {
 
     const data = useContext(dataContext)
 
-    const repaymentInfo = useMemo(() => bucket.bucket.accountType == AccountType.DeptAccount?
+
+    const repaymentInfo = useMemo(() => netflow > 0 && bucket.bucket.accountType == AccountType.DeptAccount?
         simUtil.simulateLoanPayoff({
                 principal: bucket.bucket.balance,
                 annualInterest: bucket.bucket.interest,
@@ -32,10 +34,13 @@ export default function LoanRepaymentInfo({bucket}: Props) {
             <p className="text-xs text-title font-medium leading-none mb-1 mt-2">
                 Repayment Time
             </p>
-            {!repaymentInfo?.message?
+            {!repaymentInfo?.message && repaymentInfo?
                 <div className="flex flex-col gap-1.5">
                     <p className="text-xs text-subtext1">
                         Days until paid off: <span className="font-medium text-title">{Util.formatNum(repaymentInfo?.days ?? 0)} days</span>
+                    </p>
+                    <p className="text-xs text-subtext1">
+                        Years until paid off: <span className="font-medium text-title">{Util.formatNum((repaymentInfo?.days ?? 0)/365)} years</span>
                     </p>
                     <p className="text-xs text-subtext1">
                         Date until paid off: <span className="font-medium text-title">{Util.formatDate(repaymentInfo?.payOffDate ?? new Date)}</span>
@@ -48,7 +53,7 @@ export default function LoanRepaymentInfo({bucket}: Props) {
                     </p>
                 </div> :
                 <p className="text-xs text-subtext1">
-                    {repaymentInfo?.message}
+                    {repaymentInfo?.message ?? "It will take more than 50 years to pay off loan"}
                 </p>
             }
         </>

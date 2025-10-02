@@ -32,8 +32,10 @@ export default function CreateBill() {
     function addBill(){
         if(form.name == "" || form.amount == "" || form.date == "") {alert("fill in all fields"); return}
         if(!form.selectedSourceItem) {alert("Select or create a bucket source first"); return}
+        if(data.selectedSystem == ""){alert("Select valid system first"); return}
 
         const billData: BillData= {
+            systemId: data.selectedSystem,
             name: form.name,
             sourceBucketId: form.selectedSourceItem.data!,
             amount: Number(form.amount),
