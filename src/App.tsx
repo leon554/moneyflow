@@ -11,9 +11,9 @@ import { ReactFlowProvider } from "@xyflow/react";
 export default function App() {
     
     return (
+                <Router>
         <ReactFlowProvider>
             <DataProvider>
-                <Router>
                         <Routes>
                             <Route element={<Layout/>}>
                                     <Route path="/simulate" element={<Simulate/>}/>
@@ -21,8 +21,8 @@ export default function App() {
                                     <Route path="/" element={<Landing/>}/>
                             </Route>
                         </Routes>
-                </Router>
             </DataProvider>
         </ReactFlowProvider>
+                </Router>
     );
 }

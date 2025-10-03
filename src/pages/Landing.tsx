@@ -2,7 +2,7 @@
 
 export default function Landing() {
     return (
-        <div>
+        <div className="mt-20">
             <h1>
                 Landing
             </h1>

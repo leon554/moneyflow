@@ -49,41 +49,43 @@ export default function Simulate() {
     }, [data.selectedSystem])
     
     return (
-        <div className="mt-20 m-auto max-w-[1000px] w-[95%] flex flex-col gap-5">
+        <div className="mt-16 m-auto max-w-[1000px] w-[95%] flex flex-col gap-5">
             <div className="flex items-center justify-between">
-                <h1 className="text-4xl text-title font-medium">
+                <h1 className="text-3xl text-title font-medium">
                     Simulate
                 </h1>
                
             </div>
             <hr className="text-border border-t w-full"/>
             <div className="flex flex-col gap-3">
-                <div className="flex gap-3 items-center ">
-                     <Select
-                        items={systemItems}
-                        selectedItem={selectedSystem}
-                        setSelectedItem={(id) => setSelectedSystem(systemItems[id])}
-                        showIcon={true}
-                        defaultText="Select System"
-                    />
-                    <Select
-                        selectedItem={selectedItem}
-                        setSelectedItem={(id) => setSelectedItem(items[id])}
-                        items={items}
-                        showIcon={true}
-                        center={true}/>
-                    <div className="flex gap-5 items-center ">
-                        <p className="text-subtext1 font-medium text-sm">
-                            <span className="font-normal text-xs text-subtext2">Current Date:</span> {Util.formatDate(date)}
+                <div className="flex lg:flex-row flex-col gap-3 items-center ">
+                    <div className="grid grid-cols-2 lg:w-[30%] w-full gap-3">
+                        <Select
+                            items={systemItems}
+                            selectedItem={selectedSystem}
+                            setSelectedItem={(id) => setSelectedSystem(systemItems[id])}
+                            showIcon={true}
+                            defaultText="Select System"
+                        />
+                        <Select
+                            selectedItem={selectedItem}
+                            setSelectedItem={(id) => setSelectedItem(items[id])}
+                            items={items}
+                            showIcon={true}
+                            center={false}/>
+                    </div>
+                    <div className="grid grid-cols-4 w-full gap-3 items-center">
+                        <p className="text-subtext1 font-medium text-xs bg-panel2 flex-1 h-7 p-3 rounded-md outline-1 outline-border flex gap-1.5 items-center justify-between">
+                            <span className="font-normal text-xs text-subtext2 overflow-ellipsis truncate">Current Date</span> {Util.formatDate(date)}
                         </p>
-                        <p className="text-subtext1 font-medium text-sm">
-                            <span className="font-normal text-xs text-subtext2">Money In:</span> ${Util.formatNum(moneyIn)}
+                        <p className="text-subtext1 font-medium text-xs bg-panel2 flex-1 h-7 p-3 rounded-md outline-1 outline-border flex gap-1.5 items-center justify-between">
+                            <span className="font-normal text-xs text-subtext2 overflow-ellipsis truncate">Money In</span> ${Util.formatNum(moneyIn)}
                         </p>
-                        <p className="text-subtext1 font-medium text-sm">
-                            <span className="font-normal text-xs text-subtext2">Money Out:</span> ${Util.formatNum(moneyOut)}
+                        <p className="text-subtext1 font-medium text-xs bg-panel2 flex-1 h-7 p-3 rounded-md outline-1 outline-border flex gap-1.5 items-center justify-between">
+                            <span className="font-normal text-xs text-subtext2 overflow-ellipsis truncate">Money Out</span> ${Util.formatNum(moneyOut)}
                         </p>
-                        <p className="text-subtext1 font-medium text-sm">
-                            <span className="font-normal text-xs text-subtext2">Net Worth:</span> ${Util.formatNum(networth)}
+                        <p className="text-subtext1 font-medium text-xs bg-panel2 flex-1 h-7 p-3 rounded-md outline-1 outline-border flex gap-1.5 items-center justify-between">
+                            <span className="font-normal text-xs text-subtext2 overflow-ellipsis truncate">Net Worth</span> ${Util.formatNum(networth)}
                         </p>
                     </div>
                   
@@ -94,7 +96,7 @@ export default function Simulate() {
                     <div className={`absolute w-full h-full transition-colors duration-75 bg-[#0f0f0f] z-30 top-0 left-0 rounded-md ${!hide ? "hidden" : ""}`}></div>
                     <Chart key={chartKey}/> 
                 </div>}
-                <div className="flex w-full gap-4">
+                <div className="flex w-full gap-4 mb-10">
                     <Button
                         name="Reset Simulation"
                         highlight={false}

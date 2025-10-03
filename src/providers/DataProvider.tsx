@@ -9,6 +9,7 @@ import { Bill } from "@/Util/classes/Bill"
 import { useReactFlow } from "@xyflow/react"
 import useSimulation from "@/hooks/useSimulation"
 import type{ Dispatch, SetStateAction } from "react";
+import { useNavigate } from "react-router-dom"
 
 interface DataType{
     incomeSources: Map<string, IncomeSource>
@@ -35,6 +36,7 @@ interface DataType{
     resetBuckets: () => void
     addSourcesToBucket: (bucketId: string, sources: Source[]) => void
     setUpdated: Dispatch<SetStateAction<boolean>>;
+    setHasProfile: Dispatch<SetStateAction<boolean>>;
 }
 
 const defaultValues: DataType = {
@@ -61,7 +63,8 @@ const defaultValues: DataType = {
     step: () => [],
     resetBuckets: () => null,
     addSourcesToBucket: () => null,
-    setUpdated: () => null
+    setUpdated: () => null,
+    setHasProfile: () => null
 }
 
 export const dataContext = createContext<DataType>(defaultValues)
@@ -77,6 +80,7 @@ export default function DataProvider({children}: Props) {
     const [billData, setBillData] = useLocalStorage<BillData[]>("billData", [])
     const [systemData, setSystemData] = useLocalStorage<SystemData[]>("systemData", [])
     const [selectedSystem, setSelectedSystem] = useLocalStorage("selectedSystem", "")
+    const [hasProfile, setHasProfile] = useLocalStorage("hasProfile", false)
 
     const [incomeSources, setIncomeSources] = useState<Map<string, IncomeSource>>(new Map())
     const [buckets, setBuckets] = useState<Map<string, Bucket>>(new Map())
@@ -86,12 +90,21 @@ export default function DataProvider({children}: Props) {
     const simTimeoutId = useRef<NodeJS.Timeout | null>(null)
     
     const simulation = useSimulation({step, resetBuckets, simTimeoutId})
+    const navigate = useNavigate()
 
     useEffect(() => {
         hydrateFromLocalStorage()
         setHydrated(true)
         setUpdated(!updated)
     }, [selectedSystem])
+
+    useEffect(() => {
+        if(hasProfile){
+            navigate("/home")
+        }else{
+            navigate("/")
+        }
+    }, [])
 
     const { setEdges } = useReactFlow();
 
@@ -247,7 +260,8 @@ export default function DataProvider({children}: Props) {
                     addSourcesToBucket,
                     deleteBill,
                     simTimeoutId,
-                    setUpdated
+                    setUpdated,
+                    setHasProfile
                 }}>
                 {children}
             </dataContext.Provider>
