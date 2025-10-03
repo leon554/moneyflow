@@ -25,22 +25,22 @@ export default function Home() {
             </h1>
             <hr className="text-border border-t w-full"/>
             <div className="flex flex-row w-full gap-2 items-center">
-                <p className={`text-subtext3 text-sm whitespace-nowrap hover:cursor-pointer hover:text-subtext2 transition-all duration-150 ease-in-out ${pageIndex == -1 ? "underline" : ""} `}
+                <p className={`text-sm whitespace-nowrap hover:cursor-pointer hover:text-highlight transition-all duration-150 ease-in-out ${pageIndex == -1 ? "underline text-highlight/70" : "text-subtext3 "} `}
                     onClick={() => setPageIndex(-1)}>
                     System Name 
                 </p>
                 <FaAngleRight className=" text-subtext3" size={12}/>
-                <p className={`text-subtext3 text-sm whitespace-nowrap hover:cursor-pointer hover:text-subtext2 transition-all duration-150 ease-in-out ${pageIndex == 0 ? "underline" : ""} `}
+                <p className={` text-sm whitespace-nowrap hover:cursor-pointer hover:text-highlight transition-all duration-150 ease-in-out ${pageIndex == 0 ? "underline text-highlight/70" : "text-subtext3 "} `}
                     onClick={() => setPageIndex(0)}>
                     Income Source 
                 </p>
                 <FaAngleRight className=" text-subtext3" size={12}/>
-                <p className={`text-subtext3 text-sm whitespace-nowrap hover:cursor-pointer hover:text-subtext2 transition-all duration-150 ease-in-out ${pageIndex == 1 ? "underline" : ""} `}
+                <p className={` text-sm whitespace-nowrap hover:cursor-pointer hover:text-highlight transition-all duration-150 ease-in-out ${pageIndex == 1 ? "underline text-highlight/70" : "text-subtext3 "} `}
                     onClick={() => setPageIndex(1)}>
                     Buckets
                 </p>
                 <FaAngleRight className=" text-subtext3" size={12}/>
-                 <p className={`text-subtext3 text-sm whitespace-nowrap hover:cursor-pointer hover:text-subtext2 transition-all duration-150 ease-in-out ${pageIndex == 2 ? "underline" : ""} `}
+                 <p className={` text-sm whitespace-nowrap hover:cursor-pointer hover:text-highlight transition-all duration-150 ease-in-out ${pageIndex == 2 ? "underline text-highlight/70" : "text-subtext3 "} `}
                     onClick={() => setPageIndex(2)}>
                     Bills
                 </p>
@@ -108,7 +108,6 @@ export default function Home() {
                                 highlight={false}
                                 icon={<FaAngleRight className="text-subtext2 sm:block hidden " size={0}/>}
                                 onSubmit={() => {
-                                    setPageIndex(0)
                                     navigate("/simulate")
                                 }}
                                 style="gap-1.5 w-full"

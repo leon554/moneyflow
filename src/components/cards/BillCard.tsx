@@ -25,7 +25,7 @@ export default function BillCard({bill, setEdit}: Props) {
                 </div>
 
                 <p className="max-w-[100%] truncate text-subtext2 text-xs whitespace-nowrap overflow-ellipsis">
-                    ${bill.billData.amount} {Util.capFirst(bill.billData.frequency)} from "{data.buckets.get(bill.billData.sourceBucketId)?.bucket.name}" bucket
+                    <span className="text-highlight">${bill.billData.amount}</span> {Util.capFirst(bill.billData.frequency)} from <span className="text-highlight">{data.buckets.get(bill.billData.sourceBucketId)?.bucket.name}</span> bucket
                 </p>
 
             </div>

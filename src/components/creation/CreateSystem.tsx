@@ -80,14 +80,15 @@ export default function CreateSystem() {
             <>
                 <div className="flex flex-col gap-1.5 w-full">
                     <p className="text-xs font-medium text-subtext1 relative ">
-                        System Name
+                        Selected System
                     </p>
                     <Select
                         items={systemItems}
                         selectedItem={selectedSystem}
                         setSelectedItem={(id) => setSelectedSystem(systemItems[id])}
                         showIcon={true}
-                        defaultText="Select Source"
+                        defaultText="Select System"
+                        style="outline-1 w-full h-7 p-3 rounded-md text-lg font-medium text-highlight outline-highlight/30"
                     />
                 </div>
                 <div className="flex items-center gap-2">
@@ -105,7 +106,7 @@ export default function CreateSystem() {
                     {data.systemData.map(s => {
                         return(
                             <div className="bg-panel2 p-2 rounded-md text-subtext2 text-sm  outline-1 outline-border2 flex  items-center justify-between">
-                                <p>
+                                <p className="text-xs font-medium">
                                     {s.name}
                                 </p>
                                 <FaRegTrashAlt className="hover:text-subtext1 hover:cursor-pointer transition-all duration-200 ease-in-out"

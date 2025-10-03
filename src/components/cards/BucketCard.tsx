@@ -23,7 +23,7 @@ export default function BucketCard({bucket, setEdit}: Props) {
 
     return (
         <div className="w-full bg-panel2 p-2 rounded-md text-subtext1 outline-1 outline-border2 flex justify-between items-center px-3">
-            <div className="flex flex-col gap-1.5 w-[80%]">
+            <div className="flex flex-col gap-2 w-[80%]">
                 <div className="flex  gap-2 items-center ">
                     <p className="text-title">
                         {Util.capFirst(bucket.bucket.name)}
@@ -40,8 +40,14 @@ export default function BucketCard({bucket, setEdit}: Props) {
                         {bucket.bucket.interest}%
                     </p> : null}
                 </div>
-                <p className="truncate text-xs max-w-[100%] text-subtext2 flex-1 overflow-ellipsis">
-                    {bucket.bucket.sources.map((s: Source) => `${data.incomeSources.get(s.incomeSourceId)?.sourceData.name} pays ${s.isPercentage ? `${s.allocation}%` : `$${s.allocation}`}`).join(", ")}
+                <p className="truncate text-xs max-w-[100%] text-subtext2 flex-1 overflow-ellipsis flex gap-2">
+                    {bucket.bucket.sources.map((s: Source) => {
+                        return (
+                            <p>
+                                {data.incomeSources.get(s.incomeSourceId)?.sourceData.name} pays <span className="text-highlight">{s.isPercentage ? `${s.allocation}%` : `$${s.allocation}`}</span>
+                            </p>
+                        )
+                    })}
                 </p>
             </div>
             <div className="flex gap-3">
