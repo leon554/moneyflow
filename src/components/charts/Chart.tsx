@@ -73,19 +73,9 @@ export default function Chart() {
 
     const data = useContext(dataContext)
 
-    useEffect(() => {
-        console.log("Chart useEffect triggered", {
-            hydrated: data.hydrated,
-            updated: data.updated,
-            selectedSystem: data.selectedSystem,
-            incomeSourcesCount: data.incomeSources.size,
-            bucketsCount: data.buckets.size,
-            billsCount: data.bills.size
-        });
-        
+    useEffect(() => { 
         setLayoutDone(false)
         
-        // Clear existing nodes and edges first
         setNodes([]);
         setEdges([]);
         
@@ -93,13 +83,6 @@ export default function Chart() {
         const bucketArr = Array.from(data.buckets.values())
         const billArr = Array.from(data.bills.values())
 
-        console.log("Data arrays:", {
-            incomeSourceArr: incomeSourceArr.length,
-            bucketArr: bucketArr.length,
-            billArr: billArr.length
-        });
-
-        // If no data is available, don't render anything
         if (incomeSourceArr.length === 0 && bucketArr.length === 0 && billArr.length === 0) {
             console.log("No data available, returning early");
             return;
@@ -161,12 +144,8 @@ export default function Chart() {
 
         setNodes([...sourceNodes, ...bucketNodes, ...billNodes]);
         setEdges([...edges]);
-        console.log("updated 1")
-        console.log(incomeSourceArr)
-        console.log(sourceNodes)
-        console.log("-------------")
       
-    }, [data.hydrated, data.updated, data.incomeSources, data.buckets, data.bills])
+    }, [data.hydrated, data.updated])
     
     useEffect(() => {
         if (!nodesInitialized) return;
@@ -181,7 +160,6 @@ export default function Chart() {
             setEdges(layouted.edges);
             setLayoutDone(true);
         });
-        console.log("ran")
     }, [nodesInitialized, nodes, edges, updateNodeInternals, fitView]);
 
     return (

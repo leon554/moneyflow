@@ -1,7 +1,7 @@
 import {Line} from "react-chartjs-2"
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, type ChartData, Filler} from "chart.js"
 import { dataContext } from "@/providers/DataProvider"
-import { useContext } from "react"
+import { useContext, useMemo } from "react"
 import { Util } from "@/Util/util"
 
 ChartJS.register(
@@ -16,21 +16,21 @@ ChartJS.register(
 export default function NetWorthChart() {
     const dc = useContext(dataContext)
 
-    const data = getData()
+    const data = useMemo(() => getData(), [dc.simulation?.date])
 
     function getData(){
-        const d = new Map<string, number>()
-        Array.from(dc.buckets.values()).forEach(b =>{
-            Array.from(b.balanceOverTime.entries()).forEach(e => {
-                e[0] = Util.formatDate(new Date(e[0])).slice(0, 5)
-                if(d.has(e[0])){
-                    const amount = d.get(e[0])!
-                    d.set(e[0], amount + e[1])
-                }else{
-                    d.set(e[0], e[1])
-                }
-            })
-        })
+        const d: {date: string, amount: number}[] = []
+
+        const bucketArr = Array.from(dc.buckets.values())
+        if(bucketArr.length == 0) return []
+
+        for(let i = 0; i < bucketArr[0].balanceOverTime.length; i++){
+            let total = 0
+            for(const b of bucketArr){
+                total += b.balanceOverTime[i].amount
+            }
+            d.push({date: bucketArr[0].balanceOverTime[i].date, amount: total})
+        }
         return d
     }
 
@@ -43,11 +43,11 @@ export default function NetWorthChart() {
     const highlight = rootStyles.getPropertyValue('--color-highlight').trim()
 
     const formatedData = {
-        labels: Array.from(data.keys()).slice(-365),
+        labels: data.map(d => d.date.slice(0, 5)).slice(-365),
         datasets: [
             {
                 label: "Balance",
-                data: Array.from(data.values()).slice(-365),
+                data: data.map(d => d.amount).slice(-365),
                 borderColor: highlight,
                 backgroundColor: `#10b98120`,
                 borderWidth: 2, 

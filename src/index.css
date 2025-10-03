@@ -3,7 +3,7 @@
 @import "tw-animate-css";
 
 :root{
-  background-color: hsl(0, 0%, 6%);
+  background-color: #0f0f0f;
 }
 
 @theme {

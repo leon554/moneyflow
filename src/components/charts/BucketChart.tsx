@@ -24,7 +24,7 @@ interface Props{
 
 function BucketChart({bucketId, detailed} : Props) {
     const dc = useContext(dataContext)
-    const data = Array.from(dc.buckets.get(bucketId)!.balanceOverTime.entries())
+    const data = Array.from(dc.buckets.get(bucketId)!.balanceOverTime)
 
     const rootStyles = getComputedStyle(document.documentElement)
 
@@ -35,11 +35,11 @@ function BucketChart({bucketId, detailed} : Props) {
     const highlight = rootStyles.getPropertyValue('--color-highlight').trim()
 
     const formatedData = {
-        labels: data.map(d => Util.formatDate(new Date(d[0])).slice(0, 5)).slice(-365),
+        labels: data.map(d => d.date.slice(0, 5)).slice(-365),
         datasets: [
             {
                 label: "Balance",
-                data: (data?.map(d => Math.round((d[1] ?? 0)*100)/100) ?? []).slice(-365),
+                data: (data?.map(d => Math.round((d.amount ?? 0)*100)/100) ?? []).slice(-365),
                 borderColor: highlight,
                 backgroundColor: `#10b98120`,
                 borderWidth: 2, 

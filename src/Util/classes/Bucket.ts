@@ -7,7 +7,7 @@ import type { Bill } from "./Bill"
 export class Bucket implements ISimulatable{
 
     bucket: BucketDataType
-    balanceOverTime: Map<string, number> = new Map()
+    balanceOverTime: {date: string, amount: number}[] = []
     interestAmount: number = 0
     flowData = {in: 0, out: 0}
 
@@ -46,7 +46,7 @@ export class Bucket implements ISimulatable{
             this.bucket.balance -= Math.abs(interestToBePaid)
         }
 
-        this.balanceOverTime.set(Util.formatDate(date), this.bucket.balance)
+        this.balanceOverTime.push({date: Util.formatDate(date), amount: this.bucket.balance})
 
         return []
     }

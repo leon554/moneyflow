@@ -24,9 +24,10 @@ export default function Simulate() {
     const [selectedItem, setSelectedItem] = useLocalStorage<dataFormat>("simstate", items[0])
     const {date, running, setRunning, reset, paymentHistory} = data.simulation!
     const {moneyIn, moneyOut} = Util.getMoneyInAndOut(paymentHistory)
+    const [hide, setHide] = useState(false)
 
     const networth = Math.round(Array.from(data.buckets.values()).reduce((a, c) => a + c.bucket.balance, 0)*100)/100
-
+    console.log(hide)
     useEffect(() => {
         return () => reset()
     }, [data.selectedSystem])
@@ -34,8 +35,11 @@ export default function Simulate() {
     useEffect(() => {
         if(!selectedSystem) return
         console.log("System selected:", selectedSystem)
+        setHide(true)
+        const id = setTimeout(() => setHide(false), 100)
         data.setSelectedSystem(_ => selectedSystem.data!)
         setChartKey(prev => prev + 1)
+        return () => {clearTimeout(id); setHide(false)}
     }, [selectedSystem])
 
     useEffect(() => {
@@ -86,22 +90,23 @@ export default function Simulate() {
                 </div>
                 {selectedItem.id == 1 ? 
                 <TextView/> :
-                <div className="flex flex-col gap-5">
+                <div className="flex flex-col gap-5  relative">
+                    <div className={`absolute w-full h-full transition-colors duration-75 bg-[#0f0f0f] z-30 top-0 left-0 rounded-md ${!hide ? "hidden" : ""}`}></div>
                     <Chart key={chartKey}/> 
                 </div>}
                 <div className="flex w-full gap-4">
                     <Button
-                        name={`${running ? "Stop Simulations" : " Start Simulation"}`}
-                        highlight={true}
-                        onSubmit={() => {setRunning(!running)}}
-                        style="w-[70%] flex gap-2 items-center"
-                        icon={running ? <FaPause className="mt-0.5" size={13}/> : <FaPlay className="mt-0.5" size={13}/>}/>
-                    <Button
                         name="Reset Simulation"
                         highlight={false}
                         onSubmit={() => reset()}
-                        style="w-[30%] flex gap-2 items-center"
+                        style="w-[50%] flex gap-2 items-center whitespace-nowrap"
                         icon={<FaRedoAlt className="mt-0.5" size={13}/>}/>
+                    <Button
+                        name={`${running ? "Stop Simulations" : " Start Simulation"}`}
+                        highlight={true}
+                        onSubmit={() => {setRunning(!running)}}
+                        style="w-[50%] flex gap-2 items-center"
+                        icon={running ? <FaPause className="mt-0.5" size={13}/> : <FaPlay className="mt-0.5" size={13}/>}/>
                 </div>
             </div>
         </div>
