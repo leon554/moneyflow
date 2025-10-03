@@ -9,11 +9,6 @@ import Dagre from '@dagrejs/dagre';
 import { useNodesInitialized, useUpdateNodeInternals } from "@xyflow/react";
 import { AnimatedEdge } from '../reactflow/AnimateEdge';
 
-const initialNodes: Node[] = [
-    { id: 'n1', position: { x: 0, y: 0 }, data: { label: 'Wage' }},
-    { id: 'n2', position: { x: 0, y: 100 }, data: { label: 'Savings' } },
-];
-const initialEdges: Edge[] = [{ id: 'n1-n2', source: 'n1', target: 'n2',  label: '$346',  animated: true,}];
 
 const colors = [
   "#FF3B30", // bright red
@@ -72,17 +67,43 @@ export default function Chart() {
     const { fitView } = useReactFlow();
     const nodesInitialized = useNodesInitialized();
     const updateNodeInternals = useUpdateNodeInternals();
-    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+    const [nodes, setNodes, onNodesChange] = useNodesState([] as Node[]);
+    const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
     const [layoutDone, setLayoutDone] = useState(false);
 
     const data = useContext(dataContext)
 
     useEffect(() => {
+        console.log("Chart useEffect triggered", {
+            hydrated: data.hydrated,
+            updated: data.updated,
+            selectedSystem: data.selectedSystem,
+            incomeSourcesCount: data.incomeSources.size,
+            bucketsCount: data.buckets.size,
+            billsCount: data.bills.size
+        });
+        
         setLayoutDone(false)
+        
+        // Clear existing nodes and edges first
+        setNodes([]);
+        setEdges([]);
+        
         const incomeSourceArr = Array.from(data.incomeSources.values())
         const bucketArr = Array.from(data.buckets.values())
         const billArr = Array.from(data.bills.values())
+
+        console.log("Data arrays:", {
+            incomeSourceArr: incomeSourceArr.length,
+            bucketArr: bucketArr.length,
+            billArr: billArr.length
+        });
+
+        // If no data is available, don't render anything
+        if (incomeSourceArr.length === 0 && bucketArr.length === 0 && billArr.length === 0) {
+            console.log("No data available, returning early");
+            return;
+        }
 
         let sourceNodes: Node[] = incomeSourceArr.map((s, i) => {
             return {
@@ -140,8 +161,12 @@ export default function Chart() {
 
         setNodes([...sourceNodes, ...bucketNodes, ...billNodes]);
         setEdges([...edges]);
+        console.log("updated 1")
+        console.log(incomeSourceArr)
+        console.log(sourceNodes)
+        console.log("-------------")
       
-    }, [data.hydrated, data.updated])
+    }, [data.hydrated, data.updated, data.incomeSources, data.buckets, data.bills])
     
     useEffect(() => {
         if (!nodesInitialized) return;
@@ -150,12 +175,13 @@ export default function Chart() {
         nodes.forEach((n) => updateNodeInternals(n.id));
 
         requestAnimationFrame(() => {
+            fitView();
             const layouted = getLayoutedElements(nodes, edges, { direction: "TB" });
             setNodes(layouted.nodes);
             setEdges(layouted.edges);
-            fitView();
             setLayoutDone(true);
         });
+        console.log("ran")
     }, [nodesInitialized, nodes, edges, updateNodeInternals, fitView]);
 
     return (

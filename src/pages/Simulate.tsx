@@ -33,12 +33,14 @@ export default function Simulate() {
 
     useEffect(() => {
         if(!selectedSystem) return
+        console.log("System selected:", selectedSystem)
         data.setSelectedSystem(_ => selectedSystem.data!)
         setChartKey(prev => prev + 1)
     }, [selectedSystem])
 
     useEffect(() => {
         if(!data.selectedSystem) return
+        console.log("ran 11")
         setSelectedSystem(systemItems.find(i => i.data == data.selectedSystem)!)
     }, [data.selectedSystem])
     
