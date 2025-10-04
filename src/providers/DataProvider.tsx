@@ -9,7 +9,7 @@ import { Bill } from "@/Util/classes/Bill"
 import { useReactFlow } from "@xyflow/react"
 import useSimulation from "@/hooks/useSimulation"
 import type{ Dispatch, SetStateAction } from "react";
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 
 interface DataType{
     incomeSources: Map<string, IncomeSource>
@@ -23,6 +23,7 @@ interface DataType{
     setSystemData: (systemData: SystemData[]) => void
     selectedSystem: string
     setSelectedSystem: Dispatch<SetStateAction<string>>
+    hasProfile: boolean
 
     addIncomeSource: (incomeSource: IncomeSource) => void
     addBucket: (bucket: Bucket) => void
@@ -51,6 +52,7 @@ const defaultValues: DataType = {
     setSystemData: () => null,
     selectedSystem: "",
     setSelectedSystem: () => null,
+    hasProfile: false,
 
     addIncomeSource: () => null,
     addBucket: () => null,
@@ -91,6 +93,7 @@ export default function DataProvider({children}: Props) {
     
     const simulation = useSimulation({step, resetBuckets, simTimeoutId})
     const navigate = useNavigate()
+    const location = useLocation()
 
     useEffect(() => {
         hydrateFromLocalStorage()
@@ -99,9 +102,10 @@ export default function DataProvider({children}: Props) {
     }, [selectedSystem])
 
     useEffect(() => {
-        if(hasProfile){
+        if(hasProfile && location.pathname == "/"){
             navigate("/home")
-        }else{
+        }
+        if(!hasProfile){
             navigate("/")
         }
     }, [])
@@ -250,6 +254,7 @@ export default function DataProvider({children}: Props) {
                     setSystemData,
                     selectedSystem,
                     setSelectedSystem,
+                    hasProfile,
                     addIncomeSource,
                     addBucket,
                     addBill,

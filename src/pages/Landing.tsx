@@ -6,6 +6,8 @@ import '@xyflow/react/dist/style.css'
 import { AnimatedEdge } from '@/components/reactflow/AnimateEdge'
 import { Handle, Position } from "@xyflow/react"
 import { useNodesState } from "@xyflow/react"
+import { useContext } from "react"
+import { dataContext } from "@/providers/DataProvider"
 
 
 type handleType = "source" | "target"
@@ -219,6 +221,9 @@ function DemoFlow() {
 
 
 export default function Landing() {
+
+    const data = useContext(dataContext)
+
     return (
         <div className="min-h-screen bg-background m-auto">
             <section className="pt-25 pb-20 px-6 sm:px-8 md:px-12 lg:px-4">
@@ -237,7 +242,7 @@ export default function Landing() {
                                     <Button
                                         name="Start Building Now"
                                         highlight={true}
-                                        onSubmit={() => {}}
+                                        onSubmit={() => {data.setHasProfile(true)}}
                                         icon={<FaArrowRight />}
                                         style="text-lg px-8 py-4 flex gap-2"
                                     />
@@ -354,7 +359,7 @@ export default function Landing() {
                             <Button
                                 name="Get Started Now"
                                 highlight={true}
-                                onSubmit={() => {}}
+                                onSubmit={() => {data.setHasProfile(true)}}
                                 icon={<FaArrowRight />}
                                 style="text-lg px-8 py-4 flex gap-2"
                             />
