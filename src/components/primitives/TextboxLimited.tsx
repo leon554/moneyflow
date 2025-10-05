@@ -1,7 +1,8 @@
 import { Util } from "@/Util/util"
-import { useState, type ReactNode } from "react"
+import { useContext, useState, type ReactNode } from "react"
 import { IoInformationCircleOutline } from "react-icons/io5"
 import { IoMdEye, IoMdEyeOff } from "react-icons/io"
+import { AlertContext } from "@/Alert/AlertProvider"
 
 
 interface Props{
@@ -22,15 +23,16 @@ interface Props{
 export default function TextBoxLimited({invalidFunc, negative = false, name, password, value, setValue, charLimit, placeHolder, outerDivStyles, textArea, custom, numeric, infoText}: Props) {
    
     const [showPass, setShowPass] = useState(false)
+    const {alert} = useContext(AlertContext)
 
     return (
         <div className={`flex flex-col gap-1.5 relative ${outerDivStyles}`}>
-            <div className="flex justify-between items-end ">
+            <div className="flex justify-between items-end gap-4">
                 <div className="flex  items-center gap-1.5">
-                    <p className="text-xs font-medium text-subtext1 relative">
+                    <p className="text-xs font-medium text-subtext1 relative whitespace-nowrap">
                         {name}
                     </p>
-                    {infoText ? <IoInformationCircleOutline className="text-subtext3 hover:cursor-pointer text-sm mt-0.5"
+                    {infoText ? <IoInformationCircleOutline className="text-subtext3 hover:cursor-pointer text-sm "
                         onClick={() => alert(infoText)}/> : ""}
                 </div>
                 <p className="text-[10px] text-subtext3">

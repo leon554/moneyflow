@@ -1,6 +1,6 @@
 import Button from "@/components/primitives/Button";
 import DateInput from "@/components/primitives/DateInput";
-import Select, { type dataFormat } from "@/components/primitives/Select";
+import { type dataFormat } from "@/components/primitives/Select";
 import TextBoxLimited from "@/components/primitives/TextboxLimited";
 import { dataContext } from "@/providers/DataProvider";
 import { IncomeSource } from "@/Util/classes/IncomeSource";
@@ -11,7 +11,8 @@ import IncomeSourceCard from "../cards/IncomeSourceCard";
 import { FaPlus, FaSave } from "react-icons/fa";
 import useForm from "@/hooks/useForm";
 import { AlertContext } from "@/Alert/AlertProvider";
-
+import { IoInformationCircleOutline } from "react-icons/io5"
+import SelectInput from "../primitives/SelectInput";
 
 
 export default function CreateIncomeSource() {
@@ -84,6 +85,7 @@ export default function CreateIncomeSource() {
                     value={form.name}
                     setValue={value => setForm("name", value)}
                     placeHolder="e.g Wage"
+                    infoText="This is the name of your income source for example: 'Wage', 'Side Hustle' or even 'Tax return'."
                     />
                 <TextBoxLimited 
                     name="Amount"
@@ -91,28 +93,29 @@ export default function CreateIncomeSource() {
                     numeric={true}
                     value={form.amount}
                     setValue={value => setForm("amount", value)}
-                    placeHolder="1200"/>
+                    placeHolder="1200"
+                    infoText="This is the amount of money you earn/receive from this source."/>
                 <div className="flex flex-col gap-1.5 w-full">
-                    <p className="font-medium text-subtext1 relative text-xs">
-                        Next Payment
-                    </p>
+                    <div className="flex items-center gap-1.5">
+                        <p className="font-medium text-subtext1 relative text-xs">
+                            Next Payment
+                        </p>
+                        <IoInformationCircleOutline className="text-subtext3 hover:cursor-pointer text-sm"
+                            onClick={() => alert("This is the date you receive money from the current source next")}/>
+                    </div>
                     <DateInput
                         date={form.date}
                         setDate={value => setForm("date", value)}
                         />
                 </div>
-                <div className="flex flex-col gap-1.5 w-full">
-                    <p className="text-xs font-medium text-subtext1 relative ">
-                        Frequency
-                    </p>
-                    <Select
-                        items={Util.frequencyItems}
-                        selectedItem={form.selectedFrequencyItem}
-                        setSelectedItem={(id) => setForm("selectedFrequencyItem", Util.frequencyItems[id])}
-                        showIcon={true}
-                        center={true}
-                    />
-                </div>
+                <SelectInput data={{
+                    fullWidth: true,
+                    name: "Frequency",
+                    infoText: "This is the frequency you receive money from this income source.",
+                    items: Util.frequencyItems,
+                    selectedItem: form.selectedFrequencyItem,
+                    setSelectedItem: (item: dataFormat) => setForm("selectedFrequencyItem", item)
+                }}/>
             </div>
             <div className="flex w-full gap-7 items-end justify-end">
                 <Button 

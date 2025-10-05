@@ -5,6 +5,7 @@ import { Util } from "@/Util/util"
 import { useContext} from "react"
 import { dataContext } from "@/providers/DataProvider"
 import { FaRegEdit } from "react-icons/fa";
+import { AlertContext } from "@/Alert/AlertProvider"
 
 
 interface Props{
@@ -14,10 +15,11 @@ interface Props{
 export default function BucketCard({bucket, setEdit}: Props) {
 
     const data = useContext(dataContext)
+    const {alert} = useContext(AlertContext)
 
     function deleteBucket(){
         const hasReference = Array.from(data.bills.values()).some(b => b.billData.sourceBucketId == bucket.bucket.id)
-        if(hasReference) {alert("Can't delete a bucket with bills referring it delete the bills that reference this bucket first"); return}
+        if(hasReference) {alert("Can't delete a bucket with bills referring to it, delete the bills that reference this bucket first"); return}
         data.deleteBucket(bucket.bucket.id!)
     }
 

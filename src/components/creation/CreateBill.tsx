@@ -1,6 +1,6 @@
 import Button from "@/components/primitives/Button";
 import DateInput from "@/components/primitives/DateInput";
-import Select, { type dataFormat } from "@/components/primitives/Select";
+import { type dataFormat } from "@/components/primitives/Select";
 import TextBoxLimited from "@/components/primitives/TextboxLimited";
 import { dataContext } from "@/providers/DataProvider";
 import { IncurralFrequency, type BillData} from "@/Util/types";
@@ -11,20 +11,20 @@ import { Bill } from "@/Util/classes/Bill";
 import { FaSave, FaPlus } from "react-icons/fa";
 import useForm from "@/hooks/useForm";
 import { AlertContext } from "@/Alert/AlertProvider";
+import SelectInput from "../primitives/SelectInput";
+import { IoInformationCircleOutline } from "react-icons/io5"
 
 export default function CreateBill() {
 
     const data = useContext(dataContext)
     const {alert} = useContext(AlertContext)
-
-    const frequencyItems = Object.values(IncurralFrequency).map((v,i) => ({id: i, name: Util.capFirst(v)}))
     const sourceItems = Array.from(data.buckets.values()).map((b,i) => ({id: i, name: Util.capFirst(b.bucket.name), data: b.bucket.id!}))
 
     const {form, setForm, resetForm, setWholeForm} = useForm({
         name: "",
         amount: "",
         date: Util.formatDate(new Date()),
-        selectedFrequencyItem: frequencyItems[0] as dataFormat,
+        selectedFrequencyItem: Util.frequencyItems[0] as dataFormat,
         selectedSourceItem: null as dataFormat | null
     })
 
@@ -66,7 +66,7 @@ export default function CreateBill() {
             name: bill.billData.name,
             amount: bill.billData.amount.toString(),
             date: Util.formatDate(new Date(bill.billData.nextIncurralDate)),
-            selectedFrequencyItem: frequencyItems.find(i => i.name.toLowerCase() == bill.billData.frequency.toLowerCase())!
+            selectedFrequencyItem: Util.frequencyItems.find(i => i.name.toLowerCase() == bill.billData.frequency.toLowerCase())!
         })
     }   
 
@@ -77,26 +77,23 @@ export default function CreateBill() {
                 Create Bill
             </h1>
             <div className="flex flex-col w-full justify-between gap-4 sm:flex-row">
-                 <div className="flex flex-col gap-1.5 w-full">
-                    <p className="text-xs font-medium text-subtext1 relative ">
-                        Source
-                    </p>
-                    <Select
-                        items={sourceItems}
-                        selectedItem={form.selectedSourceItem}
-                        setSelectedItem={(id) => setForm("selectedSourceItem", sourceItems[id])}
-                        showIcon={true}
-                        center={true}
-                        defaultText="Select Source"
-                    />
-                </div>
+                <SelectInput data={{
+                    fullWidth: false,
+                    defaultText: "Select Source",
+                    name: "Source",
+                    infoText: "This is the name of the source bucket where the money will come from to pay this bill.",
+                    items: sourceItems,
+                    selectedItem: form.selectedSourceItem,
+                    setSelectedItem: (item: dataFormat) => setForm("selectedSourceItem", item)
+                }}/>
                 <TextBoxLimited 
                     name="Name"
                     charLimit={15}
                     value={form.name}
                     setValue={value => setForm("name", value)}
                     placeHolder="e.g Insurance"
-                    outerDivStyles="min-w-30"/>
+                    outerDivStyles="min-w-30"
+                    infoText="This is the name of the bill your creating"/>
                 <TextBoxLimited 
                     name="Amount"
                     charLimit={10}
@@ -104,28 +101,29 @@ export default function CreateBill() {
                     value={form.amount}
                     setValue={value => setForm("amount", value)}
                     placeHolder="1200"
-                    outerDivStyles="min-w-20"/>
+                    outerDivStyles="min-w-26"
+                    infoText="Amount specifies how much the bill costs."/>
                 <div className="flex flex-col gap-1.5 w-full">
-                    <p className="font-medium text-subtext1 relative text-xs whitespace-nowrap">
-                        Next Payment
-                    </p>
+                    <div className="flex items-center gap-1.5">
+                        <p className="font-medium text-subtext1 relative text-xs whitespace-nowrap">
+                            Next Due
+                        </p>
+                        <IoInformationCircleOutline className="text-subtext3 hover:cursor-pointer text-sm"
+                            onClick={() => alert("This is the date when this bill is next due.")}/>        
+                    </div>
                     <DateInput
                         date={form.date}
                         setDate={value => setForm("date", value)}
                         />
                 </div>
-                <div className="flex flex-col gap-1.5 w-full">
-                    <p className="text-xs font-medium text-subtext1 relative ">
-                        Frequency
-                    </p>
-                    <Select
-                        items={frequencyItems}
-                        selectedItem={form.selectedFrequencyItem}
-                        setSelectedItem={(id) => setForm("selectedFrequencyItem", frequencyItems[id])}
-                        showIcon={true}
-                        center={true}
-                    />
-                </div>
+                <SelectInput data={{
+                    fullWidth: false,
+                    name: "Frequency",
+                    infoText: "This is how often the bill is due.",
+                    items: Util.frequencyItems,
+                    selectedItem: form.selectedFrequencyItem,
+                    setSelectedItem: (item: dataFormat) => setForm("selectedFrequencyItem", item)
+                }}/>
             </div>
             <div className="flex w-full gap-7 items-end justify-end">
                 <Button 

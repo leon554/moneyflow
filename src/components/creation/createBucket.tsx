@@ -1,6 +1,6 @@
 import Button from "@/components/primitives/Button";
 import DateInput from "@/components/primitives/DateInput";
-import Select, { type dataFormat } from "@/components/primitives/Select";
+import { type dataFormat } from "@/components/primitives/Select";
 import TextBoxLimited from "@/components/primitives/TextboxLimited";
 import { dataContext } from "@/providers/DataProvider";
 import { Bucket } from "@/Util/classes/Bucket";
@@ -13,6 +13,8 @@ import { FaPlus } from "react-icons/fa";
 import { FaSave } from "react-icons/fa";
 import useForm from "@/hooks/useForm";
 import { AlertContext } from "@/Alert/AlertProvider";
+import SelectInput from "../primitives/SelectInput";
+import { IoInformationCircleOutline } from "react-icons/io5"
 
 
 export default function CreateBucket() {
@@ -128,39 +130,38 @@ export default function CreateBucket() {
                             setValue={name => setForm("name", name)}
                             placeHolder="e.g Holiday"
                             outerDivStyles="w-full sm:min-w-25"
+                            infoText="This is the name of your bucket (account) e.g Savings, Holiday, Spending etc."
                             />
                         <TextBoxLimited 
-                            name="Starting Value"
+                            name="Starting Balance"
                             charLimit={10}
                             numeric={true}
                             value={form.initialBalance}
                             setValue={value => setForm("initialBalance", value)}
                             placeHolder="1200"
                             outerDivStyles="w-full sm:min-w-25"
-                            negative={true}/>
+                            negative={true}
+                            infoText="This is the starting balance of your bucket it can either be positive or negative."/>
                         <TextBoxLimited 
-                            name="Goal Value"
+                            name="Goal Balance"
                             charLimit={10}
                             numeric={true}
                             value={form.goalBalance}
                             setValue={value => setForm("goalBalance", value)}
                             placeHolder="1200"
                             outerDivStyles="w-full sm:min-w-25"
-                            negative={true}/>
+                            negative={true}
+                            infoText="This is the goal balance you want for this bucket. Note this value must be bigger than your starting balance"/>
                         <div className="flex gap-4">
-                            <div className="flex flex-col gap-1.5 w-full sm:w-fit">
-                                <p className="text-xs font-medium text-subtext1 relative whitespace-nowrap">
-                                    Account Type
-                                </p>
-                                <Select
-                                    items={accountTypeItems}
-                                    selectedItem={form.selectedAccountTypeItem}
-                                    setSelectedItem={(id) => setForm("selectedAccountTypeItem", accountTypeItems[id])}
-                                    showIcon={true}
-                                    center={true}
-                                    divStyles="sm:w-fit sm:min-w-[80px]"
-                                />
-                            </div>
+                            <SelectInput 
+                                data={{
+                                    fullWidth: false,
+                                    name: "Account Type",
+                                    infoText: "You can select from three different account types: Cash account is a normal account not earning any interest, Savings account is like a cash account but earns interest. Finally a dept accounts is similar to the previous account however it pays interest, so select this option for e.g a mortgage.",
+                                    items: accountTypeItems,
+                                    selectedItem: form.selectedAccountTypeItem,
+                                    setSelectedItem: (item: dataFormat) => setForm("selectedAccountTypeItem", item)
+                                }}/>
                         </div>
                     </div>
                     {form.selectedAccountTypeItem.name != AccountType.CashAccount ? 
@@ -173,29 +174,29 @@ export default function CreateBucket() {
                                 setValue={value => setForm("interest", value)}
                                 placeHolder="4.8"
                                 outerDivStyles="sm:w-[40%]"
-                                invalidFunc={(v: string) => Number(v) > 100 || Number(v) < 0}/>
+                                invalidFunc={(v: string) => Number(v) > 100 || Number(v) < 0}
+                                infoText="This is the yearly interest rate you will earn/pay for this bucket"/>
                             <div className="flex flex-col gap-1.5 w-full">
-                                <p className="font-medium text-subtext1 relative text-xs">
-                                    Next Compound Date
-                                </p>
+                                <div className="flex items-center gap-1.5">
+                                    <p className="font-medium text-subtext1 relative text-xs">
+                                        Next Compound Date
+                                    </p>
+                                    <IoInformationCircleOutline className="text-subtext3 hover:cursor-pointer text-sm"
+                                        onClick={() => alert("This is the next date your interest will compound and be paid to or taken from your account/bucket.")}/>
+                                </div>
                                 <DateInput
                                     date={form.compoundDate}
                                     setDate={value => setForm("compoundDate", value)}
                                     />
                             </div>
-                            <div className="flex flex-col gap-1.5 ">
-                                <p className="text-xs font-medium text-subtext1 relative whitespace-nowrap">
-                                    Compound
-                                </p>
-                                <Select
-                                    items={Util.frequencyItems}
-                                    selectedItem={form.selectedIncurralItem}
-                                    setSelectedItem={(id) => setForm("selectedIncurralItem", Util.frequencyItems[id])}
-                                    showIcon={true}
-                                    center={true}
-                                    divStyles="sm:w-fit"
-                                />
-                            </div>
+                            <SelectInput data={{
+                                fullWidth: false,
+                                name: "Compound Frequency",
+                                infoText: "This is how often your interest compounds. Note this simulation will pay or subtract interest on compounding days.",
+                                items: Util.frequencyItems,
+                                selectedItem: form.selectedIncurralItem,
+                                setSelectedItem: (item: dataFormat) => setForm("selectedIncurralItem", item)
+                            }}/>
                     </div> : null}
                 </>
                 : 

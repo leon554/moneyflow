@@ -77,9 +77,9 @@ export default function Select(props: SelectProps) {
                     }`}/> : null}
                 </p>
             </button>
-            <div className={`bg-panel2 absolute  mt-2 ${props.center ? "left-1/2 transform -translate-x-1/2" : "right-0 "} rounded-xl p-2.5  overflow-y-scroll no-scrollbar max-h-100 px-1.5 mb-1 ${props.largeText ? "gap-1.5" : "gap-1"} flex flex-col justify-start items-start scale-0 transition-transform duration-200 bg-panel1 text-subtext1  outline-border2  z-20 w-fit outline-1`} style={{
+            <div className={`bg-panel2 absolute  mt-2 ${props.center ? "left-0" : "right-0 "} rounded-xl p-2.5  overflow-y-scroll no-scrollbar max-h-100 px-1.5 mb-1 ${props.largeText ? "gap-1.5" : "gap-1"} flex flex-col justify-start items-start scale-0 transition-transform duration-200 bg-panel1 text-subtext1  outline-border2  z-20 w-fit outline-1`} style={{
                 scale: clicked ? 1 : 0,
-                transformOrigin: props.dropUp ? "bottom" : "top"
+                transformOrigin: props.dropUp ? "top left" : "top"
                 }}
                 onWheel={e => {
                     e.stopPropagation();

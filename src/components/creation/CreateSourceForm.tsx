@@ -1,4 +1,3 @@
-import Select from "../primitives/Select"
 import TextBoxLimited from "../primitives/TextboxLimited"
 import Button from "../primitives/Button"
 import { useContext, useEffect, useMemo, useState } from "react"
@@ -12,6 +11,7 @@ import { FaSave } from "react-icons/fa"
 import { Util } from "@/Util/util"
 import useForm from "@/hooks/useForm"
 import { AlertContext } from "@/Alert/AlertProvider"
+import SelectInput from "../primitives/SelectInput"
 
 interface Props{
     sources: Source[]
@@ -121,20 +121,16 @@ export default function CreateSourceForm({sources, setSources, modifiedBucket}: 
                 Add Sources
             </h1>
             <div className="flex flex-col w-full gap-4 sm:flex-row">
-                <div className="flex flex-col gap-1.5 w-full sm:w-fit">
-                    <p className="text-xs font-medium text-subtext1 relative ">
-                        Source
-                    </p>
-                    <Select
-                        items={incomeSourceItems}
-                        defaultText="Select Source"
-                        selectedItem={form.selectedIncomeSourceItem ?? null}
-                        setSelectedItem={(id) => setForm("selectedIncomeSourceItem", incomeSourceItems[id])}
-                        showIcon={true}
-                        center={true}
-                        divStyles="sm:w-fit"
-                    />
-                </div>
+                <SelectInput data={{
+                    fullWidth: false,
+                    name: "Source",
+                    infoText: "This is the name of the income source that will send money to this bucket",
+                    items: incomeSourceItems,
+                    selectedItem: form.selectedIncomeSourceItem ?? null,
+                    setSelectedItem: (item: dataFormat) => setForm("selectedIncomeSourceItem", item),
+                    center: true,
+                    defaultText: "Select Income Source"
+                }}/>
                 {(allocationData?.unAllocatedAmount ?? -1) > 0 || form.allocation != ""?
                     <>
                     {form.selectedRemainingItem.name == "Yes" ? 
@@ -148,34 +144,27 @@ export default function CreateSourceForm({sources, setSources, modifiedBucket}: 
                             setValue={value => setForm("allocation", value)}
                             placeHolder="1200"
                             outerDivStyles="w-full"
+                            infoText="This is the amount of money that will be paid to this bucket from the selected income source. It can either be a fixed value such as $200 or a percentage which can be selected with the drop down to the right called 'type'. "
                             invalidFunc={(_) => form.selectedIncomeSourceItem ? ((allocationData?.unAllocatedAmount ?? 0) < 0) : false}/>
-                        <div className="flex flex-col gap-1.5">
-                            <p className="text-xs font-medium text-subtext1 relative ">
-                                Type
-                            </p>
-                            <Select
-                                items={typeItems}
-                                selectedItem={form.selectedTypeItem}
-                                setSelectedItem={(id) => setForm("selectedTypeItem", typeItems[id])}
-                                showIcon={true}
-                                center={true}
-                                divStyles="sm:w-fit"
-                            />                
-                        </div>
+                        
+                        <SelectInput data={{
+                            fullWidth: false,
+                            name: "Type",
+                            infoText: "With this drop down you can selected weather the allocation amount is calculated as a fixed amount e.g. $200 or a percentage e.g. 20%.",
+                            items: typeItems,
+                            selectedItem: form.selectedTypeItem,
+                            setSelectedItem: (item: dataFormat) => setForm("selectedTypeItem", item)
+                        }}/>
                     </>
                     }
-                    <div className={`flex flex-col gap-1.5 ${form.selectedRemainingItem.name == "Yes" ? "w-full" : "w-fit"}`}>
-                        <p className="text-xs font-medium text-subtext1 relative whitespace-nowrap ">
-                            Allocate Remaining
-                        </p>
-                        <Select
-                            items={remainingItems}
-                            selectedItem={form.selectedRemainingItem}
-                            setSelectedItem={(id) => setForm("selectedRemainingItem", remainingItems[id])}
-                            showIcon={true}
-                            divStyles=""
-                        />                
-                    </div>
+                    <SelectInput data={{
+                        fullWidth: form.selectedRemainingItem.name == "Yes",
+                        name: "Allocate Remaining",
+                        infoText: "If yes is selected this will automatically allocate all remaining unallocated money from the selected income source to this bucket.",
+                        items: remainingItems,
+                        selectedItem: form.selectedRemainingItem,
+                        setSelectedItem: (item: dataFormat) => setForm("selectedRemainingItem", item)  
+                    }}/>
                     </> : 
                     form.selectedIncomeSourceItem ? 
                     <div className="text-subtext2 text-xs flex  items-end mb-1.5">

@@ -7,6 +7,7 @@ import type { dataFormat } from "../primitives/Select"
 import Select from "../primitives/Select"
 import { FaRegTrashAlt } from "react-icons/fa"
 import { AlertContext } from "@/Alert/AlertProvider"
+import { IoInformationCircleOutline } from "react-icons/io5"
 
 
 
@@ -63,7 +64,8 @@ export default function CreateSystem() {
                     value={name}
                     setValue={setName}
                     placeHolder="e.g Budget 1"
-                    outerDivStyles="min-w-30"/>
+                    outerDivStyles="min-w-30"
+                    infoText="This is the name of your system/budget/"/>
                 <div className="w-full flex gap-3">
                     {data.systemData.length > 0 ?
                     <Button
@@ -81,9 +83,13 @@ export default function CreateSystem() {
             </> : 
             <>
                 <div className="flex flex-col gap-1.5 w-full">
-                    <p className="text-xs font-medium text-subtext1 relative ">
-                        Selected System
-                    </p>
+                    <div className="flex items-center gap-1.5">
+                        <p className="text-xs font-medium text-subtext1 relative ">
+                            Selected System
+                        </p>
+                        <IoInformationCircleOutline className="text-subtext3 hover:cursor-pointer text-sm"
+                            onClick={() => alert("This is the name of your selected system. Select a system first in order to edit or create any Income Sources, Buckets or Bills.")}/>    
+                    </div>
                     <Select
                         items={systemItems}
                         selectedItem={selectedSystem}
