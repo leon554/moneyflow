@@ -73,7 +73,7 @@ export default function BucketNodeModal({bucket, setOpen}: Props) {
                         Avg daily net flow: <span className="font-medium text-title">{Util.formatNum(netflow, true)}</span>
                     </p>
                     <p className="text-xs text-subtext1">
-                        Avg daily surplus: <span className="font-medium text-title">{Math.round(((netflow)/inflow)*100*100)/100}%</span>
+                        Savings Rate: <span className="font-medium text-title">{Math.round(((netflow)/inflow)*100*100)/100}%</span>
                     </p>
                 </div>
                 
