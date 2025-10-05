@@ -38,10 +38,15 @@
   --color-chart-5: oklch(0.645 0.246 16.439);
   --tooltip-background: var(--color-panel2);
   --font-quicksand: "Quicksand", sans-serif;
+  
 }
 
 @layer utilities {
 
+  .texture{
+    background-image: radial-gradient(circle,  color-mix(in oklab, var(--color-emerald-500) 5%, transparent) 10%, rgba(0, 0, 0, 0) 10%);
+    background-size: 20px 20px;
+  }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }

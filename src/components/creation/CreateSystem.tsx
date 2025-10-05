@@ -6,6 +6,7 @@ import type { SystemData } from "@/Util/types"
 import type { dataFormat } from "../primitives/Select"
 import Select from "../primitives/Select"
 import { FaRegTrashAlt } from "react-icons/fa"
+import { AlertContext } from "@/Alert/AlertProvider"
 
 
 
@@ -13,6 +14,7 @@ import { FaRegTrashAlt } from "react-icons/fa"
 export default function CreateSystem() {
 
     const data = useContext(dataContext)
+    const {alert} = useContext(AlertContext)
 
     const systemItems = data.systemData.map((d, i) => ({id: i, name: d.name, data: d.id})) as dataFormat[]
     const [name, setName] = useState("")
@@ -88,7 +90,7 @@ export default function CreateSystem() {
                         setSelectedItem={(id) => setSelectedSystem(systemItems[id])}
                         showIcon={true}
                         defaultText="Select System"
-                        style="outline-1 w-full h-7 p-3 rounded-md text-lg font-medium text-highlight outline-highlight/30"
+                        style="outline-1 w-full h-7 p-3 rounded-md text-lg font-medium text-highlight/70 outline-highlight/30"
                     />
                 </div>
                 <div className="flex items-center gap-2">

@@ -10,10 +10,12 @@ import BillCard from "../cards/BillCard";
 import { Bill } from "@/Util/classes/Bill";
 import { FaSave, FaPlus } from "react-icons/fa";
 import useForm from "@/hooks/useForm";
+import { AlertContext } from "@/Alert/AlertProvider";
 
 export default function CreateBill() {
 
     const data = useContext(dataContext)
+    const {alert} = useContext(AlertContext)
 
     const frequencyItems = Object.values(IncurralFrequency).map((v,i) => ({id: i, name: Util.capFirst(v)}))
     const sourceItems = Array.from(data.buckets.values()).map((b,i) => ({id: i, name: Util.capFirst(b.bucket.name), data: b.bucket.id!}))

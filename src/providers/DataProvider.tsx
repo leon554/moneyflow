@@ -211,14 +211,18 @@ export default function DataProvider({children}: Props) {
         const bucketArr = Array.from(buckets.values())
         const billArr = Array.from(bills.values())
 
-        const incomePayments =  incomeSourceArr.map(source => source.step(date, buckets)).flat()
-        const billPayments = billArr.map(bill => bill.step(date, buckets)).flat()
-        bucketArr.map(bucket => bucket.step(date))
+        const incomePayments =  incomeSourceArr.map(source => source.step(date, false, buckets)).flat()
+        const billPayments = billArr.map(bill => bill.step(date, false, buckets)).flat()
 
-        const newIncomeSourceMap = new Map(incomeSourceArr.map(i => [i.sourceData.id!, i]))
-        const newBillMap = new Map(billArr.map(b => [b.billData.id!, b]))
 
         simTimeoutId.current = setTimeout(() => {
+            incomeSourceArr.map(source => source.step(date, true, buckets))
+            billArr.map(bill => bill.step(date, true, buckets))
+            bucketArr.map(bucket => bucket.step(date, true))
+
+            const newIncomeSourceMap = new Map(incomeSourceArr.map(i => [i.sourceData.id!, i]))
+            const newBillMap = new Map(billArr.map(b => [b.billData.id!, b]))
+
             setIncomeSources(newIncomeSourceMap)
             setBuckets(new Map(buckets))
             setBills(newBillMap)

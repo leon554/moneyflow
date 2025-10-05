@@ -10,6 +10,7 @@ import { useContext, useMemo, useState } from "react";
 import IncomeSourceCard from "../cards/IncomeSourceCard";
 import { FaPlus, FaSave } from "react-icons/fa";
 import useForm from "@/hooks/useForm";
+import { AlertContext } from "@/Alert/AlertProvider";
 
 
 
@@ -23,10 +24,11 @@ export default function CreateIncomeSource() {
         selectedFrequencyItem: Util.frequencyItems[0] as dataFormat
     })
 
+    const {alert} = useContext(AlertContext)
+
     const data = useContext(dataContext)
 
     const incomeSourceArr = useMemo(() => {
-        console.log("re calc")
        return Array.from(data.incomeSources.values())
     }, [data.incomeSources, data.selectedSystem]) 
 
@@ -71,7 +73,7 @@ export default function CreateIncomeSource() {
     }
 
     return (
-        <div className="outline-1 bg-panel1 outline-border rounded-md p-4 flex flex-col gap-4">
+        <div className="outline-1 bg-panel1 outline-border rounded-md p-4 flex flex-col gap-4 ">
             <h1 className="text-title text-lg font-medium ">
                 Add Income
             </h1>

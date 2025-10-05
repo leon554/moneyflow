@@ -27,8 +27,8 @@ export class Bucket implements ISimulatable{
         })
     }
 
-    public step(date: Date): IPayment[]{
-        
+    public step(date: Date, mutate: boolean): IPayment[]{
+        if(!mutate) return []
         if(this.bucket.accountType == AccountType.SavingsAccount && isSameDay(date, new Date(this.bucket.nextIncurralDate))){
             this.bucket.nextIncurralDate = Util.getNextDate(new Date(this.bucket.nextIncurralDate), this.bucket.compoundFrequency).getTime()
             
@@ -89,6 +89,7 @@ export class Bucket implements ISimulatable{
 
     public getMoneyAllocated(moneyEarned: number, moneyLeft: number, sourceId: string, excludeSourceId?: string){
         let totalMoneyWanted = 0
+
         this.bucket.sources.forEach(source => {
             if(source.incomeSourceId != sourceId || source.id == excludeSourceId)return
             let moneyWanted = 0

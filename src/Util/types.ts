@@ -69,7 +69,7 @@ export interface SystemData{
 }
 
 export interface ISimulatable{
-    step: (date: Date, ...arg: any) => IPayment[]
+    step: (date: Date, mutate: boolean,  ...arg: any) => IPayment[]
 }
 export interface IPayment{
     sourceId: string

@@ -11,6 +11,7 @@ import { FaRegEdit } from "react-icons/fa";
 import { FaSave } from "react-icons/fa"
 import { Util } from "@/Util/util"
 import useForm from "@/hooks/useForm"
+import { AlertContext } from "@/Alert/AlertProvider"
 
 interface Props{
     sources: Source[]
@@ -20,6 +21,7 @@ interface Props{
 export default function CreateSourceForm({sources, setSources, modifiedBucket}: Props) {
 
     const data = useContext(dataContext)
+    const {alert} = useContext(AlertContext)
 
     let incomeSourceItems = Array.from(data.incomeSources.values()).map((v,i) => ({id: i, name: v.sourceData.name, data: v.sourceData.id!}))
     const remainingItems = [{id: 0, name: "Yes"}, {id: 1, name: "No"}]
@@ -33,6 +35,7 @@ export default function CreateSourceForm({sources, setSources, modifiedBucket}: 
     })
 
     const [editData, setEditData] = useState({isEditing: false, sourceId: ""})
+    const [deletedSourceIds, setDeletedSourceIds] = useState<string[]>([])
 
     const selectedIncomeSource = data.incomeSources.get(form.selectedIncomeSourceItem?.data!)
 
@@ -46,7 +49,7 @@ export default function CreateSourceForm({sources, setSources, modifiedBucket}: 
 
     const selectedIncomeSourceSources = sources.filter(s => s.incomeSourceId == selectedIncomeSource?.sourceData.id)
     const allocationData = useMemo(() => 
-        selectedIncomeSource?.getAllocatedDataWithTemp(selectedIncomeSourceSources, tempSource, editData.sourceId, data.buckets), 
+        selectedIncomeSource?.getAllocatedDataWithTemp(selectedIncomeSourceSources, tempSource, [editData.sourceId, ...deletedSourceIds], data.buckets), 
     [sources, selectedIncomeSourceSources, tempSource, editData.sourceId, data.buckets])
 
     useEffect(() => {
@@ -87,6 +90,7 @@ export default function CreateSourceForm({sources, setSources, modifiedBucket}: 
         setEditData({isEditing: false, sourceId: ""})
         setForm("selectedRemainingItem", remainingItems[1])
         setForm("allocation", "")
+        setDeletedSourceIds([])
         resetForm()
     }
 
@@ -219,6 +223,7 @@ export default function CreateSourceForm({sources, setSources, modifiedBucket}: 
                             <div className="flex items-center gap-3">
                                 <div className="hover:cursor-pointer text-subtext2"
                                     onClick={() => {
+                                        setDeletedSourceIds(prev => [...prev, s.id])
                                         setSources([...sources.filter(source => source.incomeSourceId != s.incomeSourceId || source.allocation != s.allocation)])
                                         data.setUpdated(prev => !prev)
                                     }}>

@@ -40,7 +40,7 @@ export default function BucketCard({bucket, setEdit}: Props) {
                         {bucket.bucket.interest}%
                     </p> : null}
                 </div>
-                <p className="truncate text-xs max-w-[100%] text-subtext2 flex-1 overflow-ellipsis flex gap-2">
+                <div className="truncate text-xs max-w-[100%] text-subtext2 flex-1 overflow-ellipsis flex gap-2">
                     {bucket.bucket.sources.map((s: Source) => {
                         return (
                             <p>
@@ -48,7 +48,7 @@ export default function BucketCard({bucket, setEdit}: Props) {
                             </p>
                         )
                     })}
-                </p>
+                </div>
             </div>
             <div className="flex gap-3">
                 <div className="hover:cursor-pointer text-subtext2"
