@@ -36,6 +36,8 @@ interface BaseBucket<T extends AccountType>{
     id?: string
     name: string    
     sources: Source[]
+    bucketSourceId?: string
+    reserveAmount?: number,
     balance: number
     startBalance: number
     targetBalance: number
@@ -79,7 +81,8 @@ export interface IPayment{
 }
 export enum PaymentType{
     Incoming = "Incoming",
-    Outgoing = "Outgoing"
+    Outgoing = "Outgoing",
+    Internal = "Internal"
 }
 export interface IPaymentHistory{
     date: Date

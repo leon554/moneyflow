@@ -13,7 +13,7 @@ interface Props{
 export default function IncomeSourceNodeModal({incomeSource, setOpen} : Props) {
 
     const data = useContext(dataContext)
-    const allocationData = useMemo(() => incomeSource?.getAllocatedData([], "", data.buckets), [incomeSource])
+    const allocationData = useMemo(() => incomeSource?.getAllocatedData([], [], data.buckets), [incomeSource])
 
     return (
         <div className="bg-panel1 outline-1 outline-border rounded-md p-5 flex flex-col gap-1.5 max-w-[400px] w-[90%]"

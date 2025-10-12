@@ -1,4 +1,4 @@
-import { type ISimulatable, type BucketDataType, type IPayment, type Source, AccountType, type RecurringPayment} from "../types"
+import { type ISimulatable, type BucketDataType, type IPayment, type Source, AccountType, type RecurringPayment, PaymentType} from "../types"
 import { IncomeSource } from "./IncomeSource"
 import { isSameDay } from "date-fns"
 import { Util } from "../util"
@@ -10,6 +10,7 @@ export class Bucket implements ISimulatable{
     balanceOverTime: {date: string, amount: number}[] = []
     interestAmount: number = 0
     flowData = {in: 0, out: 0}
+    paymentsToBeReceived: IPayment[] = []
 
 
     constructor(bucket: BucketDataType, incomeSources: Map<string, IncomeSource>){
@@ -27,8 +28,17 @@ export class Bucket implements ISimulatable{
         })
     }
 
-    public step(date: Date, mutate: boolean): IPayment[]{
-        if(!mutate) return []
+    public step(date: Date, mutate: boolean, buckets: Map<string, Bucket>): IPayment[]{
+        if(!mutate){
+            this.paymentsToBeReceived.forEach(p => {
+                const b = buckets.get(p.sourceId)!
+                b.moneyFromBucketIntent(p.amount)
+            })
+            console.log("inin")
+            console.log(...this.paymentsToBeReceived)
+            return this.paymentsToBeReceived
+        }
+
         if(this.bucket.accountType == AccountType.SavingsAccount && isSameDay(date, new Date(this.bucket.nextIncurralDate))){
             this.bucket.nextIncurralDate = Util.getNextDate(new Date(this.bucket.nextIncurralDate), this.bucket.compoundFrequency).getTime()
             
@@ -46,8 +56,16 @@ export class Bucket implements ISimulatable{
             this.bucket.balance -= Math.abs(interestToBePaid)
         }
 
-        this.balanceOverTime.push({date: Util.formatDate(date), amount: this.bucket.balance})
+        const paymentsCopy = [...this.paymentsToBeReceived]
+        paymentsCopy.forEach(p => {
+            const b = buckets.get(p.sourceId)!
+            const amount = b.requestMoneyFromBucket(p.amount)
+            this.flowData.in += amount
+            this.bucket.balance += amount
+        })
+        this.paymentsToBeReceived.length = 0
 
+        this.balanceOverTime.push({date: Util.formatDate(date), amount: this.bucket.balance})
         return []
     }
 
@@ -118,6 +136,17 @@ export class Bucket implements ISimulatable{
         return (moneyRequested > moneyLeft) ? moneyLeft : moneyRequested
     }
 
+    public moneyFromBucketIntent(amount: number){
+        if(!this.bucket.bucketSourceId) return
+        if(this.bucket.balance - amount <= this.bucket.reserveAmount!){
+            this.paymentsToBeReceived.push({
+                sourceId: this.bucket.bucketSourceId!,
+                destinationId: this.bucket.id!,
+                amount: Math.abs((this.bucket.balance - amount) - this.bucket.reserveAmount!),
+                paymentType: PaymentType.Internal
+            })
+        }
+    }
     public requestMoneyFromBucket(amount: number){
         this.flowData.out += amount
         this.bucket.balance -= amount

@@ -22,9 +22,12 @@ export class Bill implements ISimulatable{
         const sourceBucket = buckets.get(this.billData.sourceBucketId)
         if(!sourceBucket) {throw new Error("Bill source bucket is not defined");}
 
+        
         if(mutate){
             const payment = sourceBucket.requestMoneyFromBucket(this.billData.amount)
             this.billData.balance += payment
+        }else{
+            sourceBucket.moneyFromBucketIntent(this.billData.amount)
         }
 
         return [{sourceId: this.billData.sourceBucketId!, amount: this.billData.amount, destinationId: this.billData.id!, paymentType: PaymentType.Outgoing}]

@@ -27,7 +27,6 @@ export default function Simulate() {
     const [hide, setHide] = useState(false)
 
     const networth = Math.round(Array.from(data.buckets.values()).reduce((a, c) => a + c.bucket.balance, 0)*100)/100
-    console.log(hide)
     useEffect(() => {
         return () => reset()
     }, [data.selectedSystem])
@@ -85,7 +84,7 @@ export default function Simulate() {
                             <span className="font-normal text-xs text-subtext2 overflow-ellipsis truncate">Money Out</span> ${Util.formatNum(moneyOut)}
                         </p>
                         <p className="text-subtext1 font-medium text-xs bg-panel2 flex-1 h-7 p-3 rounded-md outline-1 outline-border flex gap-1.5 items-center justify-between">
-                            <span className="font-normal text-xs text-subtext2 overflow-ellipsis truncate">Net Worth</span> ${Util.formatNum(networth)}
+                            <span className="font-normal text-xs text-subtext2 overflow-ellipsis truncate">Net Worth</span> {Util.formatNum(networth, true)}
                         </p>
                     </div>
                   

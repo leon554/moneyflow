@@ -141,6 +141,19 @@ export default function Chart() {
             })
         
         })
+        bucketArr.forEach(b => {
+            if(!b.bucket.bucketSourceId) return
+            edges.push({
+                id: `${b.bucket.bucketSourceId}-${b.bucket.id}`,
+                source: b.bucket.bucketSourceId!,
+                target: b.bucket.id!,
+                type: "animatedEdge",
+                data: {play: false},
+                animated: true,
+                label: `$${0}`,
+                style: {stroke: "greenyellow"}
+            })
+        })
 
         setNodes([...sourceNodes, ...bucketNodes, ...billNodes]);
         setEdges([...edges]);

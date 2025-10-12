@@ -205,7 +205,21 @@ export default function DataProvider({children}: Props) {
         setBills(newMap)
         setBillData([...Array.from(newMap.values()).map(b => b.billData)])
     }
-
+    function organizePayments(payments: IPayment[]){
+        const map = new Map<string, IPayment[]>()
+        payments.forEach(p => {
+            const key = `${p.sourceId}${p.destinationId}`
+            if(!map.has(key)){
+                map.set(key, [])
+            }
+            map.get(key)!.push(p)
+        })
+        const organized = Array.from(map.values()).map(p => {
+            const total = p.reduce((a, c) => a + c.amount, 0)
+            return { ...p[0], amount: total }  // new object, same structure
+        })
+        return organized
+    }
     function step(date: Date): IPayment[]{
         const incomeSourceArr = Array.from(incomeSources.values())
         const bucketArr = Array.from(buckets.values())
@@ -213,22 +227,24 @@ export default function DataProvider({children}: Props) {
 
         const incomePayments =  incomeSourceArr.map(source => source.step(date, false, buckets)).flat()
         const billPayments = billArr.map(bill => bill.step(date, false, buckets)).flat()
+        const bucketPayments = bucketArr.map(bucket => bucket.step(date, false, buckets)).flat()
 
-
+        console.log(bucketPayments)
         simTimeoutId.current = setTimeout(() => {
             incomeSourceArr.map(source => source.step(date, true, buckets))
+            bucketArr.map(bucket => bucket.step(date, true, buckets))
             billArr.map(bill => bill.step(date, true, buckets))
-            bucketArr.map(bucket => bucket.step(date, true))
 
             const newIncomeSourceMap = new Map(incomeSourceArr.map(i => [i.sourceData.id!, i]))
             const newBillMap = new Map(billArr.map(b => [b.billData.id!, b]))
+            const newBucketMap = new Map(bucketArr.map(b => [b.bucket.id!, b]))
 
             setIncomeSources(newIncomeSourceMap)
-            setBuckets(new Map(buckets))
+            setBuckets(newBucketMap)
             setBills(newBillMap)
         }, 900)
 
-        const payments = [incomePayments, billPayments].flat()
+        const payments = organizePayments([incomePayments, billPayments, bucketPayments].flat())
 
         payments.forEach(p => {
             playEdge(`${p.sourceId}-${p.destinationId}`, p.amount)
