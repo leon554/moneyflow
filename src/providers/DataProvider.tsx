@@ -10,6 +10,7 @@ import { useReactFlow } from "@xyflow/react"
 import useSimulation from "@/hooks/useSimulation"
 import type{ Dispatch, SetStateAction } from "react";
 import { useLocation, useNavigate } from "react-router-dom"
+import { BILL_KEY, BUCKET_KEY, INCOME_SOURCE_KEY, SELECTED_SYSTEM_KEY, SYSTEM_KEY } from "@/constants"
 
 interface DataType{
     incomeSources: Map<string, IncomeSource>
@@ -38,6 +39,7 @@ interface DataType{
     addSourcesToBucket: (bucketId: string, sources: Source[]) => void
     setUpdated: Dispatch<SetStateAction<boolean>>;
     setHasProfile: Dispatch<SetStateAction<boolean>>;
+    hydrateFromLocalStorage: () => void
 }
 
 const defaultValues: DataType = {
@@ -66,7 +68,8 @@ const defaultValues: DataType = {
     resetBuckets: () => null,
     addSourcesToBucket: () => null,
     setUpdated: () => null,
-    setHasProfile: () => null
+    setHasProfile: () => null,
+    hydrateFromLocalStorage: () => null
 }
 
 export const dataContext = createContext<DataType>(defaultValues)
@@ -77,11 +80,11 @@ interface Props{
 }
 export default function DataProvider({children}: Props) {
 
-    const [incomeSourceData, setIncomeSourceData] = useLocalStorage<IncomeDataType[]>("incomeSourceData", [])
-    const [bucketData, setBucketData] = useLocalStorage<BucketDataType[]>("bucketData", [])
-    const [billData, setBillData] = useLocalStorage<BillData[]>("billData", [])
-    const [systemData, setSystemData] = useLocalStorage<SystemData[]>("systemData", [])
-    const [selectedSystem, setSelectedSystem] = useLocalStorage("selectedSystem", "")
+    const [incomeSourceData, setIncomeSourceData] = useLocalStorage<IncomeDataType[]>(INCOME_SOURCE_KEY, [])
+    const [bucketData, setBucketData] = useLocalStorage<BucketDataType[]>(BUCKET_KEY, [])
+    const [billData, setBillData] = useLocalStorage<BillData[]>(BILL_KEY, [])
+    const [systemData, setSystemData] = useLocalStorage<SystemData[]>(SYSTEM_KEY, [])
+    const [selectedSystem, setSelectedSystem] = useLocalStorage(SELECTED_SYSTEM_KEY, "")
     const [hasProfile, setHasProfile] = useLocalStorage("hasProfile", false)
 
     const [incomeSources, setIncomeSources] = useState<Map<string, IncomeSource>>(new Map())
@@ -97,8 +100,6 @@ export default function DataProvider({children}: Props) {
 
     useEffect(() => {
         hydrateFromLocalStorage()
-        setHydrated(true)
-        setUpdated(!updated)
     }, [selectedSystem])
 
     useEffect(() => {
@@ -165,9 +166,12 @@ export default function DataProvider({children}: Props) {
             bill.nextIncurralDate = Util.adjustDate(new Date(bill.nextIncurralDate), bill.frequency).getTime()
             billMap.set(bill.id!, new Bill(bill))
         })
+
         setIncomeSources(new Map(incomeMap))
         setBuckets(new Map(bucketMap))
         setBills(new Map(billMap))
+        setHydrated(true)
+        setUpdated(!updated)
     }
 
     function addSourcesToBucket(bucketId: string, sources: Source[]){
@@ -286,7 +290,8 @@ export default function DataProvider({children}: Props) {
                     deleteBill,
                     simTimeoutId,
                     setUpdated,
-                    setHasProfile
+                    setHasProfile,
+                    hydrateFromLocalStorage
                 }}>
                 {children}
             </dataContext.Provider>

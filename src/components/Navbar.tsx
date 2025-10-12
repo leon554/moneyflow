@@ -1,6 +1,7 @@
 import { dataContext } from "@/providers/DataProvider"
 import { useContext } from "react"
 import { Link } from "react-router-dom"
+import { IoSettingsSharp } from "react-icons/io5";
 
 export default function Navbar() {
 
@@ -13,7 +14,7 @@ export default function Navbar() {
                     Money<span className="text-highlight">Flow</span>
                 </h1>
             </div>
-            <div className="h-full">
+            <div className="h-full flex">
                 {!data.hasProfile ?
                     <Link to={"/home"} className="h-full">
                         <button className="hover:cursor-pointer text-subtext1 h-full hover:bg-highlight hover:text-btn-text  text-xs transition-all duration-200 ease-in-out px-3"
@@ -31,6 +32,11 @@ export default function Navbar() {
                     <Link to={"/simulate"} className="h-full">
                         <button className="hover:cursor-pointer text-subtext1 h-full hover:bg-highlight hover:text-btn-text  text-xs transition-all duration-200 ease-in-out px-3">
                             Simulate
+                        </button>
+                    </Link>
+                    <Link to={"/settings"} className="h-full">
+                        <button className="hover:cursor-pointer text-subtext1 h-full hover:bg-highlight hover:text-btn-text  text-xs transition-all duration-200 ease-in-out px-3">
+                            {<IoSettingsSharp />}
                         </button>
                     </Link>
                 </>}

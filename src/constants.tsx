@@ -1,0 +1,5 @@
+export const INCOME_SOURCE_KEY = "incomeSourceData"
+export const BUCKET_KEY = "bucketData"
+export const BILL_KEY = "billData"
+export const SYSTEM_KEY = "systemData"
+export const SELECTED_SYSTEM_KEY = "selectedSystem"

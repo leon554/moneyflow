@@ -33,7 +33,6 @@ export default function Simulate() {
 
     useEffect(() => {
         if(!selectedSystem) return
-        console.log("System selected:", selectedSystem)
         setHide(true)
         const id = setTimeout(() => setHide(false), 100)
         data.setSelectedSystem(_ => selectedSystem.data!)

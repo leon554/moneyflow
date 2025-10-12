@@ -6,6 +6,7 @@ import DataProvider from "./providers/DataProvider";
 import Simulate from "./pages/Simulate";
 import { ReactFlowProvider } from "@xyflow/react";
 import AlertProvider from "./Alert/AlertProvider";
+import Settings from "./pages/Settings";
 
 
 
@@ -20,6 +21,7 @@ export default function App() {
                                     <Route element={<Layout/>}>
                                             <Route path="/simulate" element={<Simulate/>}/>
                                             <Route path="/home" element={<Home/>}/>
+                                            <Route path="/settings" element={<Settings/>}/>
                                             <Route path="/" element={<Landing/>}/>
                                     </Route>
                                 </Routes>

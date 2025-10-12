@@ -150,11 +150,12 @@ export default function CreateBucket() {
                         placeHolder="100"
                         numeric={true}
                         value={form.reserveAmount.toString()}
-                        setValue={v => setForm("reserveAmount", v)}/>
+                        setValue={v => setForm("reserveAmount", v)}
+                        infoText="If the money in the bucket falls below this amount the bucket will request money from the reserve bucket"/>
                     <SelectInput data={{
                         fullWidth: true,
-                        name: "Bucket Name",
-                        infoText: "If this bucket runs out of money it will take money from the bucket selected in this drop down",
+                        name: "Reserve Bucket Name",
+                        infoText: "If the bucket you are creating runs out of money it will take money from the bucket selected in this drop down",
                         items: bucketItems,
                         selectedItem: form.selectedBucketItem ?? null,
                         defaultText: "Selected Reserve Bucket",

@@ -176,7 +176,7 @@ export default function Chart() {
     }, [nodesInitialized, nodes, edges, updateNodeInternals, fitView]);
 
     return (
-        <div className="outline-1 outline-border w-full h-[70vh] rounded-md">
+        <div className="outline-1 outline-border w-full h-[68vh] rounded-md">
             <ReactFlow
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
