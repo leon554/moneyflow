@@ -84,7 +84,6 @@ export default function Chart() {
         const billArr = Array.from(data.bills.values())
 
         if (incomeSourceArr.length === 0 && bucketArr.length === 0 && billArr.length === 0) {
-            console.log("No data available, returning early");
             return;
         }
 
@@ -176,7 +175,7 @@ export default function Chart() {
     }, [nodesInitialized, nodes, edges, updateNodeInternals, fitView]);
 
     return (
-        <div className="outline-1 outline-border w-full h-[68vh] rounded-md">
+        <div className="outline-1 outline-border w-full sm:h-[68vh] h-[60dvh] rounded-md">
             <ReactFlow
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}

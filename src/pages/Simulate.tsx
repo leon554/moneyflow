@@ -42,7 +42,6 @@ export default function Simulate() {
 
     useEffect(() => {
         if(!data.selectedSystem) return
-        console.log("ran 11")
         setSelectedSystem(systemItems.find(i => i.data == data.selectedSystem)!)
     }, [data.selectedSystem])
     
@@ -72,7 +71,7 @@ export default function Simulate() {
                             showIcon={true}
                             center={false}/>
                     </div>
-                    <div className="grid grid-cols-4 w-full gap-3 items-center">
+                    <div className="grid sm:grid-cols-4 grid-cols-2 w-full gap-3 items-center">
                         <p className="text-subtext1 font-medium text-xs bg-panel2 flex-1 h-7 p-3 rounded-md outline-1 outline-border flex gap-1.5 items-center justify-between">
                             <span className="font-normal text-xs text-subtext2 overflow-ellipsis truncate">Current Date</span> {Util.formatDate(date)}
                         </p>

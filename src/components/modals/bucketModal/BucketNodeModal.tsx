@@ -28,25 +28,25 @@ export default function BucketNodeModal({bucket, setOpen}: Props) {
                 {Util.capFirst(bucket!.bucket.name)}
             </p>
             <hr className="text-border border-t w-full mt-2"/>
-            <div className="flex flex-col gap-1.5  max-h-[440px] overflow-y-scroll no-scrollbar pb-[1px] mb-2">
+            <div className="flex flex-col gap-1.5  sm:max-h-[440px] max-h-[300px] overflow-y-scroll no-scrollbar pb-[1px] mb-2">
 
                 <p className="text-xs text-title font-medium leading-none mb-1 mt-2">
                     Overview
                 </p>
-                <div className="grid grid-cols-2 gap-1.5">
-                    <p className="text-xs text-subtext1">
+                <div className="grid sm:grid-cols-2 grid-cols-1 gap-y-1.5 gap-x-7">
+                    <p className="text-xs text-subtext1 flex justify-between">
                         Balance: <span className="font-medium text-title">{Util.formatNum(bucket!.bucket.balance, true)}</span> 
                     </p>
-                    <p className="text-xs text-subtext1">
+                    <p className="text-xs text-subtext1 flex justify-between">
                         Goal: <span className="font-medium text-title">{Util.formatNum(bucket.bucket.targetBalance, true)}</span> 
                     </p>
                     {bucket!.bucket.accountType != AccountType.CashAccount ? 
                     <>
-                        <p className="text-xs text-subtext1">
+                        <p className="text-xs text-subtext1 flex justify-between">
                             Annual interest: {" "}
                             <span className="font-medium text-title">{bucket?.bucket.interest}%</span>
                         </p>
-                        <p className="text-xs text-subtext1">
+                        <p className="text-xs text-subtext1 flex justify-between">
                             Interest {bucket!.bucket.accountType == AccountType.SavingsAccount ? "earned: " : "payed: "}  
                             <span className="font-medium text-title">{Util.formatNum(Math.abs(bucket!.interestAmount), true)}</span> 
                         </p> 
@@ -56,26 +56,42 @@ export default function BucketNodeModal({bucket, setOpen}: Props) {
                 <p className="text-xs text-title font-medium leading-none mb-1 mt-2">
                     Incoming & Outgoing
                 </p>
-                <div className="grid grid-cols-2 gap-1.5">
-                    <p className="text-xs text-subtext1">
+                <div className="grid sm:grid-cols-2 grid-cols-1 gap-y-1.5 gap-x-7">
+                    <p className="text-xs text-subtext1 flex justify-between">
                         Total in flow: <span className="font-medium text-green-300">{Util.formatNum(bucket.flowData.in, true)}</span>
                     </p>
-                    <p className="text-xs text-subtext1">
+                    <p className="text-xs text-subtext1 flex justify-between">
                         Total out flow: <span className="font-medium text-red-300">{Util.formatNum(bucket.flowData.out, true)}</span>
                     </p>
-                    <p className="text-xs text-subtext1">
+                    <p className="text-xs text-subtext1 flex justify-between">
                         Avg daily in flow: <span className="font-medium text-green-300">{Util.formatNum(inflow, true)}</span>
                     </p>
-                    <p className="text-xs text-subtext1">
+                    <p className="text-xs text-subtext1 flex justify-between">
                         Avg daily out flow: <span className="font-medium text-red-300">{Util.formatNum(outflow, true)}</span>
                     </p>
-                    <p className="text-xs text-subtext1">
+                    <p className="text-xs text-subtext1 flex justify-between">
                         Avg daily net flow: <span className="font-medium text-title">{Util.formatNum(netflow, true)}</span>
                     </p>
-                    <p className="text-xs text-subtext1">
+                    <p className="text-xs text-subtext1 flex justify-between">
                         Savings Rate: <span className="font-medium text-title">{Math.round(((netflow)/inflow)*100*100)/100}%</span>
                     </p>
                 </div>
+                {bucket.bucket.bucketSourceId ? 
+                <>
+                    <hr className="text-border border-t w-full mt-2"/>
+                    <p className="text-xs text-title font-medium leading-none mb-1 mt-2">
+                        Reserve 
+                    </p>
+                    <div className="grid grid-cols-1 gap-y-1.5 gap-x-7">
+                        <p className="text-xs text-subtext1 flex justify-between">
+                            Reserve Amount: <span className="font-medium text-title">{Util.formatNum(Number(bucket.bucket.reserveAmount), true)}</span>
+                        </p>
+                        <p className="text-xs text-subtext1 flex justify-between">
+                            Reserve From: <span className="font-medium text-title">{Util.capFirst(data.buckets.get(bucket.bucket.bucketSourceId!)?.bucket.name ?? "")}</span>
+                        </p>
+                    </div>
+                </>
+                : null}
                 
                 {bucket!.bucket.accountType == AccountType.DeptAccount ? 
                 <>

@@ -105,7 +105,7 @@ export default function Home() {
                                     onSubmit={() => {setPageIndex(1)}}
                                     style="gap-1.5 w-full"/>
                                 <Button
-                                    name={"Simulate Your System"}
+                                    name={"Simulate"}
                                     highlight={false}
                                     icon={<FaAngleRight className="text-subtext2 sm:block hidden " size={0}/>}
                                     onSubmit={() => {

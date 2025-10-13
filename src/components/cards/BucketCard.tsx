@@ -25,9 +25,9 @@ export default function BucketCard({bucket, setEdit}: Props) {
 
     return (
         <div className="w-full bg-panel2 p-2 rounded-md text-subtext1 outline-1 outline-border2 flex justify-between items-center px-3">
-            <div className="flex flex-col gap-2 w-[80%]">
-                <div className="flex  gap-2 items-center ">
-                    <p className="text-title">
+            <div className="flex flex-col gap-2 w-[75%] ">
+                <div className="flex  gap-2 items-center w-full ">
+                    <p className="text-title overflow-ellipsis truncate">
                         {Util.capFirst(bucket.bucket.name)}
                     </p>
                     <p className="text-xs bg-btn text-btn-text px-1.5  py-[1px] rounded-full font-medium">

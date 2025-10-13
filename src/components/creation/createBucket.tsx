@@ -109,6 +109,8 @@ export default function CreateBucket() {
             formData.reserveAmount = bucket.bucket.reserveAmount!.toString()
         }else{
             formData.bucketSource = false
+            formData.selectedBucketItem = undefined
+            formData.reserveAmount = ""
         }
         
         if(bucket.bucket.accountType != AccountType.CashAccount){
@@ -136,34 +138,44 @@ export default function CreateBucket() {
             </h1>
             <CreateSourceForm sources={form.sources} setSources={(sources: Source[]) => setForm("sources", sources)} modifiedBucket={modifiedBucket}/>
             <div className="flex flex-col gap-4 pt-4">
-                <div className="flex items-center gap-3 justify-between">
-                    <h1 className="text-title  font-medium ">
-                        Optionally Add Reserve Bucket
-                    </h1>
-                    <Tick ticked={form.bucketSource} setTicked={value => setForm("bucketSource", value)}/>
-                </div>
-                {form.bucketSource ?
-                <div className="grid sm:grid-cols-2 grid-cols-1 gap-4">
-                    <TextBoxLimited
-                        name="Reserve Amount"
-                        charLimit={10}
-                        placeHolder="100"
-                        numeric={true}
-                        value={form.reserveAmount.toString()}
-                        setValue={v => setForm("reserveAmount", v)}
-                        infoText="If the money in the bucket falls below this amount the bucket will request money from the reserve bucket"/>
-                    <SelectInput data={{
-                        fullWidth: true,
-                        name: "Reserve Bucket Name",
-                        infoText: "If the bucket you are creating runs out of money it will take money from the bucket selected in this drop down",
-                        items: bucketItems,
-                        selectedItem: form.selectedBucketItem ?? null,
-                        defaultText: "Selected Reserve Bucket",
-                        setSelectedItem: (item) => setForm("selectedBucketItem", item)
-                    }}/>
-                </div>
+                {bucketItems.length > 0 ?
+                    <>
+                        <div className="flex items-center gap-3 justify-between">
+                            <h1 className="text-title  font-medium ">
+                                Optionally Add Reserve Bucket
+                            </h1>
+                            <Tick ticked={form.bucketSource} setTicked={value => {
+                                if(!value){
+                                    setForm("selectedBucketItem", undefined)
+                                    setForm("reserveAmount", "")
+                                }
+                                setForm("bucketSource", value)
+                            }}/>
+                        </div>
+                        {form.bucketSource ?
+                        <div className="grid sm:grid-cols-2 grid-cols-1 gap-4">
+                            <TextBoxLimited
+                                name="Reserve Amount"
+                                charLimit={10}
+                                placeHolder="100"
+                                numeric={true}
+                                value={form.reserveAmount.toString()}
+                                setValue={v => setForm("reserveAmount", v)}
+                                infoText="If the money in the bucket falls below this amount the bucket will request money from the reserve bucket"/>
+                            <SelectInput data={{
+                                fullWidth: true,
+                                name: "Reserve Bucket Name",
+                                infoText: "If the bucket you are creating runs out of money it will take money from the bucket selected in this drop down",
+                                items: bucketItems,
+                                selectedItem: form.selectedBucketItem ?? null,
+                                defaultText: "Selected Reserve Bucket",
+                                setSelectedItem: (item) => setForm("selectedBucketItem", item)
+                            }}/>
+                        </div>
+                        : null}
+                        <hr className="text-border border-t w-full mt-1 mb-1"/>
+                    </>
                 : null}
-                <hr className="text-border border-t w-full mt-1 mb-1"/>
                 <h1 className="text-title  font-medium ">
                     Add Bucket Details
                 </h1>

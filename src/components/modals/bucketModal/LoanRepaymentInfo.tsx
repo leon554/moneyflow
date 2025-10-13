@@ -36,19 +36,19 @@ export default function LoanRepaymentInfo({bucket, netflow}: Props) {
             </p>
             {!repaymentInfo?.message && repaymentInfo?
                 <div className="flex flex-col gap-1.5">
-                    <p className="text-xs text-subtext1">
+                    <p className="text-xs text-subtext1 flex justify-between">
                         Days until paid off: <span className="font-medium text-title">{Util.formatNum(repaymentInfo?.days ?? 0)} days</span>
                     </p>
-                    <p className="text-xs text-subtext1">
+                    <p className="text-xs text-subtext1 flex justify-between">
                         Years until paid off: <span className="font-medium text-title">{Util.formatNum((repaymentInfo?.days ?? 0)/365)} years</span>
                     </p>
-                    <p className="text-xs text-subtext1">
+                    <p className="text-xs text-subtext1 flex justify-between">
                         Date until paid off: <span className="font-medium text-title">{Util.formatDate(repaymentInfo?.payOffDate ?? new Date)}</span>
                     </p>
-                    <p className="text-xs text-subtext1">
+                    <p className="text-xs text-subtext1 flex justify-between">
                         Interest to be paid for remaining loan: <span className="font-medium text-title">{Util.formatNum(repaymentInfo?.interestPaid ?? 0, true)}</span>
                     </p>
-                    <p className="text-xs text-subtext1">
+                    <p className="text-xs text-subtext1 flex justify-between">
                         Amount to pay off remaining loan: <span className="font-medium text-title">{Util.formatNum(repaymentInfo?.amountPaid ?? 0, true)}</span>
                     </p>
                 </div> :

@@ -34,8 +34,6 @@ export class Bucket implements ISimulatable{
                 const b = buckets.get(p.sourceId)!
                 b.moneyFromBucketIntent(p.amount)
             })
-            console.log("inin")
-            console.log(...this.paymentsToBeReceived)
             return this.paymentsToBeReceived
         }
 

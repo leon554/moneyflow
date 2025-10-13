@@ -1,3 +1,4 @@
+import { AlertContext } from "@/Alert/AlertProvider"
 import { dataContext } from "@/providers/DataProvider"
 import type { IncomeSource } from "@/Util/classes/IncomeSource"
 import { Util } from "@/Util/util"
@@ -13,6 +14,7 @@ interface Props{
 export default function IncomeSourceCard({source, setEdit}: Props) {
 
     const data = useContext(dataContext)
+    const {alert} = useContext(AlertContext)
 
     function deleteIncomeSource(){
         if(source.destinationBucketsIds.length != 0){

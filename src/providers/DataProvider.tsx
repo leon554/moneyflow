@@ -123,19 +123,19 @@ export default function DataProvider({children}: Props) {
 
     function addIncomeSource(incomeSource: IncomeSource){
         const newMap = Util.updateMap(incomeSources, incomeSource.sourceData.id!, incomeSource)
-        setIncomeSourceData([...incomeSourceData, incomeSource.sourceData])
+        setIncomeSourceData([...incomeSourceData.filter(i => i.id! != incomeSource.sourceData.id), incomeSource.sourceData])
         setIncomeSources(newMap)
         setUpdated(!updated)
     }
     function addBucket(bucket: Bucket){
         const newMap = Util.updateMap(buckets, bucket.bucket.id!, bucket)
-        setBucketData([...bucketData, bucket.bucket])
+        setBucketData([...bucketData.filter(b => b.id != bucket.bucket.id!), bucket.bucket])
         setBuckets(newMap)
         setUpdated(!updated)
     }
     function addBill(bill: Bill){
         const newMap = Util.updateMap(bills, bill.billData.id!, bill)
-        setBillData([...billData, bill.billData])
+        setBillData([...billData.filter(b => b.id !+ bill.billData.id), bill.billData])
         setBills(newMap)
         setUpdated(!updated)
     }
@@ -220,7 +220,7 @@ export default function DataProvider({children}: Props) {
         })
         const organized = Array.from(map.values()).map(p => {
             const total = p.reduce((a, c) => a + c.amount, 0)
-            return { ...p[0], amount: total }  // new object, same structure
+            return { ...p[0], amount: total }  
         })
         return organized
     }
@@ -233,7 +233,6 @@ export default function DataProvider({children}: Props) {
         const billPayments = billArr.map(bill => bill.step(date, false, buckets)).flat()
         const bucketPayments = bucketArr.map(bucket => bucket.step(date, false, buckets)).flat()
 
-        console.log(bucketPayments)
         simTimeoutId.current = setTimeout(() => {
             incomeSourceArr.map(source => source.step(date, true, buckets))
             bucketArr.map(bucket => bucket.step(date, true, buckets))

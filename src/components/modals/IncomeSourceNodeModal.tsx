@@ -43,17 +43,17 @@ export default function IncomeSourceNodeModal({incomeSource, setOpen} : Props) {
             <p className="text-xs text-title font-medium leading-none mb-1 mt-2">
                 Pay Rate
             </p>
-            <div className="grid grid-cols-2 gap-1.5">
-                <p className="text-xs text-subtext2">
+            <div className="grid sm:grid-cols-2 grid-cols-1 gap-y-1.5 gap-x-7">
+                <p className="text-xs text-subtext2 flex justify-between">
                     Daily:  <span className="font-medium text-title">{Util.formatNum(Util.getPayPerDay(incomeSource!.sourceData.incomeAmount, incomeSource!.sourceData.incomeFrequency), true)}</span> 
                 </p>
-                <p className="text-xs text-subtext2">
+                <p className="text-xs text-subtext2 flex justify-between">
                     Weekly:  <span className="font-medium text-title">{Util.formatNum(Util.getPayPerDay(incomeSource!.sourceData.incomeAmount, incomeSource!.sourceData.incomeFrequency)*7, true)}</span> 
                 </p>
-                <p className="text-xs text-subtext2">
+                <p className="text-xs text-subtext2 flex justify-between">
                     Monthly:  <span className="font-medium text-title">{Util.formatNum(Util.getPayPerDay(incomeSource!.sourceData.incomeAmount, incomeSource!.sourceData.incomeFrequency)*30, true)} </span>
                 </p>
-                <p className="text-xs text-subtext2">
+                <p className="text-xs text-subtext2 flex justify-between">
                     Yearly:  <span className="font-medium text-title">{Util.formatNum(Util.getPayPerDay(incomeSource!.sourceData.incomeAmount, incomeSource!.sourceData.incomeFrequency)*365, true)} </span>
                 </p>
             </div>
