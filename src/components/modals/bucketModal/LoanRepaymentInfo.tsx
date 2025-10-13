@@ -2,14 +2,15 @@ import { useContext, useMemo } from "react"
 import { simUtil } from "@/Util/simUtil"
 import { dataContext } from "@/providers/DataProvider"
 import type { Bucket } from "@/Util/classes/Bucket"
-import { AccountType } from "@/Util/types"
+import { AccountType, type RecurringPayment } from "@/Util/types"
 import { Util } from "@/Util/util"
 
 interface Props{
     bucket: Bucket
     netflow: number
+    reservePayments: RecurringPayment
 }
-export default function LoanRepaymentInfo({bucket, netflow}: Props) {
+export default function LoanRepaymentInfo({bucket, netflow, reservePayments}: Props) {
 
     const data = useContext(dataContext)
 
@@ -22,7 +23,7 @@ export default function LoanRepaymentInfo({bucket, netflow}: Props) {
                 compoundFrequency: bucket.bucket.compoundFrequency
             }, 
             bucket.getIncomingPayments(data.incomeSources), 
-            bucket.getOutgoingPayments(data.bills),
+            [...bucket.getOutgoingPayments(data.bills), reservePayments],
             data.simulation?.date ?? new Date()
         ) : null, 
     [data.simulation?.date])
